@@ -1,0 +1,47 @@
+{
+  "name": "@mojaloop/central-services-error-handling",
+  "version": "0.2.2",
+  "description": "Hapi error handling module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "npm run test:unit | faucet",
+    "pretest": "standard",
+    "test:unit": "tape 'test/**/*.test.js'",
+    "test:xunit": "npm run test:unit | tap-xunit",
+    "test:coverage": "istanbul cover tape -- 'test/**/*.test.js'",
+    "test:coverage-check": "npm run test:coverage && istanbul check-coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mojaloop/central-services-error-handling.git"
+  },
+  "keywords": [
+    "central",
+    "services",
+    "hapi",
+    "error",
+    "handling"
+  ],
+  "author": "Dwolla",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mojaloop/central-services-error-handling/issues"
+  },
+  "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
+  "devDependencies": {
+    "boom": "^4.2.0",
+    "faucet": "0.0.1",
+    "istanbul": "^0.4.5",
+    "pre-commit": "^1.1.3",
+    "sinon": "^1.17.6",
+    "standard": "^8.5.0",
+    "tap-xunit": "^1.4.0",
+    "tape": "^4.6.2"
+  },
+  "dependencies": {
+    "@mojaloop/central-services-shared": "^0.2.0"
+  },
+  "publishConfig": {
+    "registry": "https://modusbox.jfrog.io/modusbox/api/npm/level1-npm-release"
+  }
+}
