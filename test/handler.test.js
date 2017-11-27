@@ -38,7 +38,7 @@ Test('error handler', handlerTest => {
       let response = Boom.wrap(error)
       let continuation = () => {
         test.equal(response.output.statusCode, 422)
-        test.equal(response.output.payload.error_id, 'TestError')
+        test.equal(response.output.payload.id, 'TestError')
         test.equal(response.output.payload.message, message)
         test.deepEqual(response.output.headers, {})
         test.end()
