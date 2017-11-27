@@ -42,6 +42,6 @@
     "@mojaloop/central-services-shared": "^0.2.0"
   },
   "publishConfig": {
-    "registry": "https://modusbox.jfrog.io/modusbox/api/npm/level1-npm-release"
+    "registry": "https://registry.npmjs.org/"
   }
 }
