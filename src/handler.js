@@ -7,7 +7,7 @@ const reformatBoomError = (response) => {
   let errorId = response.output.payload.error.replace(/ /gi, '')
   errorId += (errorId.endsWith('Error')) ? '' : 'Error'
   response.output.payload = {
-    error_id: errorId,
+    id: errorId,
     message: response.output.payload.message || response.message
   }
 }

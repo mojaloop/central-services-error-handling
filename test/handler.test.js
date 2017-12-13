@@ -38,7 +38,7 @@ Test('error handler', handlerTest => {
       let response = Boom.wrap(error)
       let continuation = () => {
         test.equal(response.output.statusCode, 422)
-        test.equal(response.output.payload.error_id, 'TestError')
+        test.equal(response.output.payload.id, 'TestError')
         test.equal(response.output.payload.message, message)
         test.deepEqual(response.output.headers, {})
         test.end()
@@ -56,7 +56,7 @@ Test('error handler', handlerTest => {
       let response = Boom.badRequest('some bad parameters')
       let continuation = () => {
         test.equal(response.output.statusCode, 400)
-        test.equal(response.output.payload.error_id, 'BadRequestError')
+        test.equal(response.output.payload.id, 'BadRequestError')
         test.equal(response.output.payload.message, message)
         test.end()
       }
@@ -71,7 +71,7 @@ Test('error handler', handlerTest => {
       response.message = 'An internal server error occurred'
       let continuation = () => {
         test.equal(response.output.statusCode, 500)
-        test.equal(response.output.payload.error_id, 'InternalServerError')
+        test.equal(response.output.payload.id, 'InternalServerError')
         test.equal(response.output.payload.message, 'An internal server error occurred')
         test.end()
       }
