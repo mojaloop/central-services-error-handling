@@ -13,7 +13,7 @@ jobs:
       - checkout
       - run:
           name: Update NPM install
-          command: 'sudo npm install'
+          command: sudo npm install
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
