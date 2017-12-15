@@ -21,7 +21,7 @@ jobs:
   test-unit:
     <<: *defaults
     steps:
-      # - checkout
+      - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run: 
@@ -38,7 +38,7 @@ jobs:
   test-coverage:
     <<: *defaults
     steps:
-      # - checkout
+      - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run: 
@@ -52,7 +52,7 @@ jobs:
   deploy:
     <<: *defaults
     steps:
-      # - checkout
+      - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
