@@ -1,4 +1,4 @@
-# CircleCI v2 Config test CI
+# CircleCI v2 Config
 version: 2
 
 defaults: &defaults

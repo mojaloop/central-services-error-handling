@@ -1,22 +1,5 @@
 instrumentation:
   include-all-sources: true
-reporting:
-    print: summary
-    reports:
-        - lcov
-        # - cobertura
-        - clover
-    dir: ./coverage
-    report-config:
-        clover: {file: clover.xml}
-        cobertura: {file: cobertura.xml}
-        # json: {file: coverage.json}
-        # json-summary: {file: coverage-summary.json}
-        # lcovonly: {file: lcov.info}
-        # teamcity: {file: null, blockName: Code Coverage Summary}
-        # text: {file: null, maxCols: 0}
-        # text-lcov: {file: lcov.txt}
-        text-summary: {file: summary.txt}
 check:
   global:
     statements: 100
