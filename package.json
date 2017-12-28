@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-error-handling",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Hapi error handling module",
   "main": "src/index.js",
   "scripts": {
@@ -39,9 +39,9 @@
     "tape": "^4.6.2"
   },
   "dependencies": {
-    "@mojaloop/central-services-shared": "^0.2.0"
+    "@mojaloop/central-services-shared": "^0.3.0"
   },
   "publishConfig": {
-    "registry": "https://modusbox.jfrog.io/modusbox/api/npm/level1-npm-release"
+    "registry": "https://registry.npmjs.org/"
   }
 }

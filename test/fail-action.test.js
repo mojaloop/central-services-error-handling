@@ -125,7 +125,7 @@ Test('FailAction should', failActionTest => {
 
     let reply = (err) => {
       test.ok(err instanceof ValidationErrors.InvalidBodyError)
-      test.deepEqual(err.payload.validation_errors, validationError.details.map(d => ({ message: d.message, params: d.context })))
+      test.deepEqual(err.payload.validationErrors, validationError.details.map(d => ({ message: d.message, params: d.context })))
       test.end()
     }
 
