@@ -23,19 +23,19 @@ let TestError = class extends BaseError {
 Test('error handler', handlerTest => {
   handlerTest.test('onPreResponse should', preResponse => {
     preResponse.test('do nothing if response not boom', test => {
-      let response = { isBoom: false }
+      let response = {isBoom: false}
       let continuation = () => {
-        test.deepEqual(response, { isBoom: false })
+        test.deepEqual(response, {isBoom: false})
         test.end()
       }
 
-      Handler.onPreResponse({ response: response }, reply(continuation))
+      Handler.onPreResponse({response: response}, reply(continuation))
     })
 
     preResponse.test('handle boom wrapped errors with category property', test => {
       let message = 'test'
       let error = new TestError(message)
-      let response = Boom.wrap(error)
+      let response = Boom.badData(error)
       let continuation = () => {
         test.equal(response.output.statusCode, 422)
         test.equal(response.output.payload.id, 'TestError')
@@ -61,12 +61,12 @@ Test('error handler', handlerTest => {
         test.end()
       }
 
-      Handler.onPreResponse({ response }, reply(continuation))
+      Handler.onPreResponse({response}, reply(continuation))
     })
 
     preResponse.test('return reasonable defaults', test => {
       let error = new Error(undefined)
-      let response = Boom.wrap(error)
+      let response = Boom.badImplementation(error)
       response.output.payload.message = null
       response.message = 'An internal server error occurred'
       let continuation = () => {
@@ -76,7 +76,7 @@ Test('error handler', handlerTest => {
         test.end()
       }
 
-      Handler.onPreResponse({ response: response }, reply(continuation))
+      Handler.onPreResponse({response: response}, reply(continuation))
     })
     preResponse.end()
   })

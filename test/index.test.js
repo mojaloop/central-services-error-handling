@@ -10,7 +10,7 @@ Test('error handler module', moduleTest => {
   moduleTest.test('register should', registerTest => {
     registerTest.test('wire Handler onPreResponse method to server onPreResponse event', test => {
       let extStub = Sinon.stub()
-      let server = { ext: extStub }
+      let server = {ext: extStub}
 
       let next = () => {
         test.ok(extStub.calledWith('onPreResponse', Handler.onPreResponse))
@@ -59,4 +59,3 @@ Test('error handler module', moduleTest => {
 
   moduleTest.end()
 })
-
