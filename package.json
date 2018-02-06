@@ -39,7 +39,7 @@
     "tape": "4.8.0"
   },
   "dependencies": {
-    "@mojaloop/central-services-shared": "^0.3.0"
+    "@mojaloop/central-services-shared": "0.3.0"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
