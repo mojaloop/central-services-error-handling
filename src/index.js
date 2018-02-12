@@ -4,14 +4,15 @@ const Handler = require('./handler')
 const FailAction = require('./fail-action')
 const ValidationErrors = require('./validation-errors')
 
-exports.register = (server, options, next) => {
+exports.register = (server, options) => {
   server.ext('onPreResponse', Handler.onPreResponse)
-  next()
 }
 
 exports.register.attributes = {
   name: 'error-handler'
 }
+
+exports.name = 'error-handler'
 
 exports.validateRoutes = (options = {}) => {
   options.abortEarly = false
