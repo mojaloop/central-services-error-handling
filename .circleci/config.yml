@@ -108,7 +108,7 @@ jobs:
             if [ "${CIRCLE_BRANCH}" == "develop-test" ];
             then
                 echo "Sending lcov.info to SonarQube... "  
-                aws s3 cp coverage/lcov.info $AWS_S3_DIR_SONARQUBE/central-services-auth/lcov.info
+                aws s3 cp coverage/lcov.info $AWS_S3_DIR_SONARQUBE/central-services-error-handling/lcov.info
             else
                 echo "Not a release (env CIRCLE_BRANCH != 'master'), skipping sending lcov.info to SonarQube." 
             fi 
