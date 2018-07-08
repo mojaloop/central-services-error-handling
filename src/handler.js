@@ -23,6 +23,5 @@ exports.onPreResponse = function (request, reply) {
       reformatBoomError(response)
     }
   }
-
-  return reply.continue()
+  return reply.continue
 }
