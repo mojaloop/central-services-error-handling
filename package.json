@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "devDependencies": {
-    "boom": "7.1.1",
+    "boom": "7.2.0",
     "faucet": "0.0.1",
     "istanbul": "0.4.5",
     "pre-commit": "1.2.2",
