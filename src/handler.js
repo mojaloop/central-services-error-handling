@@ -12,7 +12,7 @@ const reformatBoomError = (response) => {
   }
 }
 
-exports.onPreResponse = (request, reply) => {
+exports.onPreResponse = function (request, reply) {
   let response = request.response
   if (response.isBoom) {
     if (response.category) {
@@ -23,6 +23,5 @@ exports.onPreResponse = (request, reply) => {
       reformatBoomError(response)
     }
   }
-
-  return reply.continue()
+  return reply.continue
 }

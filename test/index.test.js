@@ -4,24 +4,19 @@ const Test = require('tape')
 const Sinon = require('sinon')
 const Handler = require('../src/handler')
 const Module = require('../src/index')
-const FailAction = require('../src/fail-action')
 
 Test('error handler module', moduleTest => {
   moduleTest.test('register should', registerTest => {
-    registerTest.test('wire Handler onPreResponse method to server onPreResponse event', test => {
+    registerTest.test('wire Handler onPreResponse method to server onPreResponse event', async function (test) {
       let extStub = Sinon.stub()
-      let server = { ext: extStub }
-
-      let next = () => {
-        test.ok(extStub.calledWith('onPreResponse', Handler.onPreResponse))
-        test.end()
-      }
-
-      Module.register(server, {}, next)
+      let server = {ext: extStub}
+      await Module.plugin.register(server, {})
+      test.ok(extStub.calledWith('onPreResponse', Handler.onPreResponse))
+      test.end()
     })
 
     registerTest.test('be named error-handler', test => {
-      test.equal(Module.register.attributes.name, 'error-handler')
+      test.equal(Module.plugin.name, 'error-handler')
       test.end()
     })
 
@@ -29,12 +24,11 @@ Test('error handler module', moduleTest => {
   })
 
   moduleTest.test('validateRoutes should', validateRoutesTest => {
-    validateRoutesTest.test('return failAction and default options', test => {
-      const result = Module.validateRoutes()
+    validateRoutesTest.test('return failAction and default options', async function (test) {
+      const result = await Module.validateRoutes()
 
-      test.equal(result.failAction, FailAction)
-      test.equal(result.options.abortEarly, false)
-      test.equal(result.options.language.key, '{{!key}} ')
+      test.equal(result.abortEarly, false)
+      test.equal(result.language.key, '{{!key}} ')
       test.end()
     })
 
@@ -47,10 +41,9 @@ Test('error handler module', moduleTest => {
         others: 'others'
       })
 
-      test.equal(result.failAction, FailAction)
-      test.equal(result.options.abortEarly, false)
-      test.equal(result.options.language.key, '{{!key}} ')
-      test.equal(result.options.others, 'others')
+      test.equal(result.abortEarly, false)
+      test.equal(result.language.key, '{{!key}} ')
+      test.equal(result.others, 'others')
       test.end()
     })
 
@@ -59,4 +52,3 @@ Test('error handler module', moduleTest => {
 
   moduleTest.end()
 })
-

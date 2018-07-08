@@ -1,16 +1,13 @@
 'use strict'
 
 const Handler = require('./handler')
-const FailAction = require('./fail-action')
 const ValidationErrors = require('./validation-errors')
 
-exports.register = (server, options, next) => {
-  server.ext('onPreResponse', Handler.onPreResponse)
-  next()
-}
-
-exports.register.attributes = {
-  name: 'error-handler'
+exports.plugin = {
+  name: 'error-handler',
+  register: function (server, options) {
+    server.ext('onPreResponse', Handler.onPreResponse)
+  }
 }
 
 exports.validateRoutes = (options = {}) => {
@@ -18,10 +15,7 @@ exports.validateRoutes = (options = {}) => {
   let language = options.language || {}
   language.key = '{{!key}} '
   options.language = language
-  return {
-    failAction: FailAction,
-    options: options
-  }
+  return options
 }
 
 exports.InvalidBodyError = ValidationErrors.InvalidBodyError

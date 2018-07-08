@@ -116,8 +116,8 @@ Test('FailAction should', failActionTest => {
     let validationError = new Error()
     validationError.name = 'ValidationError'
     validationError.details = [
-      { message: 'message 1', context: 'context 1' },
-      { message: 'message 2', context: 'context 2' }
+      {message: 'message 1', context: 'context 1'},
+      {message: 'message 2', context: 'context 2'}
     ]
     let error = {
       data: validationError
@@ -125,7 +125,10 @@ Test('FailAction should', failActionTest => {
 
     let reply = (err) => {
       test.ok(err instanceof ValidationErrors.InvalidBodyError)
-      test.deepEqual(err.payload.validationErrors, validationError.details.map(d => ({ message: d.message, params: d.context })))
+      test.deepEqual(err.payload.validationErrors, validationError.details.map(d => ({
+        message: d.message,
+        params: d.context
+      })))
       test.end()
     }
 
