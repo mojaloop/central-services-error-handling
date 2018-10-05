@@ -49,6 +49,23 @@ Test('error handler', handlerTest => {
       test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
       test.end()
     })
+  // Busy here
+    preResponse.test('Response is Joi validation error with parsing exception', async function (test) {
+      let response = {
+        isBoom: true,
+        isJoi: true,
+        output:
+        {
+          payload:
+          {
+            error: 'BadRequest'
+          }
+        }
+      }
+      Handler.onPreResponse({response: response}, {})
+      test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
+      test.end()
+    })
 
     preResponse.test('handle boom wrapped errors with category property', async function (test) {
       let message = 'test'
