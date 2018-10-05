@@ -14,12 +14,7 @@ const parseErrorMessage = (payloadErrMsg) => {
     match = match.toString().replace(/"/g, '')
     match = match.toString().replace(/\./g, '')
     var simplifiedErrorMessage = match.trim()
-
-    if (simplifiedErrorMessage) {
-      return simplifiedErrorMessage
-    } else {
-      return payloadErrMsg
-    }
+    return simplifiedErrorMessage
   } catch (err) {
     Logger.info('Function (parseErrorMessage) has failed to extract the user friendly error msg from the following Joi error object : ' + payloadErrMsg)
     return payloadErrMsg

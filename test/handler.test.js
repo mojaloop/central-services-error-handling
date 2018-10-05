@@ -49,7 +49,7 @@ Test('error handler', handlerTest => {
       test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
       test.end()
     })
-  // Busy here
+
     preResponse.test('Response is Joi validation error with parsing exception', async function (test) {
       let response = {
         isBoom: true,
@@ -58,6 +58,24 @@ Test('error handler', handlerTest => {
         {
           payload:
           {
+            error: 'BadRequest'
+          }
+        }
+      }
+      Handler.onPreResponse({response: response}, {})
+      test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
+      test.end()
+    })
+// busy here
+    preResponse.test('Response is Joi validation error and extraction of simplified message fails', async function (test) {
+      let response = {
+        isBoom: true,
+        isJoi: true,
+        output:
+        {
+          payload:
+          {
+            message: 'ValidationError: child "amount" fails because [child fails because [amount with value "1y.12" fails to match the required pattern: /^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$/]]',
             error: 'BadRequest'
           }
         }
