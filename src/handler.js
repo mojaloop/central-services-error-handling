@@ -2,7 +2,6 @@
 
 const Logger = require('@mojaloop/central-services-shared').Logger
 const Shared = require('@mojaloop/central-services-shared')
-const Boom = require('boom')
 const ErrorCategory = Shared.ErrorCategory
 
 // Extract the error message between the "'@  @'" tags from the Joi payload error object
@@ -28,40 +27,35 @@ const parseErrorMessage = (payloadErrMsg) => {
 }
 
 const reformatBoomError = (response) => {
-  try {
-    let errorId = response.output.payload.error.replace(/ /gi, '')
-    errorId += (errorId.endsWith('Error')) ? '' : 'Error'
+  let errorId = response.output.payload.error.replace(/ /gi, '')
+  errorId += (errorId.endsWith('Error')) ? '' : 'Error'
 
   // Check if it is a Joi/Boom err
-    if (response.isJoi) {
-      let simplifiedErrorMessage = parseErrorMessage(response.output.payload.message)
+  if (response.isJoi) {
+    let simplifiedErrorMessage = parseErrorMessage(response.output.payload.message)
 
-      response.output.payload = {
-        errorInformation:
+    response.output.payload = {
+      errorInformation:
+      {
+        errorCode: response.output.statusCode,
+        errorDescription: response.output.payload.error,
+        extentionList:
         {
-          errorCode: response.output.statusCode,
-          errorDescription: response.output.payload.error,
-          extentionList:
-          {
-            extention:
-            [
-              {
-                key: 'joiValidationError',
-                value: simplifiedErrorMessage
-              }
-            ]
-          }
+          extention:
+          [
+            {
+              key: 'joiValidationError',
+              value: simplifiedErrorMessage
+            }
+          ]
         }
       }
-    } else {
-      response.output.payload = {
-        id: errorId,
-        message: response.output.payload.message || response.message
-      }
     }
-  } catch (err) {
-    Logger.info('reformatBoomError has failed' + err)
-    throw Boom.boomify(err, {message: 'An error has occurred'})
+  } else {
+    response.output.payload = {
+      id: errorId,
+      message: response.output.payload.message || response.message
+    }
   }
 }
 
