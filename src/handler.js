@@ -1,14 +1,56 @@
 'use strict'
 
+const Logger = require('@mojaloop/central-services-shared').Logger
 const Shared = require('@mojaloop/central-services-shared')
 const ErrorCategory = Shared.ErrorCategory
+
+// Extract the error message between the "'@  @'" tags from the Joi payload error object
+const parseErrorMessage = (payloadErrMsg) => {
+  try {
+    var regex = /("@\s).*?(.\s@")/
+    var match = regex.exec(payloadErrMsg)
+    match = match.toString().replace(/@/g, '')
+    match = match.toString().replace(/,/g, '')
+    match = match.toString().replace(/"/g, '')
+    match = match.toString().replace(/\./g, '')
+    var simplifiedErrorMessage = match.trim()
+    return simplifiedErrorMessage
+  } catch (err) {
+    Logger.info('Function (parseErrorMessage) has failed to extract the user friendly error msg from the following Joi error object : ' + payloadErrMsg)
+    return payloadErrMsg
+  }
+}
 
 const reformatBoomError = (response) => {
   let errorId = response.output.payload.error.replace(/ /gi, '')
   errorId += (errorId.endsWith('Error')) ? '' : 'Error'
-  response.output.payload = {
-    id: errorId,
-    message: response.output.payload.message || response.message
+
+  // Check if it is a Joi/Boom err
+  if (response.isJoi) {
+    let simplifiedErrorMessage = parseErrorMessage(response.output.payload.message)
+
+    response.output.payload = {
+      errorInformation:
+      {
+        errorCode: response.output.statusCode,
+        errorDescription: response.output.payload.error,
+        extentionList:
+        {
+          extention:
+          [
+            {
+              key: 'joiValidationError',
+              value: simplifiedErrorMessage
+            }
+          ]
+        }
+      }
+    }
+  } else {
+    response.output.payload = {
+      id: errorId,
+      message: response.output.payload.message || response.message
+    }
   }
 }
 

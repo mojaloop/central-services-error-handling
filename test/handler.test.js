@@ -16,11 +16,72 @@ let TestError = class extends BaseError {
 
 Test('error handler', handlerTest => {
   handlerTest.test('onPreResponse should', preResponse => {
-    preResponse.test('do nothing if response not boom', async function (test) {
-      let response = {isBoom: false}
-
+    preResponse.test('Response is a Boom validation Error', async function (test) {
+      let response = {
+        isBoom: true,
+        output:
+        {
+          payload:
+          {
+            error: 'BadRequest'
+          }
+        }
+      }
       Handler.onPreResponse({response: response}, {})
-      test.deepEqual(response, {isBoom: false})
+      test.equal(response.output.payload.id, 'BadRequestError')
+      test.end()
+    })
+
+    preResponse.test('Response is Joi validation error', async function (test) {
+      let response = {
+        isBoom: true,
+        isJoi: true,
+        output:
+        {
+          payload:
+          {
+            message: 'ValidationError: child "amount" fails because [child "@ Supplied amount fails to match the required format. @" fails because [amount with value "1y.12" fails to match the required pattern: /^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$/]]',
+            error: 'BadRequest'
+          }
+        }
+      }
+      Handler.onPreResponse({response: response}, {})
+      test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
+      test.end()
+    })
+
+    preResponse.test('Response is Joi validation error with parsing exception', async function (test) {
+      let response = {
+        isBoom: true,
+        isJoi: true,
+        output:
+        {
+          payload:
+          {
+            error: 'BadRequest'
+          }
+        }
+      }
+      Handler.onPreResponse({response: response}, {})
+      test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
+      test.end()
+    })
+// busy here
+    preResponse.test('Response is Joi validation error and extraction of simplified message fails', async function (test) {
+      let response = {
+        isBoom: true,
+        isJoi: true,
+        output:
+        {
+          payload:
+          {
+            message: 'ValidationError: child "amount" fails because [child fails because [amount with value "1y.12" fails to match the required pattern: /^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$/]]',
+            error: 'BadRequest'
+          }
+        }
+      }
+      Handler.onPreResponse({response: response}, {})
+      test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
       test.end()
     })
 
