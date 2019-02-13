@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-error-handling",
-  "version": "2.0.0-snapshot",
+  "version": "5.1.0",
   "description": "Hapi error handling module",
   "main": "src/index.js",
   "scripts": {
@@ -29,14 +29,14 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "devDependencies": {
-    "boom": "7.1.1",
+    "boom": "7.3.0",
     "faucet": "0.0.1",
     "istanbul": "0.4.5",
     "pre-commit": "1.2.2",
-    "sinon": "4.2.2",
-    "standard": "10.0.3",
-    "tap-xunit": "2.2.0",
-    "tape": "4.8.0"
+    "sinon": "7.2.3",
+    "standard": "12.0.1",
+    "tap-xunit": "2.3.0",
+    "tape": "4.10.0"
   },
   "dependencies": {
     "@mojaloop/central-services-shared": "0.4.0"

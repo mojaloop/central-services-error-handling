@@ -8,7 +8,7 @@ const InvalidHeaderError = ValidationErrors.InvalidHeaderError
 
 const reformatValidationError = (source, error) => {
   let data = error.data
-  let details = (data.details || []).map(d => ({message: d.message, params: d.context}))
+  let details = (data.details || []).map(d => ({ message: d.message, params: d.context }))
   switch (source) {
     case 'payload':
       return new InvalidBodyError(...details)
