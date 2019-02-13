@@ -16,6 +16,21 @@ let TestError = class extends BaseError {
 
 Test('error handler', handlerTest => {
   handlerTest.test('onPreResponse should', preResponse => {
+    preResponse.test('Response is not Boom validation Error', async function (test) {
+      let response = {
+        isBoom: false,
+        output:
+        {
+          payload:
+          {
+            error: 'BadRequest'
+          }
+        }
+      }
+      test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+      test.end()
+    })
+
     preResponse.test('Response is a Boom validation Error', async function (test) {
       let response = {
         isBoom: true,
@@ -27,7 +42,7 @@ Test('error handler', handlerTest => {
           }
         }
       }
-      Handler.onPreResponse({response: response}, {})
+      Handler.onPreResponse({ response: response }, {})
       test.equal(response.output.payload.id, 'BadRequestError')
       test.end()
     })
@@ -45,7 +60,7 @@ Test('error handler', handlerTest => {
           }
         }
       }
-      Handler.onPreResponse({response: response}, {})
+      Handler.onPreResponse({ response: response }, {})
       test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
       test.end()
     })
@@ -62,11 +77,11 @@ Test('error handler', handlerTest => {
           }
         }
       }
-      Handler.onPreResponse({response: response}, {})
+      Handler.onPreResponse({ response: response }, {})
       test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
       test.end()
     })
-// busy here
+    // busy here
     preResponse.test('Response is Joi validation error and extraction of simplified message fails', async function (test) {
       let response = {
         isBoom: true,
@@ -80,7 +95,7 @@ Test('error handler', handlerTest => {
           }
         }
       }
-      Handler.onPreResponse({response: response}, {})
+      Handler.onPreResponse({ response: response }, {})
       test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
       test.end()
     })
@@ -105,7 +120,7 @@ Test('error handler', handlerTest => {
       let message = 'some bad parameters'
       let response = Boom.badRequest('some bad parameters')
 
-      Handler.onPreResponse({response}, {})
+      Handler.onPreResponse({ response }, {})
       test.equal(response.output.statusCode, 400)
       test.equal(response.output.payload.id, 'BadRequestError')
       test.equal(response.output.payload.message, message)
@@ -117,7 +132,7 @@ Test('error handler', handlerTest => {
       let response = Boom.badImplementation(error)
       response.output.payload.message = null
       response.message = 'An internal server error occurred'
-      Handler.onPreResponse({response: response}, {})
+      Handler.onPreResponse({ response: response }, {})
       test.equal(response.output.statusCode, 500)
       test.equal(response.output.payload.id, 'InternalServerError')
       test.equal(response.output.payload.message, 'An internal server error occurred')
