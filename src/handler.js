@@ -7,13 +7,13 @@ const ErrorCategory = Shared.ErrorCategory
 // Extract the error message between the "'@  @'" tags from the Joi payload error object
 const parseErrorMessage = (payloadErrMsg) => {
   try {
-    var regex = /("@\s).*?(.\s@")/
-    var match = regex.exec(payloadErrMsg)
+    let regex = /("@\s).*?(.\s@")/
+    let match = regex.exec(payloadErrMsg)
     match = match.toString().replace(/@/g, '')
     match = match.toString().replace(/,/g, '')
     match = match.toString().replace(/"/g, '')
     match = match.toString().replace(/\./g, '')
-    var simplifiedErrorMessage = match.trim()
+    let simplifiedErrorMessage = match.trim()
     return simplifiedErrorMessage
   } catch (err) {
     Logger.info('Function (parseErrorMessage) has failed to extract the user friendly error msg from the following Joi error object : ' + payloadErrMsg)
@@ -34,9 +34,9 @@ const reformatBoomError = (response) => {
       {
         errorCode: response.output.statusCode,
         errorDescription: response.output.payload.error,
-        extentionList:
+        extensionList:
         {
-          extention:
+          extension:
           [
             {
               key: 'joiValidationError',
