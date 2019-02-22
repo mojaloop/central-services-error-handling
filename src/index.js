@@ -5,7 +5,7 @@ const ValidationErrors = require('./validation-errors')
 
 exports.plugin = {
   name: 'error-handler',
-  register: function (server, options) {
+  register: function (server) {
     server.ext('onPreResponse', Handler.onPreResponse)
   }
 }
