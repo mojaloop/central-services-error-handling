@@ -3,6 +3,7 @@
 const Logger = require('@mojaloop/central-services-shared').Logger
 const Shared = require('@mojaloop/central-services-shared')
 const ErrorCategory = Shared.ErrorCategory
+const Factory = require('./factory')
 
 // Extract the error message between the "'@  @'" tags from the Joi payload error object
 const parseErrorMessage = (payloadErrMsg) => {
@@ -47,9 +48,13 @@ const reformatBoomError = (response) => {
       }
     }
   } else {
-    response.output.payload = {
-      id: errorId,
-      message: response.output.payload.message || response.message
+    if (response instanceof Factory.FSPIOPError) {
+      response.output.payload = response.toApiErrorObject()
+    } else {
+      response.output.payload = {
+        id: errorId,
+        message: response.output.payload.message || response.message
+      }
     }
   }
 }
@@ -66,4 +71,8 @@ exports.onPreResponse = function (request, reply) {
     }
   }
   return reply.continue
+}
+
+exports.joiErrorHandler = (errors) => {
+  return Factory.createFSPIOPErrorFromJoiErrors(errors)
 }
