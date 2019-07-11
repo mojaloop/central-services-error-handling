@@ -26,4 +26,3 @@ exports.InvalidUriParameterError = ValidationErrors.InvalidUriParameterError
 exports.InvalidHeaderError = ValidationErrors.InvalidHeaderError
 exports.Factory = Factory
 exports.Enums = Enums
-exports.joiErrorHandler = Handler.joiErrorHandler

@@ -61,14 +61,19 @@ class FSPIOPError extends MojaloopFSPIOPError {
   }
 }
 
+const getReplyToFromRequestHeaders = (request) => {
+  return (request.headers && request.headers['fspiop-source']) ? request.headers['fspiop-source'] : null
+}
+
 const createFSPIOPError = (cause, message, replyTo, apiErrorCode, extensions) => {
   return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions)
 }
 
-const createFSPIOPErrorFromJoiErrors = (errors) => {
-  // TODO construct the error using the Joi data (if Joi)
-  // TODO add cause to the extensions list if there is one, key to be 'cause'
-  let apiErrorCode = ((type) => {
+const createFSPIOPErrorFromJoiErrors = (request) => {
+  const response = request.response
+  const error = request.response.details[0]
+
+  let fspiopError = ((type) => {
     switch (type) {
       case 'any.required':
       case 'any.empty':
@@ -82,15 +87,37 @@ const createFSPIOPErrorFromJoiErrors = (errors) => {
       default:
         return Errors.VALIDATION_ERROR
     }
-  })(errors[0].type)
+  })(error.type)
 
-  return createFSPIOPError(errors, errors[0].context.label, null, apiErrorCode, [
-    // { key: 'cause', value: errors[0].cause ? errors[0].cause.stack || util.inspect(errors[0].cause) : undefined }
+  return createFSPIOPError(response, error.context.label, getReplyToFromRequestHeaders(request), fspiopError, [
+    { key: 'cause', value: response.stack }
+  ])
+}
+
+const createFSPIOPErrorFromBoomError = (request) => {
+  const response = request.response
+
+  const fspiopError = ((httpStatusCode) => {
+    switch (httpStatusCode) {
+      case 400:
+        return Errors.CLIENT_ERROR
+
+      case 404:
+        return Errors.UNKNOWN_URI
+
+      default:
+        return Errors.SERVER_ERROR
+    }
+  })(response.output.statusCode)
+
+  return createFSPIOPError(response, response.message, getReplyToFromRequestHeaders(request), fspiopError, [
+    { key: 'cause', value: response.stack }
   ])
 }
 
 module.exports = {
   FSPIOPError,
   createFSPIOPError,
-  createFSPIOPErrorFromJoiErrors
+  createFSPIOPErrorFromJoiErrors,
+  createFSPIOPErrorFromBoomError
 }
