@@ -61,18 +61,11 @@ class FSPIOPError extends MojaloopFSPIOPError {
   }
 }
 
-const getReplyToFromRequestHeaders = (request) => {
-  return (request.headers && request.headers['fspiop-source']) ? request.headers['fspiop-source'] : null
-}
-
 const createFSPIOPError = (cause, message, replyTo, apiErrorCode, extensions) => {
   return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions)
 }
 
-const createFSPIOPErrorFromJoiErrors = (request) => {
-  const response = request.response
-  const error = request.response.details[0]
-
+const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
   let fspiopError = ((type) => {
     switch (type) {
       case 'any.required':
@@ -89,35 +82,16 @@ const createFSPIOPErrorFromJoiErrors = (request) => {
     }
   })(error.type)
 
-  return createFSPIOPError(response, error.context.label, getReplyToFromRequestHeaders(request), fspiopError, [
-    { key: 'cause', value: response.stack }
-  ])
-}
+  let extensions
+  if (cause) {
+    extensions = [{ key: 'cause', value: cause.stack }]
+  }
 
-const createFSPIOPErrorFromBoomError = (request) => {
-  const response = request.response
-
-  const fspiopError = ((httpStatusCode) => {
-    switch (httpStatusCode) {
-      case 400:
-        return Errors.CLIENT_ERROR
-
-      case 404:
-        return Errors.UNKNOWN_URI
-
-      default:
-        return Errors.SERVER_ERROR
-    }
-  })(response.output.statusCode)
-
-  return createFSPIOPError(response, response.message, getReplyToFromRequestHeaders(request), fspiopError, [
-    { key: 'cause', value: response.stack }
-  ])
+  return createFSPIOPError(cause, error.context.label, replyTo, fspiopError, extensions)
 }
 
 module.exports = {
   FSPIOPError,
   createFSPIOPError,
-  createFSPIOPErrorFromJoiErrors,
-  createFSPIOPErrorFromBoomError
+  createFSPIOPErrorFromJoiError
 }

@@ -28,11 +28,39 @@
 'use strict'
 
 const Factory = require('./factory')
+const Errors = require('./enums').FSPIOPErrorCodes
+
+const getReplyToFromRequestHeaders = (request) => {
+  return (request.headers && request.headers['fspiop-source']) ? request.headers['fspiop-source'] : null
+}
+
+const createFSPIOPErrorFromBoomError = (request, response) => {
+  const fspiopError = ((httpStatusCode) => {
+    switch (httpStatusCode) {
+      case 400:
+        return Errors.CLIENT_ERROR
+
+      case 404:
+        return Errors.UNKNOWN_URI
+
+      default:
+        return Errors.SERVER_ERROR
+    }
+  })(response.output.statusCode)
+
+  return Factory.createFSPIOPError(response, response.message, getReplyToFromRequestHeaders(request), fspiopError, [
+    { key: 'cause', value: response.stack }
+  ])
+}
 
 const reformatBoomError = (request, response) => {
-  const fspiopError = response.isJoi
-    ? Factory.createFSPIOPErrorFromJoiErrors(request)
-    : Factory.createFSPIOPErrorFromBoomError(request)
+  let fspiopError
+  if (response.isJoi) {
+    const replyTo = getReplyToFromRequestHeaders(request)
+    fspiopError = Factory.createFSPIOPErrorFromJoiError(request.response.details[0], response, replyTo)
+  } else {
+    fspiopError = createFSPIOPErrorFromBoomError(request, response)
+  }
 
   if (!response.output) {
     response.output = {}
