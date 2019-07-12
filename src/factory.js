@@ -54,7 +54,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
       errorDescription = `${errorDescription} - ${this.message}`
     }
 
-    let e = {
+    const e = {
       errorInformation: {
         errorCode: this.apiErrorCode.code,
         errorDescription
@@ -92,7 +92,7 @@ const createFSPIOPError = (cause, message, replyTo, apiErrorCode, extensions) =>
  * @returns {FSPIOPError}
  */
 const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
-  let fspiopError = ((type) => {
+  const fspiopError = ((type) => {
     switch (type) {
       case 'any.required':
       case 'any.empty':

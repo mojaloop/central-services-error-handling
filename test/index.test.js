@@ -8,8 +8,8 @@ const Module = require('../src/index')
 Test('error handler module', moduleTest => {
   moduleTest.test('register should', registerTest => {
     registerTest.test('wire Handler onPreResponse method to server onPreResponse event', async function (test) {
-      let extStub = Sinon.stub()
-      let server = { ext: extStub }
+      const extStub = Sinon.stub()
+      const server = { ext: extStub }
       await Module.plugin.register(server, {})
       test.ok(extStub.calledWith('onPreResponse', Handler.onPreResponse))
       test.end()

@@ -58,15 +58,15 @@ Test('Factory should', factoryTest => {
         label: 'Field is required'
       }
     }
-    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, { 'stack': 'Stack trace...' }, 'dfsp1')
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, { stack: 'Stack trace...' }, 'dfsp1')
     test.ok(fspiopError)
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
         errorCode: '3102',
         errorDescription: 'Missing mandatory element - Field is required',
-        extensionList: [ {
+        extensionList: [{
           key: 'cause',
-          value: 'Stack trace...' } ] }
+          value: 'Stack trace...' }] }
     })
     test.end()
   })

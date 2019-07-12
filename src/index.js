@@ -14,7 +14,7 @@ exports.plugin = {
 
 exports.validateRoutes = (options = {}) => {
   options.abortEarly = false
-  let language = options.language || {}
+  const language = options.language || {}
   language.key = '{{!key}} '
   options.language = language
   return options

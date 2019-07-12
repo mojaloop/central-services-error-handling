@@ -28,13 +28,13 @@
 'use strict'
 
 const Test = require('tape')
-const Boom = require('boom')
+const Boom = require('@hapi/boom')
 
 const Handler = require('../src/handler')
 
 Test('Handler should', handlerTest => {
   handlerTest.test('handle non error responses', async function (test) {
-    let response = {
+    const response = {
       isBoom: false
     }
     test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
@@ -42,7 +42,7 @@ Test('Handler should', handlerTest => {
   })
 
   handlerTest.test('handle Boom errors', async function (test) {
-    let response = {
+    const response = {
       isBoom: true,
       output:
         {
@@ -58,7 +58,7 @@ Test('Handler should', handlerTest => {
   })
 
   handlerTest.test('handle Boom generated errors', async function (test) {
-    let response = Boom.badRequest('some bad parameters')
+    const response = Boom.badRequest('some bad parameters')
 
     Handler.onPreResponse({ response }, {})
     test.equal(response.output.statusCode, 400)
@@ -68,7 +68,7 @@ Test('Handler should', handlerTest => {
   })
 
   handlerTest.test('handle a Boom 404 error', async function (test) {
-    let response = Boom.notFound('Not Found')
+    const response = Boom.notFound('Not Found')
 
     Handler.onPreResponse({ response }, {})
     test.equal(response.output.statusCode, 404)
@@ -78,7 +78,7 @@ Test('Handler should', handlerTest => {
   })
 
   handlerTest.test('handle JOI validation errors', async function (test) {
-    let response = {
+    const response = {
       isBoom: true,
       isJoi: true,
       details: [{
