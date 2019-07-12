@@ -79,7 +79,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
  * @param extensions additional information to associate with the error
  * @returns {FSPIOPError}
  */
-const createFSPIOPError = (cause, message, replyTo, apiErrorCode, extensions) => {
+const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions) => {
   return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions)
 }
 
@@ -113,7 +113,7 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
     extensions = [{ key: 'cause', value: cause.stack }]
   }
 
-  return createFSPIOPError(cause, error.context.label, replyTo, fspiopError, extensions)
+  return createFSPIOPError(fspiopError, error.context.label, cause, replyTo, extensions)
 }
 
 module.exports = {

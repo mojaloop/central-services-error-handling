@@ -48,7 +48,7 @@ const createFSPIOPErrorFromBoomError = (request, response) => {
     }
   })(response.output.statusCode)
 
-  return Factory.createFSPIOPError(response, response.message, getReplyToFromRequestHeaders(request), fspiopError, [
+  return Factory.createFSPIOPError(fspiopError, response.message, response, getReplyToFromRequestHeaders(request), [
     { key: 'cause', value: response.stack }
   ])
 }
