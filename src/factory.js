@@ -32,6 +32,14 @@
 const Errors = require('./enums').FSPIOPErrorCodes
 const MojaloopFSPIOPError = require('@modusbox/mojaloop-sdk-standard-components').Errors.MojaloopFSPIOPError
 
+/**
+ * See section 7.6 of "API Definition v1.0.docx". Note that some of the these
+ * error objects contain an httpStatusCode property that indicates the HTTP
+ * response code for cases where errors are returned immediately i.e. upon
+ * request, rather than on callback.  Those error objects that do not contain
+ * an httpStatusCode property are expected to only be returned to callers in
+ * error callbacks after the initial request was accepted with a 202/200.
+ */
 class FSPIOPError extends MojaloopFSPIOPError {
   /**
    * Returns an object that complies with the API specification for error bodies.
@@ -61,10 +69,28 @@ class FSPIOPError extends MojaloopFSPIOPError {
   }
 }
 
+/**
+ * Factory method to create a new FSPIOPError.
+ *
+ * @param cause the original Error
+ * @param message a description of the error
+ * @param replyTo the FSP to notify of the error
+ * @param apiErrorCode the FSPIOP Error enum
+ * @param extensions additional information to associate with the error
+ * @returns {FSPIOPError}
+ */
 const createFSPIOPError = (cause, message, replyTo, apiErrorCode, extensions) => {
   return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions)
 }
 
+/**
+ * Factory method to create an FSPIOPError from a Joi error.
+ *
+ * @param error the Joi error
+ * @param cause an Error to use as the cause of the error if available
+ * @param replyTo the FSP to notify of the error if applicable
+ * @returns {FSPIOPError}
+ */
 const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
   let fspiopError = ((type) => {
     switch (type) {

@@ -72,6 +72,15 @@ const reformatBoomError = (request, response) => {
   }
 }
 
+/**
+ * Function to be used to handle the 'onPreResponse' Hapi server extension.
+ * This reformats the standard Boom and Joi error output to a compliant error
+ * format as per section 7.6 of "API Definition v1.0.docx".
+ *
+ * @param request the http request
+ * @param reply
+ * @returns {boolean|reply.continue|continue|((key?: IDBValidKey) => void)}
+ */
 exports.onPreResponse = function (request, reply) {
   const response = request.response
   if (response.isBoom) {
