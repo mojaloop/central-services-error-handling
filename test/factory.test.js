@@ -35,7 +35,7 @@ const Errors = require('../src/enums').FSPIOPErrorCodes
 
 Test('Factory should', factoryTest => {
   factoryTest.test('create an FSPIOPError with extensions', function (test) {
-    const fspiopError = Factory.createFSPIOPError({ stack: 'Error:...' }, 'An error has occurred', 'dfsp1', Errors.SERVER_ERROR, [
+    const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1', [
       { key: 'testKey', value: 'testValue' }
     ])
     test.ok(fspiopError)
@@ -44,7 +44,7 @@ Test('Factory should', factoryTest => {
   })
 
   factoryTest.test('create an FSPIOPError without extensions', function (test) {
-    const fspiopError = Factory.createFSPIOPError({ stack: 'Error:...' }, 'An error has occurred', 'dfsp1', Errors.SERVER_ERROR)
+    const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
     const apiErrorObject = fspiopError.toApiErrorObject()
     test.ok(fspiopError)
     test.equal(apiErrorObject.errorInformation.errorCode, '2000')
