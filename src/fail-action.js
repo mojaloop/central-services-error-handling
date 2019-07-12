@@ -7,8 +7,8 @@ const InvalidUriParameterError = ValidationErrors.InvalidUriParameterError
 const InvalidHeaderError = ValidationErrors.InvalidHeaderError
 
 const reformatValidationError = (source, error) => {
-  let data = error.data
-  let details = (data.details || []).map(d => ({ message: d.message, params: d.context }))
+  const data = error.data
+  const details = (data.details || []).map(d => ({ message: d.message, params: d.context }))
   switch (source) {
     case 'payload':
       return new InvalidBodyError(...details)

@@ -1,145 +1,97 @@
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+
+ * Gates Foundation
+ - Name Surname <name.surname@gatesfoundation.com>
+
+ --------------
+ ******/
+
 'use strict'
 
 const Test = require('tape')
-const Boom = require('boom')
+const Boom = require('@hapi/boom')
 
 const Handler = require('../src/handler')
-const Shared = require('@mojaloop/central-services-shared')
-const BaseError = Shared.BaseError
-const ErrorCategory = Shared.ErrorCategory
 
-let TestError = class extends BaseError {
-  constructor (message) {
-    super(ErrorCategory.UNPROCESSABLE, message)
-  }
-}
-
-Test('error handler', handlerTest => {
-  handlerTest.test('onPreResponse should', preResponse => {
-    preResponse.test('Response is not Boom validation Error', async function (test) {
-      let response = {
-        isBoom: false,
-        output:
-        {
-          payload:
-          {
-            error: 'BadRequest'
-          }
-        }
-      }
-      test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
-      test.end()
-    })
-
-    preResponse.test('Response is a Boom validation Error', async function (test) {
-      let response = {
-        isBoom: true,
-        output:
-        {
-          payload:
-          {
-            error: 'BadRequest'
-          }
-        }
-      }
-      Handler.onPreResponse({ response: response }, {})
-      test.equal(response.output.payload.id, 'BadRequestError')
-      test.end()
-    })
-
-    preResponse.test('Response is Joi validation error', async function (test) {
-      let response = {
-        isBoom: true,
-        isJoi: true,
-        output:
-        {
-          payload:
-          {
-            message: 'ValidationError: child "amount" fails because [child "@ Supplied amount fails to match the required format. @" fails because [amount with value "1y.12" fails to match the required pattern: /^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$/]]',
-            error: 'BadRequest'
-          }
-        }
-      }
-      Handler.onPreResponse({ response: response }, {})
-      test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
-      test.end()
-    })
-
-    preResponse.test('Response is Joi validation error with parsing exception', async function (test) {
-      let response = {
-        isBoom: true,
-        isJoi: true,
-        output:
-        {
-          payload:
-          {
-            error: 'BadRequest'
-          }
-        }
-      }
-      Handler.onPreResponse({ response: response }, {})
-      test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
-      test.end()
-    })
-    // busy here
-    preResponse.test('Response is Joi validation error and extraction of simplified message fails', async function (test) {
-      let response = {
-        isBoom: true,
-        isJoi: true,
-        output:
-        {
-          payload:
-          {
-            message: 'ValidationError: child "amount" fails because [child fails because [amount with value "1y.12" fails to match the required pattern: /^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$/]]',
-            error: 'BadRequest'
-          }
-        }
-      }
-      Handler.onPreResponse({ response: response }, {})
-      test.equal(response.output.payload.errorInformation.errorDescription, 'BadRequest')
-      test.end()
-    })
-
-    preResponse.test('handle boom wrapped errors with category property', async function (test) {
-      let message = 'test'
-      let error = new TestError(message)
-      let response = Boom.badData(error)
-      let request = {
-        response: response
-      }
-
-      Handler.onPreResponse(request, {})
-      test.equal(response.output.statusCode, 422)
-      test.equal(response.output.payload.id, 'TestError')
-      test.equal(response.output.payload.message, message)
-      test.deepEqual(response.output.headers, {})
-      test.end()
-    })
-
-    preResponse.test('reformat boom defined errors', async function (test) {
-      let message = 'some bad parameters'
-      let response = Boom.badRequest('some bad parameters')
-
-      Handler.onPreResponse({ response }, {})
-      test.equal(response.output.statusCode, 400)
-      test.equal(response.output.payload.id, 'BadRequestError')
-      test.equal(response.output.payload.message, message)
-      test.end()
-    })
-
-    preResponse.test('return reasonable defaults', async function (test) {
-      let error = new Error(undefined)
-      let response = Boom.badImplementation(error)
-      response.output.payload.message = null
-      response.message = 'An internal server error occurred'
-      Handler.onPreResponse({ response: response }, {})
-      test.equal(response.output.statusCode, 500)
-      test.equal(response.output.payload.id, 'InternalServerError')
-      test.equal(response.output.payload.message, 'An internal server error occurred')
-      test.end()
-    })
-    preResponse.end()
+Test('Handler should', handlerTest => {
+  handlerTest.test('handle non error responses', async function (test) {
+    const response = {
+      isBoom: false
+    }
+    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.end()
   })
 
+  handlerTest.test('handle Boom errors', async function (test) {
+    const response = {
+      isBoom: true,
+      output:
+        {
+          payload:
+            {
+              error: 'BadRequest'
+            }
+        }
+    }
+    Handler.onPreResponse({ response: response, headers: { 'fspiop-source': 'dfsp1' } }, {})
+    test.equal(response.output.payload.errorInformation.errorCode, '2000')
+    test.end()
+  })
+
+  handlerTest.test('handle Boom generated errors', async function (test) {
+    const response = Boom.badRequest('some bad parameters')
+
+    Handler.onPreResponse({ response }, {})
+    test.equal(response.output.statusCode, 400)
+    test.equal(response.output.payload.errorInformation.errorCode, '3000')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Client error - some bad parameters')
+    test.end()
+  })
+
+  handlerTest.test('handle a Boom 404 error', async function (test) {
+    const response = Boom.notFound('Not Found')
+
+    Handler.onPreResponse({ response }, {})
+    test.equal(response.output.statusCode, 404)
+    test.equal(response.output.payload.errorInformation.errorCode, '3002')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Unknown URI - Not Found')
+    test.end()
+  })
+
+  handlerTest.test('handle JOI validation errors', async function (test) {
+    const response = {
+      isBoom: true,
+      isJoi: true,
+      details: [{
+        type: 'string.regex.base',
+        context: {
+          label: 'Regular expression failed'
+        }
+      }]
+    }
+    Handler.onPreResponse({ response: response }, {})
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Malformed syntax - Regular expression failed')
+    test.equal(response.output.payload.errorInformation.errorCode, '3101')
+    test.end()
+  })
   handlerTest.end()
 })
