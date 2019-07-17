@@ -29,15 +29,34 @@
 
 const Test = require('tape')
 const Boom = require('@hapi/boom')
-
+const Factory = require('../src/factory')
+const Enums = require('../src/enums')
 const Handler = require('../src/handler')
 
 Test('Handler should', handlerTest => {
   handlerTest.test('handle non error responses', async function (test) {
-    const response = {
-      isBoom: false
-    }
+    const response = { }
     test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.end()
+  })
+
+  handlerTest.test('handle FSPIOPError responses', async function (test) {
+    const fspiopError = Factory.createFSPIOPError(Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, 'Internal Error')
+    const response = fspiopError
+    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.equal(response.output.statusCode, 500)
+    test.equal(response.output.payload.errorInformation.errorCode, '2001')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Internal Error')
+    test.end()
+  })
+
+  handlerTest.test('handle generic Error responses', async function (test) {
+    const error = new Error('Test Error')
+    const response = error
+    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.equal(response.output.statusCode, 500)
+    test.equal(response.output.payload.errorInformation.errorCode, '2001')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Test Error')
     test.end()
   })
 
@@ -53,7 +72,7 @@ Test('Handler should', handlerTest => {
         }
     }
     Handler.onPreResponse({ response: response, headers: { 'fspiop-source': 'dfsp1' } }, {})
-    test.equal(response.output.payload.errorInformation.errorCode, '2000')
+    test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.end()
   })
 

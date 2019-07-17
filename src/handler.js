@@ -34,7 +34,7 @@ const getReplyToFromRequestHeaders = (request) => {
   return (request.headers && request.headers['fspiop-source']) ? request.headers['fspiop-source'] : null
 }
 
-const createFSPIOPErrorFromBoomError = (request, response) => {
+const createFSPIOPErrorFromErrorResponse = (request, response) => {
   const fspiopError = ((httpStatusCode) => {
     switch (httpStatusCode) {
       case 400:
@@ -44,7 +44,7 @@ const createFSPIOPErrorFromBoomError = (request, response) => {
         return Errors.UNKNOWN_URI
 
       default:
-        return Errors.SERVER_ERROR
+        return Errors.INTERNAL_SERVER_ERROR
     }
   })(response.output.statusCode)
 
@@ -53,22 +53,28 @@ const createFSPIOPErrorFromBoomError = (request, response) => {
   ])
 }
 
-const reformatBoomError = (request, response) => {
+const reformatError = (request, response) => {
+  if (!response.output) {
+    response.output = {}
+  }
+
   let fspiopError
   if (response.isJoi) {
     const replyTo = getReplyToFromRequestHeaders(request)
     fspiopError = Factory.createFSPIOPErrorFromJoiError(request.response.details[0], response, replyTo)
+  } else if (response instanceof Factory.FSPIOPError) {
+    fspiopError = response
   } else {
-    fspiopError = createFSPIOPErrorFromBoomError(request, response)
-  }
-
-  if (!response.output) {
-    response.output = {}
+    fspiopError = createFSPIOPErrorFromErrorResponse(request, response)
   }
 
   response.output.payload = fspiopError.toApiErrorObject()
   if (fspiopError.httpStatusCode) {
     response.output.statusCode = fspiopError.httpStatusCode
+  }
+
+  if (!response.output.statusCode) {
+    response.output.statusCode = 500
   }
 }
 
@@ -83,8 +89,9 @@ const reformatBoomError = (request, response) => {
  */
 exports.onPreResponse = function (request, reply) {
   const response = request.response
-  if (response.isBoom) {
-    reformatBoomError(request, response)
+  if (response instanceof Error || response.isBoom) {
+    reformatError(request, response)
   }
+
   return reply.continue
 }
