@@ -87,5 +87,49 @@ Test('Factory should', factoryTest => {
     })
     test.end()
   })
+
+  factoryTest.test('create an internal server FSPIOPError', function (test) {
+    const cause = new Error('Test Cause')
+    const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1', [
+      { key: 'testKey', value: 'testValue' }
+    ])
+    test.ok(fspiopError)
+    test.ok(fspiopError.toString())
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Internal Error',
+        extensionList: [
+          {
+            key: 'testKey',
+            value: 'testValue'
+          }
+        ]
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('reformat an FSPIOPError from a general error', function (test) {
+    const cause = new Error('Test Cause')
+    const fspiopError = Factory.reformatFSPIOPError(cause)
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Cause'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('reformat an FSPIOPError from another FSPIOPError returning the original error', function (test) {
+    const error = new Error('Invalid format')
+    const cause = Factory.createFSPIOPError(Errors.MALFORMED_SYNTAX, 'Malformed parameter test', error, 'dfsp1')
+    const fspiopError = Factory.reformatFSPIOPError(cause)
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError, cause)
+    test.end()
+  })
   factoryTest.end()
 })

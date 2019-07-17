@@ -67,15 +67,19 @@ class FSPIOPError extends MojaloopFSPIOPError {
 
     return e
   }
+
+  toString () {
+    return JSON.stringify(this.toFullErrorObject())
+  }
 }
 
 /**
  * Factory method to create a new FSPIOPError.
  *
- * @param cause the original Error
- * @param message a description of the error
- * @param replyTo the FSP to notify of the error
  * @param apiErrorCode the FSPIOP Error enum
+ * @param message a description of the error
+ * @param cause the original Error
+ * @param replyTo the FSP to notify of the error
  * @param extensions additional information to associate with the error
  * @returns {FSPIOPError}
  */
@@ -116,8 +120,43 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
   return createFSPIOPError(fspiopError, error.context.label, cause, replyTo, extensions)
 }
 
+/**
+ * Convenience factory method to create a FSPIOPError Internal Server Error
+ *
+ * @param message a description of the error
+ * @param cause the original Error
+ * @param replyTo the FSP to notify of the error if applicable
+ * @param extensions additional information to associate with the error
+ * @returns {FSPIOPError}
+ */
+const createInternalServerFSPIOPError = (message, cause, replyTo, extensions) => {
+  return createFSPIOPError(Errors.INTERNAL_SERVER_ERROR, message, cause, replyTo, extensions)
+}
+
+/**
+ * Factory method to reformat an FSPIOPError based on the erro being passed in.
+ * If the error passed in is an FSPIOPError it will be returned as is.
+ * If the error is any other error it will be wrapped in an FSPIOPError using the original error message
+ * and error stack trace.
+ *
+ * @param error the error to reformat
+ * @param apiErrorCode the FSPIOP Error enum, defaults to INTERNAL_SERVER_ERROR
+ * @param replyTo the FSP to notify of the error if applicable
+ * @param extensions additional information to associate with the error
+ * @returns {FSPIOPError}
+ */
+const reformatFSPIOPError = (error, apiErrorCode = Errors.INTERNAL_SERVER_ERROR, replyTo, extensions) => {
+  if (error instanceof FSPIOPError) {
+    return error
+  } else {
+    return createFSPIOPError(apiErrorCode, error.message, error.stack, replyTo, extensions)
+  }
+}
+
 module.exports = {
   FSPIOPError,
   createFSPIOPError,
-  createFSPIOPErrorFromJoiError
+  createFSPIOPErrorFromJoiError,
+  createInternalServerFSPIOPError,
+  reformatFSPIOPError
 }
