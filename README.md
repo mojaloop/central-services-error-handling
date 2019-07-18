@@ -6,3 +6,21 @@
 [![CircleCI](https://circleci.com/gh/mojaloop/central-services-error-handling.svg?style=svg)](https://circleci.com/gh/mojaloop/central-services-error-handling)
 
 Hapi error handling module
+
+
+## Auditing Dependencies
+
+We use `npm-audit-resolver` along with `npm audit` to check dependencies for vulnerabilities, and keep track of resolved dependencies with an `audit-resolv.json` file.
+
+To start a new resolution process, run:
+```bash
+npm run audit:resolve
+```
+
+You can then check to see if the CI will pass based on the current dependencies with:
+```bash
+npm run audit:check
+```
+
+And commit the changed `audit-resolv.json` to ensure that CircleCI will build correctly.
+
