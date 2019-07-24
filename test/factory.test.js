@@ -42,7 +42,7 @@ Test('Factory should', factoryTest => {
       { key: 'testKey', value: 'testValue' }
     ])
     test.ok(fspiopError)
-    test.equal(fspiopError.apiErrorCode.code, Errors.SERVER_ERROR.code)
+    test.equal(fspiopError.apiErrorCode.code, '2000')
     test.end()
   })
 
@@ -50,15 +50,7 @@ Test('Factory should', factoryTest => {
     const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
     const apiErrorObject = fspiopError.toApiErrorObject()
     test.ok(fspiopError)
-    test.equal(apiErrorObject.errorInformation.errorCode, Errors.SERVER_ERROR.code)
-    test.end()
-  })
-
-  factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions', function (test) {
-    const fspiopError = Factory.createFSPIOPError(undefined, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
-    const apiErrorObject = fspiopError.toApiErrorObject()
-    test.ok(fspiopError)
-    test.equal(apiErrorObject.errorInformation.errorCode, Errors.INTERNAL_SERVER_ERROR.code)
+    test.equal(apiErrorObject.errorInformation.errorCode, '2000')
     test.end()
   })
 
