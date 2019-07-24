@@ -84,10 +84,14 @@ class FSPIOPError extends MojaloopFSPIOPError {
  * @param cause the original Error
  * @param replyTo the FSP to notify of the error
  * @param extensions additional information to associate with the error
- * @returns {FSPIOPError}
+ * @returns {FSPIOPError} - create the specified error, will fall back to INTERNAL_SERVER_ERROR if the apiErrorCode is undefined
  */
 const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions) => {
-  return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions)
+  if (apiErrorCode) {
+    return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions)
+  } else {
+    return new FSPIOPError(cause, message, replyTo, Errors.INTERNAL_SERVER_ERROR, extensions)
+  }
 }
 
 /**
