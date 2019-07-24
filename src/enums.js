@@ -22,15 +22,104 @@
  * Gates Foundation
  - Name Surname <name.surname@gatesfoundation.com>
 
- * Neal Donnan <neal.donnan@modusbox.com>
+ * ModusBox
+ - Neal Donnan <neal.donnan@modusbox.com>
+ - Juan Correa <juan.correa@modusbox.com>
+ - Miguel de Barros <miguel.debarros@modusbox.com>
 
  --------------
  ******/
 
 'use strict'
 
-const Errors = require('@modusbox/mojaloop-sdk-standard-components').Errors
+const _ = require('lodash')
+
+const MojaloopSDKError = require('@modusbox/mojaloop-sdk-standard-components').Errors
+
+/**
+ *  Mojaloop API spec error type enums
+ */
+const MojaloopTypes = {
+  GENERIC_COMMUNICATION_ERROR: {
+    regex: '^10[0-9]{2}$',
+    description: 'Generic Communication Error'
+  },
+  GENERIC_SERVER_ERROR: {
+    regex: '^20[0-9]{2}$',
+    description: 'Generic Server Error'
+  },
+  GENERIC_CLIENT_ERROR: {
+    regex: '^30[0-9]{2}$',
+    description: 'Generic Client Error'
+  },
+  CLIENT_VALIDATION_ERROR: {
+    regex: '^31[0-9]{2}$',
+    description: 'Client Validation Error'
+  },
+  IDENTIFIER_ERROR: {
+    regex: '^32[0-9]{2}$',
+    description: 'Identifier Error'
+  },
+  EXPIRED_ERROR: {
+    regex: '^33[0-9]{2}$',
+    description: 'Expired Error'
+  },
+  PAYER_ERROR: {
+    regex: '^4[0-9]{3}$',
+    description: 'Payer Error'
+  },
+  PAYEE_ERROR: {
+    regex: '^5[0-9]{3}$',
+    description: 'Payee Error'
+  }
+}
+
+/**
+ * Returns an object representing a Mojaloop API spec error code combined with error types enums
+ *
+ * @param errorCodes {object} - Mojaloop API spec error code enums
+ * @param errorTypes {object} - Mojaloop API spec error type enums
+ * @returns {object} - Object representing the Mojaloop API spec error enums with associated types
+ */
+const populateErrorTypes = (errorCodes, errorTypes) => {
+  const newErrorCodes = {}
+  for (const [errorCodeKey, errorCodeValue] of Object.entries(errorCodes)) {
+    for (const errorTypeValue of Object.values(errorTypes)) {
+      const regExp = new RegExp(errorTypeValue.regex)
+      if (regExp.test(errorCodeValue.code)) {
+        const newErrorCodeValue = _.cloneDeep(errorCodeValue)
+        _.set(newErrorCodeValue, 'type', errorTypeValue)
+        _.set(newErrorCodes, errorCodeKey, newErrorCodeValue)
+      }
+    }
+  }
+  return newErrorCodes
+}
+
+/**
+ *  Mojaloop API spec error enums with associated type enums
+ */
+const FSPIOPErrorCodes = populateErrorTypes(MojaloopSDKError.MojaloopApiErrorCodes, MojaloopTypes)
+
+/**
+ * Returns an object representing a Mojaloop API spec error object given its error code
+ *
+ * @param code {number/string} - Mojaloop API spec error code (four digit integer as number or string)
+ * @returns {object} - Object representing the Mojaloop API spec error
+ */
+const findFSPIOPErrorCode = (code) => {
+  const stringCodeValue = code.toString()
+  const ec = Object.keys(FSPIOPErrorCodes).find(ec => {
+    return FSPIOPErrorCodes[ec].code === stringCodeValue
+  })
+  if (ec) {
+    return FSPIOPErrorCodes[ec]
+  }
+  return undefined
+}
 
 module.exports = {
-  FSPIOPErrorCodes: Errors.MojaloopApiErrorCodes
+  FSPIOPErrorCodes,
+  FSPIOPErrorTypes: MojaloopTypes,
+  findFSPIOPErrorCode
 }

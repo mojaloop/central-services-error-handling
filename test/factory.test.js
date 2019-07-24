@@ -22,7 +22,10 @@
  * Gates Foundation
  - Name Surname <name.surname@gatesfoundation.com>
 
- * Neal Donnan <neal.donnan@modusbox.com>
+ * ModusBox
+ - Neal Donnan <neal.donnan@modusbox.com>
+ - Juan Correa <juan.correa@modusbox.com>
+ - Miguel de Barros <miguel.debarros@modusbox.com>
 
  --------------
  ******/

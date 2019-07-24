@@ -22,6 +22,10 @@
  * Gates Foundation
  - Name Surname <name.surname@gatesfoundation.com>
 
+ * ModusBox
+ - Neal Donnan <neal.donnan@modusbox.com>
+ - Rajiv Mothilal <rajiv.mothilal@modusbox.com>
+
  --------------
  ******/
 
