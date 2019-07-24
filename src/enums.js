@@ -84,11 +84,12 @@ const MojaloopTypes = {
 const populateErrorTypes = (errorCodes, errorTypes) => {
   const newErrorCodes = {}
   for (const [errorCodeKey, errorCodeValue] of Object.entries(errorCodes)) {
-    for (const errorTypeValue of Object.values(errorTypes)) {
+    for (const [errorTypeKey, errorTypeValue] of Object.entries(errorTypes)) {
       const regExp = new RegExp(errorTypeValue.regex)
       if (regExp.test(errorCodeValue.code)) {
         const newErrorCodeValue = _.cloneDeep(errorCodeValue)
         _.set(newErrorCodeValue, 'type', errorTypeValue)
+        _.set(newErrorCodeValue, 'type.name', errorTypeKey)
         _.set(newErrorCodes, errorCodeKey, newErrorCodeValue)
       }
     }
