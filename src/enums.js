@@ -98,23 +98,46 @@ const populateErrorTypes = (errorCodes, errorTypes) => {
 }
 
 /**
+ * Returns an object representing a Mojaloop API spec error code map using the error code as the key
+ *
+ * @param errorCodes {object} - Mojaloop API spec error code enums
+ * @returns {object} - Object representing a Mojaloop API Error map using the error code as the key with each record having the associated name
+ */
+const errorCodesToMap = (errorCodes) => {
+  const newErrorCodeMap = {}
+  for (const [errorCodeKey, errorCodeValue] of Object.entries(errorCodes)) {
+    const newErrorCodeValue = _.cloneDeep(errorCodeValue)
+    _.set(newErrorCodeValue, 'name', errorCodeKey)
+    _.set(newErrorCodeMap, errorCodeValue.code.toString(), newErrorCodeValue)
+  }
+  return newErrorCodeMap
+}
+
+/**
  *  Mojaloop API spec error enums with associated type enums
  */
 const FSPIOPErrorCodes = populateErrorTypes(MojaloopSDKError.MojaloopApiErrorCodes, MojaloopTypes)
 
 /**
- * Returns an object representing a Mojaloop API spec error object given its error code
+ *  Mojaloop API spec error map enums with associated type enums by error code as the key map
+ */
+const FSPIOPErrorCodeMap = errorCodesToMap(FSPIOPErrorCodes)
+
+/**
+ * Returns an object representing a Mojaloop API spec error object given its error code using super fast hash lookup
  *
  * @param code {number/string} - Mojaloop API spec error code (four digit integer as number or string)
  * @returns {object} - Object representing the Mojaloop API spec error
  */
 const findFSPIOPErrorCode = (code) => {
-  const stringCodeValue = code.toString()
-  const ec = Object.keys(FSPIOPErrorCodes).find(ec => {
-    return FSPIOPErrorCodes[ec].code === stringCodeValue
-  })
+  let ec
+  if (code) {
+    const stringCodeValue = code.toString()
+    ec = FSPIOPErrorCodeMap[stringCodeValue]
+  }
+
   if (ec) {
-    return FSPIOPErrorCodes[ec]
+    return ec
   }
   return undefined
 }
@@ -122,5 +145,6 @@ const findFSPIOPErrorCode = (code) => {
 module.exports = {
   FSPIOPErrorCodes,
   FSPIOPErrorTypes: MojaloopTypes,
+  FSPIOPErrorCodeMap,
   findFSPIOPErrorCode
 }

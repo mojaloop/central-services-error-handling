@@ -55,10 +55,32 @@ Test('Factory should', factoryTest => {
   })
 
   factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions', function (test) {
-    const fspiopError = Factory.createFSPIOPError(undefined, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
-    const apiErrorObject = fspiopError.toApiErrorObject()
-    test.ok(fspiopError)
-    test.equal(apiErrorObject.errorInformation.errorCode, Errors.INTERNAL_SERVER_ERROR.code)
+    try {
+      const apiErrorCode = undefined
+      const fspiopError = Factory.createFSPIOPError(apiErrorCode, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
+      const apiErrorObject = fspiopError.toApiErrorObject()
+      test.ok(fspiopError)
+      test.equal(apiErrorObject.errorInformation.errorCode, Errors.INTERNAL_SERVER_ERROR.code)
+      test.fail(`We should have thrown an error here as the apiErrorCode is ${apiErrorCode}`)
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.equal(err.apiErrorCode.code, Errors.INTERNAL_SERVER_ERROR.code)
+    }
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions', function (test) {
+    try {
+      const apiErrorCode = { foo: 'bar' }
+      const fspiopError = Factory.createFSPIOPError(apiErrorCode, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
+      const apiErrorObject = fspiopError.toApiErrorObject()
+      test.ok(fspiopError)
+      test.equal(apiErrorObject.errorInformation.errorCode, Errors.INTERNAL_SERVER_ERROR.code)
+      test.fail(`We should have thrown an error here as the apiErrorCode is ${apiErrorCode}`)
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.equal(err.apiErrorCode.code, Errors.INTERNAL_SERVER_ERROR.code)
+    }
     test.end()
   })
 

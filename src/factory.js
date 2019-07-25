@@ -32,7 +32,7 @@
 
 'use strict'
 
-const Errors = require('./enums').FSPIOPErrorCodes
+const ErrorEnums = require('./enums')
 const MojaloopFSPIOPError = require('@modusbox/mojaloop-sdk-standard-components').Errors.MojaloopFSPIOPError
 
 /**
@@ -87,10 +87,10 @@ class FSPIOPError extends MojaloopFSPIOPError {
  * @returns {FSPIOPError} - create the specified error, will fall back to INTERNAL_SERVER_ERROR if the apiErrorCode is undefined
  */
 const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions) => {
-  if (apiErrorCode) {
+  if (apiErrorCode && ErrorEnums.findFSPIOPErrorCode(apiErrorCode.code)) {
     return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions)
   } else {
-    return new FSPIOPError(cause, message, replyTo, Errors.INTERNAL_SERVER_ERROR, extensions)
+    throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, ErrorEnums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
   }
 }
 
@@ -107,15 +107,15 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
     switch (type) {
       case 'any.required':
       case 'any.empty':
-        return Errors.MISSING_ELEMENT
+        return ErrorEnums.FSPIOPErrorCodes.MISSING_ELEMENT
 
       // Match any type that starts with 'string.'
       case (type.match(/^string\./) || {}).input:
       case 'date.format':
-        return Errors.MALFORMED_SYNTAX
+        return ErrorEnums.FSPIOPErrorCodes.MALFORMED_SYNTAX
 
       default:
-        return Errors.VALIDATION_ERROR
+        return ErrorEnums.FSPIOPErrorCodes.VALIDATION_ERROR
     }
   })(error.type)
 
@@ -137,7 +137,7 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
  * @returns {FSPIOPError}
  */
 const createInternalServerFSPIOPError = (message, cause, replyTo, extensions) => {
-  return createFSPIOPError(Errors.INTERNAL_SERVER_ERROR, message, cause, replyTo, extensions)
+  return createFSPIOPError(ErrorEnums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, message, cause, replyTo, extensions)
 }
 
 /**
@@ -152,7 +152,7 @@ const createInternalServerFSPIOPError = (message, cause, replyTo, extensions) =>
  * @param extensions additional information to associate with the error
  * @returns {FSPIOPError}
  */
-const reformatFSPIOPError = (error, apiErrorCode = Errors.INTERNAL_SERVER_ERROR, replyTo, extensions) => {
+const reformatFSPIOPError = (error, apiErrorCode = ErrorEnums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, replyTo, extensions) => {
   if (error instanceof FSPIOPError) {
     return error
   } else {

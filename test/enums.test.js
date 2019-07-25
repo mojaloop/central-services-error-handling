@@ -70,5 +70,13 @@ Test('Enum should', enumTest => {
     test.end()
   })
 
+  enumTest.test('test FSPIOPErrorCodeMaps contains every error found in the FSPIOPErrorCodes object using the findFSPIOPErrorCode method', function (test) {
+    for (const errorCodeValue of Object.values(ErrorEnums.FSPIOPErrorCodes)) {
+      const errorCodeResult = ErrorEnums.findFSPIOPErrorCode(errorCodeValue.code)
+      test.ok(errorCodeResult)
+    }
+    test.end()
+  })
+
   enumTest.end()
 })
