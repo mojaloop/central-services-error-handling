@@ -222,7 +222,7 @@ const createFSPIOPErrorFromErrorInformation = (errorInformation, replyTo) => {
  * @throws {FSPIOPError} - Internal Server Error indicating that the error code is invalid.
  */
 const validateFSPIOPErrorCode = (code) => {
-  const errorMessage = 'Validation for failed due to error code being invalid'
+  const errorMessage = 'Validation failed due to error code being invalid'
   let codeToValidate
   if (typeof code === 'number' || typeof code === 'string') { // check to see if this is a normal error code represented by a number or string
     codeToValidate = code
