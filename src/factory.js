@@ -210,11 +210,7 @@ const reformatFSPIOPError = (error, apiErrorCode = ErrorEnums.FSPIOPErrorCodes.I
  */
 const createFSPIOPErrorFromErrorInformation = (errorInformation, replyTo) => {
   const errorCode = validateFSPIOPErrorCode(errorInformation.errorCode)
-  if (!errorCode) {
-    throw createFSPIOPError(ErrorEnums.INTERNAL_SERVER_ERROR, `Invalid errorCode provided - ${JSON.stringify(errorInformation.errorCode)}.`, replyTo, ErrorEnums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, errorInformation.extensionList)
-  } else {
-    return createFSPIOPError(errorCode, errorInformation.errorDescription, errorInformation.errorDescription, replyTo, errorInformation.extensionList, true)
-  }
+  return createFSPIOPError(errorCode, errorInformation.errorDescription, errorInformation.errorDescription, replyTo, errorInformation.extensionList, true)
 }
 
 /**

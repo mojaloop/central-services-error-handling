@@ -256,7 +256,7 @@ Test('Factory should', factoryTest => {
   })
 
   factoryTest.test('validateFSPIOPErrorCode should validate an string errorCode', function (test) {
-    const errorCode = Errors.INTERNAL_SERVER_ERROR.code
+    const errorCode = `${Errors.INTERNAL_SERVER_ERROR.code}`
     try {
       const result = Factory.validateFSPIOPErrorCode(errorCode)
       test.deepEqual(result, Errors.INTERNAL_SERVER_ERROR)
@@ -268,13 +268,27 @@ Test('Factory should', factoryTest => {
   })
 
   factoryTest.test('validateFSPIOPErrorCode should validate an apiErrorCode errorCode enum', function (test) {
-    const errorCode = Errors.INTERNAL_SERVER_ERROR.code
+    const errorCode = Errors.INTERNAL_SERVER_ERROR
     try {
       const result = Factory.validateFSPIOPErrorCode(errorCode)
       test.deepEqual(result, Errors.INTERNAL_SERVER_ERROR)
     } catch (err) {
       test.ok(err instanceof Factory.FSPIOPError)
       test.fail(err)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorCode should validate an invalid apiErrorCode errorCode enum', function (test) {
+    const errorCode = { test }
+    try {
+      const result = Factory.validateFSPIOPErrorCode(errorCode)
+      test.notOk(result)
+      test.fail()
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.equal(err.apiErrorCode.code, Errors.INTERNAL_SERVER_ERROR.code)
+      test.equal(err.apiErrorCode.message, Errors.INTERNAL_SERVER_ERROR.message)
     }
     test.end()
   })
