@@ -70,9 +70,10 @@ class FSPIOPError extends MojaloopFSPIOPError {
   toApiErrorObject () {
     let errorDescription = this.apiErrorCode.message
 
-    if (this.message && !this.useMessageAsDescription) {
+    // Lets check if the message is defined, not null or empty (i.e. undefined).
+    if ((this.message && this.message !== 'null' && this.message.length > 0) && !this.useMessageAsDescription) {
       errorDescription = `${errorDescription} - ${this.message}`
-    } else if (this.useMessageAsDescription) {
+    } else if (this.useMessageAsDescription) { // Lets check to see if we must use the message as the errorDescription.
       errorDescription = `${this.message}`
     }
 
@@ -205,12 +206,28 @@ const reformatFSPIOPError = (error, apiErrorCode = ErrorEnums.FSPIOPErrorCodes.I
  * Factory method to create an FSPIOPError based on the errorInformation object being passed in.
  *
  * @param errorInformation {object} - Mojaloop JSON ErrorInformation object
+ * @param cause {object/string} - the original Error
  * @param replyTo {string} - the FSP to notify of the error if applicable
  * @returns {FSPIOPError}
  */
-const createFSPIOPErrorFromErrorInformation = (errorInformation, replyTo) => {
+const createFSPIOPErrorFromErrorInformation = (errorInformation, cause, replyTo) => {
   const errorCode = validateFSPIOPErrorCode(errorInformation.errorCode)
-  return createFSPIOPError(errorCode, errorInformation.errorDescription, errorInformation.errorDescription, replyTo, errorInformation.extensionList, true)
+  return createFSPIOPError(errorCode, errorInformation.errorDescription, cause, replyTo, errorInformation.extensionList, true)
+}
+
+/**
+ * Factory method to create an FSPIOPError based on an errorCode (string or number).
+ *
+ * @param code {string/number} - Mojaloop Spec error code in either a string or number.
+ * @param message {string} - a description of the error
+ * @param cause {object/string} - the original Error
+ * @param replyTo {string} - the FSP to notify of the error if applicable
+ * @param extensions {object} - additional information to associate with the error
+ * @returns {FSPIOPError}
+ */
+const createFSPIOPErrorFromErrorCode = (code, message, cause, replyTo, extensions) => {
+  const errorCode = validateFSPIOPErrorCode(code)
+  return createFSPIOPError(errorCode, message, cause, replyTo, extensions)
 }
 
 /**
@@ -244,6 +261,7 @@ module.exports = {
   createFSPIOPErrorFromJoiError,
   createInternalServerFSPIOPError,
   createFSPIOPErrorFromErrorInformation,
+  createFSPIOPErrorFromErrorCode,
   reformatFSPIOPError,
   validateFSPIOPErrorCode
 }
