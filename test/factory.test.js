@@ -69,6 +69,42 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError with empty message', function (test) {
+    const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, '', { stack: 'Error:...' }, 'dfsp1', [
+      { key: 'testKey', value: 'testValue' }
+    ])
+    const fspiopErrorDescription = fspiopError.toApiErrorObject()
+    test.ok(fspiopError)
+    test.equal(fspiopError.apiErrorCode.code, Errors.SERVER_ERROR.code)
+    test.equal(fspiopErrorDescription.errorInformation.errorCode, Errors.SERVER_ERROR.code)
+    test.equal(fspiopErrorDescription.errorInformation.errorDescription, Errors.SERVER_ERROR.message)
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError with null message', function (test) {
+    const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, null, { stack: 'Error:...' }, 'dfsp1', [
+      { key: 'testKey', value: 'testValue' }
+    ])
+    const fspiopErrorDescription = fspiopError.toApiErrorObject()
+    test.ok(fspiopError)
+    test.equal(fspiopError.apiErrorCode.code, Errors.SERVER_ERROR.code)
+    test.equal(fspiopErrorDescription.errorInformation.errorCode, Errors.SERVER_ERROR.code)
+    test.equal(fspiopErrorDescription.errorInformation.errorDescription, Errors.SERVER_ERROR.message)
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError with undefined message', function (test) {
+    const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, undefined, { stack: 'Error:...' }, 'dfsp1', [
+      { key: 'testKey', value: 'testValue' }
+    ])
+    const fspiopErrorDescription = fspiopError.toApiErrorObject()
+    test.ok(fspiopError)
+    test.equal(fspiopError.apiErrorCode.code, Errors.SERVER_ERROR.code)
+    test.equal(fspiopErrorDescription.errorInformation.errorCode, Errors.SERVER_ERROR.code)
+    test.equal(fspiopErrorDescription.errorInformation.errorDescription, Errors.SERVER_ERROR.message)
+    test.end()
+  })
+
   factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions', function (test) {
     try {
       const apiErrorCode = { foo: 'bar' }
@@ -178,7 +214,7 @@ Test('Factory should', factoryTest => {
         }
       ]
     }
-    const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation)
+    const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation, errorInformation.errorDescription)
     test.ok(fspiopError)
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
@@ -199,13 +235,61 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a ErrorInformation object', function (test) {
+  factoryTest.test('create an invalid FSPIOPError from a ErrorInformation object', function (test) {
     const errorInformation = {
       errorCode: '9999',
       errorDescription: 'Internal server error - Test Cause'
     }
     try {
       const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation)
+      test.notOk(fspiopError)
+      test.fail('Should have thrown an exception for an invalid error code!')
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.deepEqual(err.apiErrorCode, Errors.INTERNAL_SERVER_ERROR)
+    }
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from an ErrorCode', function (test) {
+    const errorInformation = {
+      errorCode: '2001',
+      errorDescription: 'Internal server error - Test Cause',
+      extensionList: [
+        {
+          key: 'test',
+          value: 'test'
+        }
+      ]
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromErrorCode(errorInformation.errorCode, undefined, errorInformation.errorDescription, null, errorInformation.extensionList)
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error',
+        extensionList: [
+          {
+            key: 'test',
+            value: 'test'
+          },
+          {
+            key: 'cause',
+            value: errorInformation.errorDescription
+          }
+        ]
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an invalid FSPIOPError from an ErrorCode', function (test) {
+    const errorInformation = {
+      errorCode: '9999',
+      errorDescription: 'Internal server error - Test Cause'
+    }
+    try {
+      const fspiopError = Factory.createFSPIOPErrorFromErrorCode(errorInformation.errorCode)
       test.notOk(fspiopError)
       test.fail('Should have thrown an exception for an invalid error code!')
     } catch (err) {
