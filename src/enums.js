@@ -88,6 +88,7 @@ const populateErrorTypes = (errorCodes, errorTypes) => {
       const regExp = new RegExp(errorTypeValue.regex)
       if (regExp.test(errorCodeValue.code)) {
         const newErrorCodeValue = _.cloneDeep(errorCodeValue)
+        _.set(newErrorCodeValue, 'name', errorCodeKey)
         _.set(newErrorCodeValue, 'type', errorTypeValue)
         _.set(newErrorCodeValue, 'type.name', errorTypeKey)
         _.set(newErrorCodes, errorCodeKey, newErrorCodeValue)

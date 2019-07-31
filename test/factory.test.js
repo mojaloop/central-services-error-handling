@@ -104,6 +104,26 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError from a Joi error with a string cause', function (test) {
+    const joiError = {
+      type: 'any.required',
+      context: {
+        label: 'Field is required'
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, 'Stack trace...', 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3102',
+        errorDescription: 'Missing mandatory element - Field is required',
+        extensionList: [{
+          key: 'cause',
+          value: 'Stack trace...' }] }
+    })
+    test.end()
+  })
+
   factoryTest.test('create an FSPIOPError from an unknown Joi error', function (test) {
     const joiError = {
       type: 'unknown',
@@ -136,10 +156,62 @@ Test('Factory should', factoryTest => {
           {
             key: 'testKey',
             value: 'testValue'
+          },
+          {
+            key: 'cause',
+            value: JSON.stringify(cause, Object.getOwnPropertyNames(cause))
           }
         ]
       }
     })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a ErrorInformation object', function (test) {
+    const errorInformation = {
+      errorCode: '2001',
+      errorDescription: 'Internal server error - Test Cause',
+      extensionList: [
+        {
+          key: 'test',
+          value: 'test'
+        }
+      ]
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation)
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Cause',
+        extensionList: [
+          {
+            key: 'test',
+            value: 'test'
+          },
+          {
+            key: 'cause',
+            value: errorInformation.errorDescription
+          }
+        ]
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a ErrorInformation object', function (test) {
+    const errorInformation = {
+      errorCode: '9999',
+      errorDescription: 'Internal server error - Test Cause'
+    }
+    try {
+      const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation)
+      test.notOk(fspiopError)
+      test.fail('Should have thrown an exception for an invalid error code!')
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.deepEqual(err.apiErrorCode, Errors.INTERNAL_SERVER_ERROR)
+    }
     test.end()
   })
 
@@ -150,7 +222,13 @@ Test('Factory should', factoryTest => {
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
         errorCode: '2001',
-        errorDescription: 'Internal server error - Test Cause'
+        errorDescription: 'Internal server error - Test Cause',
+        extensionList: [
+          {
+            key: 'cause',
+            value: cause.stack
+          }
+        ]
       }
     })
     test.end()
@@ -164,5 +242,56 @@ Test('Factory should', factoryTest => {
     test.deepEqual(fspiopError, cause)
     test.end()
   })
+
+  factoryTest.test('validateFSPIOPErrorCode should validate an integer errorCode', function (test) {
+    const errorCode = 2000
+    try {
+      const result = Factory.validateFSPIOPErrorCode(errorCode)
+      test.ok(result)
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.fail(err)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorCode should validate an string errorCode', function (test) {
+    const errorCode = Errors.INTERNAL_SERVER_ERROR.code
+    try {
+      const result = Factory.validateFSPIOPErrorCode(errorCode)
+      test.deepEqual(result, Errors.INTERNAL_SERVER_ERROR)
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.fail(err)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorCode should validate an apiErrorCode errorCode enum', function (test) {
+    const errorCode = Errors.INTERNAL_SERVER_ERROR.code
+    try {
+      const result = Factory.validateFSPIOPErrorCode(errorCode)
+      test.deepEqual(result, Errors.INTERNAL_SERVER_ERROR)
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.fail(err)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorCode should validate an integer errorCode and throw exception', function (test) {
+    const errorCode = 9999
+    try {
+      const result = Factory.validateFSPIOPErrorCode(errorCode)
+      test.notOk(result)
+      test.fail()
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.equal(err.apiErrorCode.code, Errors.INTERNAL_SERVER_ERROR.code)
+      test.equal(err.apiErrorCode.message, Errors.INTERNAL_SERVER_ERROR.message)
+    }
+    test.end()
+  })
+
   factoryTest.end()
 })
