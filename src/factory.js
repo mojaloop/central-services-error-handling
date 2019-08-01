@@ -58,7 +58,26 @@ class FSPIOPError extends MojaloopFSPIOPError {
   constructor (cause, message, replyTo, apiErrorCode, extensions, useMessageAsDescription = false) {
     const clonedExtensions = _.cloneDeep(extensions) // makes sure we make a copy.
     super(cause, message, replyTo, apiErrorCode, clonedExtensions)
+    this._setStackFromCause(cause)
     this.useMessageAsDescription = useMessageAsDescription
+  }
+
+  /**
+   * Internal only method to set the stack trace based on the set Cause.
+   * This can be used to serialise the error to a JSON body.
+   *
+   * @param cause {object} - Underlying error object or any type that represents the cause of this error
+   */
+  _setStackFromCause (cause) {
+    let stringifiedCause
+    if (typeof this.cause === 'string' || this.cause instanceof String) {
+      stringifiedCause = this.cause
+    } else if (this.cause instanceof Error) {
+      stringifiedCause = this.cause.stack
+    } else {
+      stringifiedCause = JSON.stringify(this.cause)
+    }
+    if (stringifiedCause) this.stack = `${this.stack}\n${stringifiedCause}`
   }
 
   /**
@@ -86,25 +105,24 @@ class FSPIOPError extends MojaloopFSPIOPError {
 
     if (this.extensions) {
       e.errorInformation.extensionList = _.cloneDeep(this.extensions)
-    }
 
-    if (this.cause) {
-      let stringifiedCause
-      if (typeof this.cause === 'string' || this.cause instanceof String) {
-        stringifiedCause = this.cause
-      } else if (this.cause instanceof Error) {
-        stringifiedCause = JSON.stringify(this.cause, Object.getOwnPropertyNames(this.cause))
+      const causeKeyValueFromExtensions = e.errorInformation.extensionList.find(keyValue => keyValue.key === 'cause')
+      if (causeKeyValueFromExtensions) {
+        causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
       } else {
-        stringifiedCause = JSON.stringify(this.cause)
+        const causeKeyValue = {
+          key: 'cause',
+          value: this.stack
+        }
+        e.errorInformation.extensionList.push(causeKeyValue)
       }
-      const errorCause = {
+    } else {
+      e.errorInformation.extensionList = []
+      const causeKeyValue = {
         key: 'cause',
-        value: stringifiedCause
+        value: this.stack
       }
-      if (!this.extensions) {
-        e.errorInformation.extensionList = []
-      }
-      e.errorInformation.extensionList.push(errorCause)
+      e.errorInformation.extensionList.push(causeKeyValue)
     }
 
     return e
