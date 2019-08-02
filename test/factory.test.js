@@ -358,6 +358,47 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError from a ErrorInformation object with extensionList containing cause', function (test) {
+    const errorCause = 'FSPIOPError: Internal server error - Test Cause\n    at createFSPIOPError (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/src/factory.js:142:12)\n    at Object.createFSPIOPErrorFromErrorInformation (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/src/factory.js:251:10)\n    at Test.<anonymous> (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/test/factory.test.js:235:33)\n    at Test.bound [as _cb] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test.run (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:93:10)\n    at Test.bound [as run] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test._end (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:162:11)\n    at Test.bound [as _end] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test.<anonymous> (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:161:40)\n    at Test.emit (events.js:189:13)\nInternal server error - Test Cause'
+    const errorInformation = {
+      errorCode: '2001',
+      errorDescription: 'Internal server error - Test Cause',
+      extensionList: {
+        extension: [
+          {
+            key: 'test',
+            value: 'test'
+          },
+          {
+            key: 'cause',
+            value: errorCause
+          }
+        ]
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation, errorInformation.errorDescription)
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Cause',
+        extensionList: {
+          extension: [
+            {
+              key: 'test',
+              value: 'test'
+            },
+            {
+              key: 'cause',
+              value: `${fspiopError.stack}\n${errorCause}`
+            }
+          ]
+        }
+      }
+    })
+    test.end()
+  })
+
   factoryTest.test('create an invalid FSPIOPError from a ErrorInformation object', function (test) {
     const errorInformation = {
       errorCode: '9999',
