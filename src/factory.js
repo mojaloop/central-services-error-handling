@@ -57,6 +57,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
    */
   constructor (cause, message, replyTo, apiErrorCode, extensions, useMessageAsDescription = false) {
     // Validate incoming params (if required)
+    // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
     if (extensions && !((Array.isArray(extensions)) || (extensions.extension && Array.isArray(extensions.extension)))) throw new Error('FSPIOPError Parameter Validation Failure - extensions is not a list or does not contain an extension list.')
     if (!apiErrorCode.code && !apiErrorCode.message) throw new Error('FSPIOPError Parameter Validation Failure - apiErrorCode is not valid error code enum.')
 
@@ -112,11 +113,15 @@ class FSPIOPError extends MojaloopFSPIOPError {
       e.errorInformation.extensionList = {}
 
       if (Array.isArray(this.extensions)) {
+        // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
+        // e.errorInformation.extensionList = _.cloneDeep(this.extensions)
         e.errorInformation.extensionList.extension = _.cloneDeep(this.extensions)
-      } else if (this.extensions.extension && Array.isArray(this.extensions.extension)) {
+      } else if (this.extensions.extension && Array.isArray(this.extensions.extension)) { // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
         e.errorInformation.extensionList.extension = _.cloneDeep(this.extensions.extension)
       }
 
+      // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
+      // const causeKeyValueFromExtensions = e.errorInformation.extensionList.find(keyValue => keyValue.key === 'cause')
       const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === 'cause')
       if (causeKeyValueFromExtensions) {
         causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
@@ -125,9 +130,12 @@ class FSPIOPError extends MojaloopFSPIOPError {
           key: 'cause',
           value: this.stack
         }
+        // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
+        // e.errorInformation.extensionList.push(causeKeyValue)
         e.errorInformation.extensionList.extension.push(causeKeyValue)
       }
     } else {
+      // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
       // e.errorInformation.extensionList = []
       e.errorInformation.extensionList = {
         extension: []
@@ -136,6 +144,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
         key: 'cause',
         value: this.stack
       }
+      // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
       // e.errorInformation.extensionList.push(causeKeyValue)
       e.errorInformation.extensionList.extension.push(causeKeyValue)
     }
