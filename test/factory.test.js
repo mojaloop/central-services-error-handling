@@ -144,10 +144,14 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '3102',
         errorDescription: 'Missing mandatory element - Field is required',
-        extensionList: [{
-          key: 'cause',
-          value: fspiopError.stack
-        }]
+        extensionList: {
+          extension: [
+            {
+              key: 'cause',
+              value: fspiopError.stack
+            }
+          ]
+        }
       }
     })
     test.end()
@@ -166,10 +170,14 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '3102',
         errorDescription: 'Missing mandatory element - Field is required',
-        extensionList: [{
-          key: 'cause',
-          value: fspiopError.stack
-        }]
+        extensionList: {
+          extension: [
+            {
+              key: 'cause',
+              value: fspiopError.stack
+            }
+          ]
+        }
       }
     })
     test.end()
@@ -188,12 +196,14 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '3100',
         errorDescription: 'Validation error - Unknown issue',
-        extensionList: [
-          {
-            key: 'cause',
-            value: fspiopError.stack
-          }
-        ]
+        extensionList: {
+          extension: [
+            {
+              key: 'cause',
+              value: fspiopError.stack
+            }
+          ]
+        }
       }
     })
     test.end()
@@ -210,18 +220,64 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '2001',
         errorDescription: 'Internal server error - Test Internal Error',
-        extensionList: [
-          {
-            key: 'testKey',
-            value: 'testValue'
-          },
-          {
-            key: 'cause',
-            value: fspiopError.stack
-          }
-        ]
+        extensionList: {
+          extension: [
+            {
+              key: 'testKey',
+              value: 'testValue'
+            },
+            {
+              key: 'cause',
+              value: fspiopError.stack
+            }
+          ]
+        }
       }
     })
+    test.end()
+  })
+
+  factoryTest.test('create an internal server FSPIOPError with extensionList instead of an extension', function (test) {
+    const cause = new Error('Test Cause')
+    const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1',
+      {
+        extension: [
+          { key: 'testKey', value: 'testValue' }
+        ]
+      }
+    )
+    test.ok(fspiopError)
+    test.ok(fspiopError.toString())
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Internal Error',
+        extensionList: {
+          extension: [
+            {
+              key: 'testKey',
+              value: 'testValue'
+            },
+            {
+              key: 'cause',
+              value: fspiopError.stack
+            }
+          ]
+        }
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an internal server FSPIOPError with an invalid extension', function (test) {
+    const cause = new Error('Test Cause')
+    try {
+      Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1', {})
+      test.fail('expected validation failure due to invalid extension')
+    } catch (err) {
+      test.ok(err instanceof Error)
+      test.deepEqual(err.message, 'FSPIOPError Parameter Validation Failure - extensions is not a list or does not contain an extension list.')
+    }
     test.end()
   })
 
@@ -229,12 +285,14 @@ Test('Factory should', factoryTest => {
     const errorInformation = {
       errorCode: '2001',
       errorDescription: 'Internal server error - Test Cause',
-      extensionList: [
-        {
-          key: 'test',
-          value: 'test'
-        }
-      ]
+      extensionList: {
+        extension: [
+          {
+            key: 'test',
+            value: 'test'
+          }
+        ]
+      }
     }
     const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation, errorInformation.errorDescription)
     test.ok(fspiopError)
@@ -242,16 +300,18 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '2001',
         errorDescription: 'Internal server error - Test Cause',
-        extensionList: [
-          {
-            key: 'test',
-            value: 'test'
-          },
-          {
-            key: 'cause',
-            value: fspiopError.stack
-          }
-        ]
+        extensionList: {
+          extension: [
+            {
+              key: 'test',
+              value: 'test'
+            },
+            {
+              key: 'cause',
+              value: fspiopError.stack
+            }
+          ]
+        }
       }
     })
     test.end()
@@ -262,16 +322,18 @@ Test('Factory should', factoryTest => {
     const errorInformation = {
       errorCode: '2001',
       errorDescription: 'Internal server error - Test Cause',
-      extensionList: [
-        {
-          key: 'test',
-          value: 'test'
-        },
-        {
-          key: 'cause',
-          value: errorCause
-        }
-      ]
+      extensionList: {
+        extension: [
+          {
+            key: 'test',
+            value: 'test'
+          },
+          {
+            key: 'cause',
+            value: errorCause
+          }
+        ]
+      }
     }
     const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation, errorInformation.errorDescription)
     test.ok(fspiopError)
@@ -279,16 +341,18 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '2001',
         errorDescription: 'Internal server error - Test Cause',
-        extensionList: [
-          {
-            key: 'test',
-            value: 'test'
-          },
-          {
-            key: 'cause',
-            value: `${fspiopError.stack}\n${errorCause}`
-          }
-        ]
+        extensionList: {
+          extension: [
+            {
+              key: 'test',
+              value: 'test'
+            },
+            {
+              key: 'cause',
+              value: `${fspiopError.stack}\n${errorCause}`
+            }
+          ]
+        }
       }
     })
     test.end()
@@ -314,12 +378,14 @@ Test('Factory should', factoryTest => {
     const errorInformation = {
       errorCode: '2001',
       errorDescription: 'Internal server error - Test Cause',
-      extensionList: [
-        {
-          key: 'test',
-          value: 'test'
-        }
-      ]
+      extensionList: {
+        extension: [
+          {
+            key: 'test',
+            value: 'test'
+          }
+        ]
+      }
     }
     const fspiopError = Factory.createFSPIOPErrorFromErrorCode(errorInformation.errorCode, undefined, errorInformation.errorDescription, null, errorInformation.extensionList)
     test.ok(fspiopError)
@@ -327,16 +393,18 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '2001',
         errorDescription: 'Internal server error',
-        extensionList: [
-          {
-            key: 'test',
-            value: 'test'
-          },
-          {
-            key: 'cause',
-            value: fspiopError.stack
-          }
-        ]
+        extensionList: {
+          extension: [
+            {
+              key: 'test',
+              value: 'test'
+            },
+            {
+              key: 'cause',
+              value: fspiopError.stack
+            }
+          ]
+        }
       }
     })
     test.end()
@@ -366,12 +434,14 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '2001',
         errorDescription: 'Internal server error - Test Cause',
-        extensionList: [
-          {
-            key: 'cause',
-            value: fspiopError.stack
-          }
-        ]
+        extensionList: {
+          extension: [
+            {
+              key: 'cause',
+              value: fspiopError.stack
+            }
+          ]
+        }
       }
     })
     test.end()

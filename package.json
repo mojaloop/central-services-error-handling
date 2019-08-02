@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-error-handling",
-  "version": "7.2.3",
+  "version": "7.2.4",
   "description": "Hapi error handling module",
   "main": "src/index.js",
   "scripts": {
@@ -24,8 +24,9 @@
     "error",
     "handling"
   ],
-  "author": "Dwolla",
+  "author": "ModusBox",
   "contributors": [
+    "Dwolla",
     "ModusBox"
   ],
   "license": "Apache-2.0",
