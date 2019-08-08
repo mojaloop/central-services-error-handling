@@ -124,11 +124,11 @@ class FSPIOPError extends MojaloopFSPIOPError {
       // const causeKeyValueFromExtensions = e.errorInformation.extensionList.find(keyValue => keyValue.key === 'cause')
       const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === 'cause')
       if (causeKeyValueFromExtensions) {
-        causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
+        causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
       } else {
         const causeKeyValue = {
           key: 'cause',
-          value: this.stack
+          value: this.stack.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
         }
         // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
         // e.errorInformation.extensionList.push(causeKeyValue)
@@ -142,7 +142,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
       }
       const causeKeyValue = {
         key: 'cause',
-        value: this.stack
+        value: this.stack.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
       }
       // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
       // e.errorInformation.extensionList.push(causeKeyValue)

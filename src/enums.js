@@ -143,9 +143,32 @@ const findFSPIOPErrorCode = (code) => {
   return undefined
 }
 
+/**
+ *  Mojaloop API spec Model Types related to ErrorInformation
+ */
+const MojaloopModelTypes = {
+  ExtensionKey: {
+    cardinality: 1,
+    type: 'string',
+    constraints: {
+      min: 1,
+      max: 32
+    }
+  },
+  ExtensionValue: {
+    cardinality: 1,
+    type: 'string',
+    constraints: {
+      min: 1,
+      max: 128
+    }
+  }
+}
+
 module.exports = {
   FSPIOPErrorCodes,
   FSPIOPErrorTypes: MojaloopTypes,
   FSPIOPErrorCodeMap,
-  findFSPIOPErrorCode
+  findFSPIOPErrorCode,
+  MojaloopModelTypes
 }
