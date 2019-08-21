@@ -35,18 +35,18 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "dependencies": {
-    "@modusbox/mojaloop-sdk-standard-components": "0.0.37",
+    "@modusbox/mojaloop-sdk-standard-components": "0.0.39",
     "@mojaloop/central-services-shared": "6.4.1",
     "lodash": "4.17.15"
   },
   "devDependencies": {
-    "@hapi/boom": "7.4.2",
+    "@hapi/boom": "7.4.3",
     "faucet": "0.0.1",
     "istanbul": "1.1.0-alpha.1",
     "npm-audit-resolver": "1.5.0",
     "pre-commit": "1.2.2",
-    "sinon": "7.3.2",
-    "standard": "13.1.0",
+    "sinon": "7.4.1",
+    "standard": "14.0.0",
     "tap-xunit": "2.4.1",
     "tape": "4.11.0"
   },
