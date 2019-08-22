@@ -16,7 +16,12 @@ defaults_Dependencies: &defaults_Dependencies |
             openssh-client \
             make \
             bash \
-            python
+            build-dependencies \
+            gcc \
+            g++ \
+            libtool \
+            autoconf \
+            automake
 
 defaults_awsCliDependencies: &defaults_awsCliDependencies | 
     apk --no-cache add \
