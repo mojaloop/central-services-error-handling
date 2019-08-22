@@ -15,7 +15,8 @@ defaults_Dependencies: &defaults_Dependencies |
             curl \
             openssh-client \
             make \
-            bash
+            bash \
+            python
 
 defaults_awsCliDependencies: &defaults_awsCliDependencies | 
     apk --no-cache add \
