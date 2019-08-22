@@ -19,8 +19,8 @@ defaults_Dependencies: &defaults_Dependencies |
             build-dependencies \
             gcc \
             g++ \
-            libtool \
             autoconf \
+            libtool \
             automake
 
 defaults_awsCliDependencies: &defaults_awsCliDependencies | 
