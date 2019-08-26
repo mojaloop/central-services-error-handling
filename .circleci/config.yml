@@ -16,7 +16,6 @@ defaults_Dependencies: &defaults_Dependencies |
             openssh-client \
             make \
             bash \
-            build-dependencies \
             gcc \
             g++ \
             autoconf \
