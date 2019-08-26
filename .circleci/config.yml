@@ -14,13 +14,8 @@ defaults_Dependencies: &defaults_Dependencies |
             ca-certificates \
             curl \
             openssh-client \
-            make \
             bash \
-            gcc \
-            g++ \
-            autoconf \
-            libtool \
-            automake
+    apk add --no-cache -t build-dependencies make gcc g++ python libtool autoconf automake
 
 defaults_awsCliDependencies: &defaults_awsCliDependencies | 
     apk --no-cache add \
