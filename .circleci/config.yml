@@ -14,8 +14,8 @@ defaults_Dependencies: &defaults_Dependencies |
             ca-certificates \
             curl \
             openssh-client \
-            make \
             bash
+    apk add --no-cache -t build-dependencies make gcc g++ python libtool autoconf automake
 
 defaults_awsCliDependencies: &defaults_awsCliDependencies | 
     apk --no-cache add \
@@ -147,7 +147,7 @@ jobs:
           command: mkdir -p ./audit/results
       - run:
           name: Check for new npm vulnerabilities
-          command: npm run audit:check -- --json > ./audit/results/auditResults.json 
+          command: npm run audit:check --silent -- --json > ./audit/results/auditResults.json 
       - store_artifacts:
           path: ./audit/results
           prefix: audit
