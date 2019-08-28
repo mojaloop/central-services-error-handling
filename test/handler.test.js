@@ -86,7 +86,7 @@ Test('Handler should', handlerTest => {
     Handler.onPreResponse({ response }, {})
     test.equal(response.output.statusCode, 400)
     test.equal(response.output.payload.errorInformation.errorCode, '3000')
-    test.equal(response.output.payload.errorInformation.errorDescription, 'Client error - some bad parameters')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Generic client error - some bad parameters')
     test.end()
   })
 

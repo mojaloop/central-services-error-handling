@@ -196,7 +196,7 @@ Test('Factory should', factoryTest => {
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
         errorCode: '3100',
-        errorDescription: 'Validation error - Unknown issue',
+        errorDescription: 'Generic validation error - Unknown issue',
         extensionList: {
           extension: [
             {
