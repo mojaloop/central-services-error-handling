@@ -35,7 +35,6 @@
 const Test = require('tape')
 const Factory = require('../src/factory')
 const Errors = require('../src/enums').FSPIOPErrorCodes
-const ErrorModelTypes = require('../src/enums').MojaloopModelTypes
 
 Test('Factory should', factoryTest => {
   factoryTest.test('create an FSPIOPError with extensions', function (test) {
@@ -149,7 +148,7 @@ Test('Factory should', factoryTest => {
           extension: [
             {
               key: 'cause',
-              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -175,7 +174,7 @@ Test('Factory should', factoryTest => {
           extension: [
             {
               key: 'cause',
-              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -201,7 +200,7 @@ Test('Factory should', factoryTest => {
           extension: [
             {
               key: 'cause',
-              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -229,7 +228,7 @@ Test('Factory should', factoryTest => {
             },
             {
               key: 'cause',
-              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -261,7 +260,7 @@ Test('Factory should', factoryTest => {
             },
             {
               key: 'cause',
-              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -309,7 +308,7 @@ Test('Factory should', factoryTest => {
             },
             {
               key: 'cause',
-              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -331,7 +330,7 @@ Test('Factory should', factoryTest => {
           },
           {
             key: 'cause',
-            value: errorCause.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+            value: errorCause // truncate string to match Mojaloop API v1.0 Spec
           }
         ]
       }
@@ -350,7 +349,7 @@ Test('Factory should', factoryTest => {
             },
             {
               key: 'cause',
-              value: `${fspiopError.stack}\n${errorCause}`.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: `${fspiopError.stack}\n${errorCause}` // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -372,7 +371,7 @@ Test('Factory should', factoryTest => {
           },
           {
             key: 'cause',
-            value: errorCause.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+            value: errorCause // truncate string to match Mojaloop API v1.0 Spec
           }
         ]
       }
@@ -391,14 +390,12 @@ Test('Factory should', factoryTest => {
             },
             {
               key: 'cause',
-              value: `${fspiopError.stack}\n${errorCause}`.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: `${fspiopError.stack}\n${errorCause}` // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
       }
     })
-    const causeKeyValue = fspiopError.toApiErrorObject().errorInformation.extensionList.extension.find((keyValue) => keyValue.key === 'cause')
-    test.equal(causeKeyValue.value.length, 128)
     test.end()
   })
 
@@ -445,7 +442,7 @@ Test('Factory should', factoryTest => {
             },
             {
               key: 'cause',
-              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -482,7 +479,7 @@ Test('Factory should', factoryTest => {
           extension: [
             {
               key: 'cause',
-              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
