@@ -39,18 +39,41 @@ const getReplyToFromRequestHeaders = (request) => {
 }
 
 const createFSPIOPErrorFromErrorResponse = (request, response) => {
-  const fspiopError = ((httpStatusCode) => {
-    switch (httpStatusCode) {
-      case 400:
-        return Errors.CLIENT_ERROR
+  // The content of this function is a naive attempt at encoding a complex set of conditions
+  // declaratively, without good knowledge of future requirements. Put another way: if this becomes
+  // unwieldly, there's no reason it shouldn't be changed.
+  const getBadRequestMessage = inputMessage => {
+    const badRequestMessages = [
+      {
+        // Look for invalid headers and return a MALFORMED_SYNTAX error
+        regex: /^Invalid.*header$/,
+        code: Errors.MALFORMED_SYNTAX
+      },
+      {
+        // When the user supplies an unacceptable version in the Accept header
+        regex: /^Unacceptable version requested$/,
+        code: Errors.UNACCEPTABLE_VERSION
+      },
+      {
+        // Catch-all returns a generic CLIENT_ERROR
+        regex: /.*/,
+        code: Errors.CLIENT_ERROR
+      }
+    ]
+    return badRequestMessages.find(el => el.regex.test(inputMessage)).code
+  }
 
-      case 404:
-        return Errors.UNKNOWN_URI
-
-      default:
-        return Errors.INTERNAL_SERVER_ERROR
+  const getError = response => {
+    const { statusCode, message } = response.output.payload;
+    const statusCodeMap = {
+      [400]: getBadRequestMessage,
+      [404]: () => Errors.UNKNOWN_URI
     }
-  })(response.output.statusCode)
+    const codeMapFn = statusCodeMap[statusCode]
+    return codeMapFn ? codeMapFn(message) : Errors.INTERNAL_SERVER_ERROR
+  }
+
+  const fspiopError = getError(response)
 
   return Factory.createFSPIOPError(fspiopError, response.message, response, getReplyToFromRequestHeaders(request), [
     { key: 'cause', value: response.stack }
