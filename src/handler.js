@@ -64,10 +64,11 @@ const createFSPIOPErrorFromErrorResponse = (request, response) => {
   }
 
   const getError = response => {
-    const { statusCode, message } = response.output.payload;
+    const { statusCode } = response.output
+    const message = (response.output.payload && response.output.payload.message) || ''
     const statusCodeMap = {
-      [400]: getBadRequestMessage,
-      [404]: () => Errors.UNKNOWN_URI
+      400: getBadRequestMessage,
+      404: () => Errors.UNKNOWN_URI
     }
     const codeMapFn = statusCodeMap[statusCode]
     return codeMapFn ? codeMapFn(message) : Errors.INTERNAL_SERVER_ERROR
