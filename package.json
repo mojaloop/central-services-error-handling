@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-error-handling",
-  "version": "7.4.0",
+  "version": "7.4.1",
   "description": "Hapi error handling module",
   "main": "src/index.js",
   "scripts": {
@@ -35,8 +35,8 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "dependencies": {
-    "@modusbox/mojaloop-sdk-standard-components": "0.0.39",
-    "@mojaloop/central-services-shared": "6.4.1",
+    "@mojaloop/sdk-standard-components": "7.4.0",
+    "@mojaloop/central-services-shared": "7.4.5",
     "lodash": "4.17.15"
   },
   "devDependencies": {
@@ -46,7 +46,7 @@
     "npm-audit-resolver": "1.5.0",
     "pre-commit": "1.2.2",
     "sinon": "7.4.1",
-    "standard": "14.0.0",
+    "standard": "14.0.2",
     "tap-xunit": "2.4.1",
     "tape": "4.11.0"
   },
