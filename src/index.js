@@ -34,7 +34,6 @@
 'use strict'
 
 const Handler = require('./handler')
-const ValidationErrors = require('./validation-errors')
 const Factory = require('./factory')
 const Enums = require('./enums')
 
@@ -56,10 +55,6 @@ const validateRoutes = (options = {}) => {
 module.exports = {
   plugin,
   validateRoutes,
-  InvalidBodyError: ValidationErrors.InvalidBodyError,
-  InvalidQueryParameterError: ValidationErrors.InvalidQueryParameterError,
-  InvalidUriParameterError: ValidationErrors.InvalidUriParameterError,
-  InvalidHeaderError: ValidationErrors.InvalidHeaderError,
   Factory: Factory,
   Enums: Enums,
   CreateFSPIOPError: Factory.createFSPIOPError,
