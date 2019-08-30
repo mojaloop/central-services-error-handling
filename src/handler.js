@@ -66,7 +66,7 @@ const reformatError = (request, response) => {
   if (response.isJoi) {
     const replyTo = getReplyToFromRequestHeaders(request)
     fspiopError = Factory.createFSPIOPErrorFromJoiError(request.response.details[0], response, replyTo)
-  } else if (response instanceof Factory.FSPIOPError) {
+  } else if (response.name === 'FSPIOPError') {
     fspiopError = response
   } else {
     fspiopError = createFSPIOPErrorFromErrorResponse(request, response)
