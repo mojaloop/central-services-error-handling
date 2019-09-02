@@ -125,7 +125,6 @@ class FSPIOPError extends MojaloopFSPIOPError {
 
       if (includeCauseExtension) {
         // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-        // const causeKeyValueFromExtensions = e.errorInformation.extensionList.find(keyValue => keyValue.key === 'cause')
         const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === 'cause')
         if (causeKeyValueFromExtensions) {
           if (truncateCause) {
@@ -147,14 +146,12 @@ class FSPIOPError extends MojaloopFSPIOPError {
             }
           }
           // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-          // e.errorInformation.extensionList.push(causeKeyValue)
           e.errorInformation.extensionList.extension.push(causeKeyValue)
         }
       }
     } else {
       if (includeCauseExtension) {
         // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-        // e.errorInformation.extensionList = []
         e.errorInformation.extensionList = {
           extension: []
         }
