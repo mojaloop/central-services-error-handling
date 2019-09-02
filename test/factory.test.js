@@ -35,6 +35,7 @@
 const Test = require('tape')
 const Factory = require('../src/factory')
 const Errors = require('../src/enums').FSPIOPErrorCodes
+const ErrorModelTypes = require('../src/enums').MojaloopModelTypes
 
 Test('Factory should', factoryTest => {
   factoryTest.test('create an FSPIOPError with extensions', function (test) {
@@ -143,12 +144,58 @@ Test('Factory should', factoryTest => {
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
         errorCode: '3102',
+        errorDescription: 'Missing mandatory element - Field is required'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Joi error with un-truncated cause extension', function (test) {
+    const joiError = {
+      type: 'any.required',
+      context: {
+        label: 'Field is required'
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, { stack: 'Stack trace...' }, 'dfsp1')
+    test.ok(fspiopError)
+    const options = { includeCauseExtension: true, truncateCause: false }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
+      errorInformation: {
+        errorCode: '3102',
         errorDescription: 'Missing mandatory element - Field is required',
         extensionList: {
           extension: [
             {
               key: 'cause',
-              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack
+            }
+          ]
+        }
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Joi error with truncated cause extension', function (test) {
+    const joiError = {
+      type: 'any.required',
+      context: {
+        label: 'Field is required'
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, { stack: 'Stack trace...' }, 'dfsp1')
+    test.ok(fspiopError)
+    const options = { includeCauseExtension: true, truncateCause: false }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
+      errorInformation: {
+        errorCode: '3102',
+        errorDescription: 'Missing mandatory element - Field is required',
+        extensionList: {
+          extension: [
+            {
+              key: 'cause',
+              value: fspiopError.stack
             }
           ]
         }
@@ -169,12 +216,31 @@ Test('Factory should', factoryTest => {
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
         errorCode: '3102',
+        errorDescription: 'Missing mandatory element - Field is required'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Joi error with a string cause with cause extension', function (test) {
+    const joiError = {
+      type: 'any.required',
+      context: {
+        label: 'Field is required'
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, 'Stack trace...', 'dfsp1')
+    test.ok(fspiopError)
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
+      errorInformation: {
+        errorCode: '3102',
         errorDescription: 'Missing mandatory element - Field is required',
         extensionList: {
           extension: [
             {
               key: 'cause',
-              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -195,12 +261,31 @@ Test('Factory should', factoryTest => {
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
         errorCode: '3100',
+        errorDescription: 'Generic validation error - Unknown issue'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from an unknown Joi error with cause extension', function (test) {
+    const joiError = {
+      type: 'unknown',
+      context: {
+        label: 'Unknown issue'
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError)
+    test.ok(fspiopError)
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
+      errorInformation: {
+        errorCode: '3100',
         errorDescription: 'Generic validation error - Unknown issue',
         extensionList: {
           extension: [
             {
               key: 'cause',
-              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -225,10 +310,35 @@ Test('Factory should', factoryTest => {
             {
               key: 'testKey',
               value: 'testValue'
+            }
+          ]
+        }
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an internal server FSPIOPError with cause extension', function (test) {
+    const cause = new Error('Test Cause')
+    const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1', [
+      { key: 'testKey', value: 'testValue' }
+    ])
+    test.ok(fspiopError)
+    test.ok(fspiopError.toString())
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Internal Error',
+        extensionList: {
+          extension: [
+            {
+              key: 'testKey',
+              value: 'testValue'
             },
             {
               key: 'cause',
-              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -242,7 +352,8 @@ Test('Factory should', factoryTest => {
     const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1',
       {
         extension: [
-          { key: 'testKey', value: 'testValue' }
+          { key: 'testKey1', value: 'testValue1' },
+          { key: 'testKey2', value: 'testValue2' }
         ]
       }
     )
@@ -255,12 +366,45 @@ Test('Factory should', factoryTest => {
         extensionList: {
           extension: [
             {
+              key: 'testKey1',
+              value: 'testValue1'
+            },
+            {
+              key: 'testKey2',
+              value: 'testValue2'
+            }
+          ]
+        }
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an internal server FSPIOPError with extensionList instead of an extension with cause extension', function (test) {
+    const cause = new Error('Test Cause')
+    const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1',
+      {
+        extension: [
+          { key: 'testKey', value: 'testValue' }
+        ]
+      }
+    )
+    test.ok(fspiopError)
+    test.ok(fspiopError.toString())
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Internal Error',
+        extensionList: {
+          extension: [
+            {
               key: 'testKey',
               value: 'testValue'
             },
             {
               key: 'cause',
-              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -305,10 +449,43 @@ Test('Factory should', factoryTest => {
             {
               key: 'test',
               value: 'test'
+            }
+          ]
+        }
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a ErrorInformation object with cause extension', function (test) {
+    const errorInformation = {
+      errorCode: '2001',
+      errorDescription: 'Internal server error - Test Cause',
+      extensionList: {
+        extension: [
+          {
+            key: 'test',
+            value: 'test'
+          }
+        ]
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation, errorInformation.errorDescription)
+    test.ok(fspiopError)
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Cause',
+        extensionList: {
+          extension: [
+            {
+              key: 'test',
+              value: 'test'
             },
             {
               key: 'cause',
-              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -330,14 +507,15 @@ Test('Factory should', factoryTest => {
           },
           {
             key: 'cause',
-            value: errorCause // truncate string to match Mojaloop API v1.0 Spec
+            value: errorCause.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
           }
         ]
       }
     }
     const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation, errorInformation.errorDescription)
     test.ok(fspiopError)
-    test.deepEqual(fspiopError.toApiErrorObject(), {
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
       errorInformation: {
         errorCode: '2001',
         errorDescription: 'Internal server error - Test Cause',
@@ -349,7 +527,7 @@ Test('Factory should', factoryTest => {
             },
             {
               key: 'cause',
-              value: `${fspiopError.stack}\n${errorCause}` // truncate string to match Mojaloop API v1.0 Spec
+              value: `${fspiopError.stack}\n${errorCause}`.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -371,14 +549,15 @@ Test('Factory should', factoryTest => {
           },
           {
             key: 'cause',
-            value: errorCause // truncate string to match Mojaloop API v1.0 Spec
+            value: errorCause.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
           }
         ]
       }
     }
     const fspiopError = Factory.createFSPIOPErrorFromErrorInformation(errorInformation, errorInformation.errorDescription)
     test.ok(fspiopError)
-    test.deepEqual(fspiopError.toApiErrorObject(), {
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
       errorInformation: {
         errorCode: '2001',
         errorDescription: 'Internal server error - Test Cause',
@@ -390,7 +569,7 @@ Test('Factory should', factoryTest => {
             },
             {
               key: 'cause',
-              value: `${fspiopError.stack}\n${errorCause}` // truncate string to match Mojaloop API v1.0 Spec
+              value: `${fspiopError.stack}\n${errorCause}`.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -439,10 +618,43 @@ Test('Factory should', factoryTest => {
             {
               key: 'test',
               value: 'test'
+            }
+          ]
+        }
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from an ErrorCode with cause extension', function (test) {
+    const errorInformation = {
+      errorCode: '2001',
+      errorDescription: 'Internal server error - Test Cause',
+      extensionList: {
+        extension: [
+          {
+            key: 'test',
+            value: 'test'
+          }
+        ]
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromErrorCode(errorInformation.errorCode, undefined, errorInformation.errorDescription, null, errorInformation.extensionList)
+    test.ok(fspiopError)
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error',
+        extensionList: {
+          extension: [
+            {
+              key: 'test',
+              value: 'test'
             },
             {
               key: 'cause',
-              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }
@@ -471,7 +683,8 @@ Test('Factory should', factoryTest => {
     const cause = new Error('Test Cause')
     const fspiopError = Factory.reformatFSPIOPError(cause)
     test.ok(fspiopError)
-    test.deepEqual(fspiopError.toApiErrorObject(), {
+    const options = { includeCauseExtension: true, truncateCause: true }
+    test.deepEqual(fspiopError.toApiErrorObject(options), {
       errorInformation: {
         errorCode: '2001',
         errorDescription: 'Internal server error - Test Cause',
@@ -479,7 +692,7 @@ Test('Factory should', factoryTest => {
           extension: [
             {
               key: 'cause',
-              value: fspiopError.stack // truncate string to match Mojaloop API v1.0 Spec
+              value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
         }

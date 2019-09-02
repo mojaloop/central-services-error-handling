@@ -87,12 +87,15 @@ class FSPIOPError extends MojaloopFSPIOPError {
   }
 
   /**
-   * Returns an object that complies with the API specification for error bodies.
+   * Returns an object that complies with the API specification for error bodies. By default object does not contain the cause extension
    * This can be used to serialise the error to a JSON body
+   *
+   * @param includeCauseExtension {boolean} - Flag to specify whether or not to include cause extension at extension list
+   * @param truncateCause {boolean} - Flag to specify whether or not to truncate the cause string to match Mojaloop API v1.0 Spec
    *
    * @returns {object}
    */
-  toApiErrorObject () {
+  toApiErrorObject ({ includeCauseExtension = false, truncateCause = true } = {}) {
     let errorDescription = this.apiErrorCode.message
 
     // Lets check if the message is defined, not null or empty (i.e. undefined).
@@ -120,33 +123,54 @@ class FSPIOPError extends MojaloopFSPIOPError {
         e.errorInformation.extensionList.extension = _.cloneDeep(this.extensions.extension)
       }
 
-      // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-      // const causeKeyValueFromExtensions = e.errorInformation.extensionList.find(keyValue => keyValue.key === 'cause')
-      const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === 'cause')
-      if (causeKeyValueFromExtensions) {
-        causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}` // truncate string to match Mojaloop API v1.0 Spec
-      } else {
-        const causeKeyValue = {
-          key: 'cause',
-          value: this.stack // truncate string to match Mojaloop API v1.0 Spec
+      if (includeCauseExtension) {
+        // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
+        const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === 'cause')
+        if (causeKeyValueFromExtensions) {
+          if (truncateCause) {
+            causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+          } else {
+            causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
+          }
+        } else {
+          let causeKeyValue
+          if (truncateCause) {
+            causeKeyValue = {
+              key: 'cause',
+              value: this.stack.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+            }
+          } else {
+            causeKeyValue = {
+              key: 'cause',
+              value: this.stack
+            }
+          }
+          // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
+          e.errorInformation.extensionList.extension.push(causeKeyValue)
+        }
+      }
+    } else {
+      if (includeCauseExtension) {
+        // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
+        e.errorInformation.extensionList = {
+          extension: []
+        }
+        let causeKeyValue
+        if (truncateCause) {
+          causeKeyValue = {
+            key: 'cause',
+            value: this.stack.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+          }
+        } else {
+          causeKeyValue = {
+            key: 'cause',
+            value: this.stack
+          }
         }
         // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
         // e.errorInformation.extensionList.push(causeKeyValue)
         e.errorInformation.extensionList.extension.push(causeKeyValue)
       }
-    } else {
-      // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-      // e.errorInformation.extensionList = []
-      e.errorInformation.extensionList = {
-        extension: []
-      }
-      const causeKeyValue = {
-        key: 'cause',
-        value: this.stack // truncate string to match Mojaloop API v1.0 Spec
-      }
-      // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-      // e.errorInformation.extensionList.push(causeKeyValue)
-      e.errorInformation.extensionList.extension.push(causeKeyValue)
     }
 
     return e
