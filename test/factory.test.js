@@ -58,7 +58,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError without extensions', function (test) {
+  factoryTest.test('create an FSPIOPError with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
     const apiErrorObject = fspiopError.toApiErrorObject()
     test.ok(fspiopError)
@@ -66,7 +66,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions', function (test) {
+  factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     try {
       const apiErrorCode = undefined
       const fspiopError = Factory.createFSPIOPError(apiErrorCode, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
@@ -81,7 +81,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError with empty message', function (test) {
+  factoryTest.test('create an FSPIOPError with empty message with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, '', { stack: 'Error:...' }, 'dfsp1', [
       { key: 'testKey', value: 'testValue' }
     ])
@@ -93,7 +93,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError with null message', function (test) {
+  factoryTest.test('create an FSPIOPError with null message with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, null, { stack: 'Error:...' }, 'dfsp1', [
       { key: 'testKey', value: 'testValue' }
     ])
@@ -105,7 +105,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError with undefined message', function (test) {
+  factoryTest.test('create an FSPIOPError with undefined message with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, undefined, { stack: 'Error:...' }, 'dfsp1', [
       { key: 'testKey', value: 'testValue' }
     ])
@@ -117,7 +117,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions', function (test) {
+  factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     try {
       const apiErrorCode = { foo: 'bar' }
       const fspiopError = Factory.createFSPIOPError(apiErrorCode, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
@@ -132,7 +132,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Joi error', function (test) {
+  factoryTest.test('create an FSPIOPError from a Joi error with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const joiError = {
       type: 'any.required',
       context: {
@@ -150,7 +150,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Joi error with un-truncated cause extension', function (test) {
+  factoryTest.test('create an FSPIOPError from a Joi error with toApiErrorObject includeCauseExtension: true, truncateCause: false', function (test) {
     const joiError = {
       type: 'any.required',
       context: {
@@ -177,7 +177,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Joi error with truncated cause extension', function (test) {
+  factoryTest.test('create an FSPIOPError from a Joi error with toApiErrorObject includeCauseExtension: true, truncateCause: false', function (test) {
     const joiError = {
       type: 'any.required',
       context: {
@@ -204,7 +204,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Joi error with a string cause', function (test) {
+  factoryTest.test('create an FSPIOPError from a Joi error with a string cause with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const joiError = {
       type: 'any.required',
       context: {
@@ -222,7 +222,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Joi error with a string cause with cause extension', function (test) {
+  factoryTest.test('create an FSPIOPError from a Joi error with a string cause with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const joiError = {
       type: 'any.required',
       context: {
@@ -249,7 +249,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from an unknown Joi error', function (test) {
+  factoryTest.test('create an FSPIOPError from an unknown Joi error with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const joiError = {
       type: 'unknown',
       context: {
@@ -267,7 +267,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from an unknown Joi error with cause extension', function (test) {
+  factoryTest.test('create an FSPIOPError from an unknown Joi error with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const joiError = {
       type: 'unknown',
       context: {
@@ -294,7 +294,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an internal server FSPIOPError', function (test) {
+  factoryTest.test('create an internal server FSPIOPError with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const cause = new Error('Test Cause')
     const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1', [
       { key: 'testKey', value: 'testValue' }
@@ -318,7 +318,26 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an internal server FSPIOPError with cause extension', function (test) {
+  factoryTest.test('create an internal server FSPIOPError with extension containing cause with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
+    const cause = new Error('Test Cause')
+    const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1', [
+      { key: 'cause', value: 'testValue' }
+    ])
+    test.ok(fspiopError)
+    test.ok(fspiopError.toString())
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '2001',
+        errorDescription: 'Internal server error - Test Internal Error',
+        extensionList: {
+          extension: []
+        }
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an internal server FSPIOPError with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const cause = new Error('Test Cause')
     const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1', [
       { key: 'testKey', value: 'testValue' }
@@ -347,7 +366,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an internal server FSPIOPError with extensionList instead of an extension', function (test) {
+  factoryTest.test('create an internal server FSPIOPError with extensionList instead of an extension with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const cause = new Error('Test Cause')
     const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1',
       {
@@ -380,7 +399,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an internal server FSPIOPError with extensionList instead of an extension with cause extension', function (test) {
+  factoryTest.test('create an internal server FSPIOPError with extensionList instead of an extension with cause extension with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const cause = new Error('Test Cause')
     const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1',
       {
@@ -425,7 +444,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a ErrorInformation object', function (test) {
+  factoryTest.test('create an FSPIOPError from a ErrorInformation object with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const errorInformation = {
       errorCode: '2001',
       errorDescription: 'Internal server error - Test Cause',
@@ -457,7 +476,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a ErrorInformation object with cause extension', function (test) {
+  factoryTest.test('create an FSPIOPError from a ErrorInformation object with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const errorInformation = {
       errorCode: '2001',
       errorDescription: 'Internal server error - Test Cause',
@@ -494,7 +513,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a ErrorInformation object with extensionList containing cause', function (test) {
+  factoryTest.test('create an FSPIOPError from a ErrorInformation object with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const errorCause = 'FSPIOPError: Internal server error - Test Cause\n    at createFSPIOPError (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/src/factory.js:142:12)\n    at Object.createFSPIOPErrorFromErrorInformation (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/src/factory.js:251:10)\n    at Test.<anonymous> (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/test/factory.test.js:235:33)\n    at Test.bound [as _cb] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test.run (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:93:10)\n    at Test.bound [as run] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test._end (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:162:11)\n    at Test.bound [as _end] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test.<anonymous> (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:161:40)\n    at Test.emit (events.js:189:13)\nInternal server error - Test Cause'
     const errorInformation = {
       errorCode: '2001',
@@ -536,7 +555,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a ErrorInformation object with extensionList containing cause', function (test) {
+  factoryTest.test('create an FSPIOPError from a ErrorInformation object with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const errorCause = 'FSPIOPError: Internal server error - Test Cause\n    at createFSPIOPError (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/src/factory.js:142:12)\n    at Object.createFSPIOPErrorFromErrorInformation (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/src/factory.js:251:10)\n    at Test.<anonymous> (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/test/factory.test.js:235:33)\n    at Test.bound [as _cb] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test.run (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:93:10)\n    at Test.bound [as run] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test._end (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:162:11)\n    at Test.bound [as _end] (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:77:32)\n    at Test.<anonymous> (/Users/mdebarros/Documents/ModusDocs/Projects/MojaLoop/git/fork/central-services-error-handling/node_modules/tape/lib/test.js:161:40)\n    at Test.emit (events.js:189:13)\nInternal server error - Test Cause'
     const errorInformation = {
       errorCode: '2001',
@@ -594,7 +613,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from an ErrorCode', function (test) {
+  factoryTest.test('create an FSPIOPError from an ErrorCode with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const errorInformation = {
       errorCode: '2001',
       errorDescription: 'Internal server error - Test Cause',
@@ -626,7 +645,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from an ErrorCode with cause extension', function (test) {
+  factoryTest.test('create an FSPIOPError from an ErrorCode with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const errorInformation = {
       errorCode: '2001',
       errorDescription: 'Internal server error - Test Cause',
@@ -679,7 +698,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('reformat an FSPIOPError from a general error', function (test) {
+  factoryTest.test('reformat an FSPIOPError from a general error with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const cause = new Error('Test Cause')
     const fspiopError = Factory.reformatFSPIOPError(cause)
     test.ok(fspiopError)

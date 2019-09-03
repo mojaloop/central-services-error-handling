@@ -148,6 +148,10 @@ class FSPIOPError extends MojaloopFSPIOPError {
           // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
           e.errorInformation.extensionList.extension.push(causeKeyValue)
         }
+      } else if (e.errorInformation.extensionList.extension && Array.isArray(e.errorInformation.extensionList.extension)) {
+        _.remove(e.errorInformation.extensionList.extension, (extensionKeyValue) => {
+          return extensionKeyValue.key === 'cause'
+        })
       }
     } else {
       if (includeCauseExtension === true) {
