@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-error-handling",
-  "version": "7.4.3",
+  "version": "7.4.4",
   "description": "Hapi error handling module",
   "main": "src/index.js",
   "scripts": {

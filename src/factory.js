@@ -123,18 +123,18 @@ class FSPIOPError extends MojaloopFSPIOPError {
         e.errorInformation.extensionList.extension = _.cloneDeep(this.extensions.extension)
       }
 
-      if (includeCauseExtension) {
+      if (includeCauseExtension === true) {
         // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
         const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === 'cause')
         if (causeKeyValueFromExtensions) {
-          if (truncateCause) {
+          if (truncateCause === true) {
             causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
           } else {
             causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
           }
         } else {
           let causeKeyValue
-          if (truncateCause) {
+          if (truncateCause === true) {
             causeKeyValue = {
               key: 'cause',
               value: this.stack.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
@@ -150,13 +150,13 @@ class FSPIOPError extends MojaloopFSPIOPError {
         }
       }
     } else {
-      if (includeCauseExtension) {
+      if (includeCauseExtension === true) {
         // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
         e.errorInformation.extensionList = {
           extension: []
         }
         let causeKeyValue
-        if (truncateCause) {
+        if (truncateCause === true) {
           causeKeyValue = {
             key: 'cause',
             value: this.stack.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
