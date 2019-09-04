@@ -36,6 +36,7 @@ const Test = require('tape')
 const Factory = require('../src/factory')
 const Errors = require('../src/enums').FSPIOPErrorCodes
 const ErrorModelTypes = require('../src/enums').MojaloopModelTypes
+const InternalEnums = require('../src/enums').Internal
 
 Test('Factory should', factoryTest => {
   factoryTest.test('create an FSPIOPError with extensions', function (test) {
@@ -167,7 +168,7 @@ Test('Factory should', factoryTest => {
         extensionList: {
           extension: [
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack
             }
           ]
@@ -194,7 +195,7 @@ Test('Factory should', factoryTest => {
         extensionList: {
           extension: [
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack
             }
           ]
@@ -239,7 +240,7 @@ Test('Factory should', factoryTest => {
         extensionList: {
           extension: [
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
@@ -284,7 +285,7 @@ Test('Factory should', factoryTest => {
         extensionList: {
           extension: [
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
@@ -321,7 +322,7 @@ Test('Factory should', factoryTest => {
   factoryTest.test('create an internal server FSPIOPError with extension containing cause with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const cause = new Error('Test Cause')
     const fspiopError = Factory.createInternalServerFSPIOPError('Test Internal Error', cause, 'dfsp1', [
-      { key: 'cause', value: 'testValue' }
+      { key: InternalEnums.FSPIOPError.ExtensionsKeys.cause, value: 'testValue' }
     ])
     test.ok(fspiopError)
     test.ok(fspiopError.toString())
@@ -356,7 +357,7 @@ Test('Factory should', factoryTest => {
               value: 'testValue'
             },
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
@@ -422,7 +423,7 @@ Test('Factory should', factoryTest => {
               value: 'testValue'
             },
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
@@ -503,7 +504,7 @@ Test('Factory should', factoryTest => {
               value: 'test'
             },
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
@@ -525,7 +526,7 @@ Test('Factory should', factoryTest => {
             value: 'test'
           },
           {
-            key: 'cause',
+            key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
             value: errorCause.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
           }
         ]
@@ -545,7 +546,7 @@ Test('Factory should', factoryTest => {
               value: 'test'
             },
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: `${fspiopError.stack}\n${errorCause}`.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
@@ -567,7 +568,7 @@ Test('Factory should', factoryTest => {
             value: 'test'
           },
           {
-            key: 'cause',
+            key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
             value: errorCause.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
           }
         ]
@@ -587,7 +588,7 @@ Test('Factory should', factoryTest => {
               value: 'test'
             },
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: `${fspiopError.stack}\n${errorCause}`.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
@@ -672,7 +673,7 @@ Test('Factory should', factoryTest => {
               value: 'test'
             },
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]
@@ -710,7 +711,7 @@ Test('Factory should', factoryTest => {
         extensionList: {
           extension: [
             {
-              key: 'cause',
+              key: InternalEnums.FSPIOPError.ExtensionsKeys.cause,
               value: fspiopError.stack.substring(ErrorModelTypes.ExtensionValue.constraints.min - 1, ErrorModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           ]

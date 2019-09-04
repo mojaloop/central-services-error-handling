@@ -32,7 +32,7 @@
 
 'use strict'
 
-const ErrorEnums = require('./enums')
+const Enums = require('./enums')
 const _ = require('lodash')
 const MojaloopFSPIOPError = require('@mojaloop/sdk-standard-components').Errors.MojaloopFSPIOPError
 
@@ -125,10 +125,10 @@ class FSPIOPError extends MojaloopFSPIOPError {
 
       if (includeCauseExtension === true) {
         // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-        const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === 'cause')
+        const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === Enums.Internal.FSPIOPError.ExtensionsKeys.cause)
         if (causeKeyValueFromExtensions) {
           if (truncateCause === true) {
-            causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+            causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`.substring(Enums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, Enums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
           } else {
             causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
           }
@@ -136,12 +136,12 @@ class FSPIOPError extends MojaloopFSPIOPError {
           let causeKeyValue
           if (truncateCause === true) {
             causeKeyValue = {
-              key: 'cause',
-              value: this.stack.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+              key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
+              value: this.stack.substring(Enums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, Enums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
             }
           } else {
             causeKeyValue = {
-              key: 'cause',
+              key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
               value: this.stack
             }
           }
@@ -150,7 +150,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
         }
       } else if (e.errorInformation.extensionList.extension && Array.isArray(e.errorInformation.extensionList.extension)) {
         _.remove(e.errorInformation.extensionList.extension, (extensionKeyValue) => {
-          return extensionKeyValue.key === 'cause'
+          return extensionKeyValue.key === Enums.Internal.FSPIOPError.ExtensionsKeys.cause
         })
       }
     } else {
@@ -162,12 +162,12 @@ class FSPIOPError extends MojaloopFSPIOPError {
         let causeKeyValue
         if (truncateCause === true) {
           causeKeyValue = {
-            key: 'cause',
-            value: this.stack.substring(ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, ErrorEnums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
+            key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
+            value: this.stack.substring(Enums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, Enums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
           }
         } else {
           causeKeyValue = {
-            key: 'cause',
+            key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
             value: this.stack
           }
         }
@@ -197,10 +197,10 @@ class FSPIOPError extends MojaloopFSPIOPError {
  * @returns {FSPIOPError} - create the specified error, will fall back to INTERNAL_SERVER_ERROR if the apiErrorCode is undefined
  */
 const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions, useDescriptionAsMessage) => {
-  if (apiErrorCode && ErrorEnums.findFSPIOPErrorCode(apiErrorCode.code)) {
+  if (apiErrorCode && Enums.findFSPIOPErrorCode(apiErrorCode.code)) {
     return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions, useDescriptionAsMessage)
   } else {
-    throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, ErrorEnums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
+    throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
   }
 }
 
@@ -217,15 +217,15 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
     switch (type) {
       case 'any.required':
       case 'any.empty':
-        return ErrorEnums.FSPIOPErrorCodes.MISSING_ELEMENT
+        return Enums.FSPIOPErrorCodes.MISSING_ELEMENT
 
       // Match any type that starts with 'string.'
       case (type.match(/^string\./) || {}).input:
       case 'date.format':
-        return ErrorEnums.FSPIOPErrorCodes.MALFORMED_SYNTAX
+        return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
 
       default:
-        return ErrorEnums.FSPIOPErrorCodes.VALIDATION_ERROR
+        return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
     }
   })(error.type)
 
@@ -249,7 +249,7 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
  * @returns {FSPIOPError}
  */
 const createInternalServerFSPIOPError = (message, cause, replyTo, extensions) => {
-  return createFSPIOPError(ErrorEnums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, message, cause, replyTo, extensions)
+  return createFSPIOPError(Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, message, cause, replyTo, extensions)
 }
 
 /**
@@ -264,7 +264,7 @@ const createInternalServerFSPIOPError = (message, cause, replyTo, extensions) =>
  * @param extensions {object} - additional information to associate with the error
  * @returns {FSPIOPError}
  */
-const reformatFSPIOPError = (error, apiErrorCode = ErrorEnums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, replyTo, extensions) => {
+const reformatFSPIOPError = (error, apiErrorCode = Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, replyTo, extensions) => {
   if (error instanceof FSPIOPError) {
     return error
   } else {
@@ -317,7 +317,7 @@ const validateFSPIOPErrorCode = (code) => {
     codeToValidate = code.code
   }
   // validate the error code
-  const result = ErrorEnums.findFSPIOPErrorCode(codeToValidate)
+  const result = Enums.findFSPIOPErrorCode(codeToValidate)
   if (result) {
     return result
   } else {

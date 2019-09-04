@@ -165,10 +165,19 @@ const MojaloopModelTypes = {
   }
 }
 
+const Internal = {
+  FSPIOPError: {
+    ExtensionsKeys: {
+      cause: '_cause'
+    }
+  }
+}
+
 module.exports = {
   FSPIOPErrorCodes,
   FSPIOPErrorTypes: MojaloopTypes,
   FSPIOPErrorCodeMap,
   findFSPIOPErrorCode,
-  MojaloopModelTypes
+  MojaloopModelTypes,
+  Internal
 }
