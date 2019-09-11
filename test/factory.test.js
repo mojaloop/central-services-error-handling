@@ -133,6 +133,60 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError from a Joi error and invalid path parameter response with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
+    const joiError = {
+      type: 'any.allowOnly',
+      context: {
+        label: 'Type'
+      }
+    }
+    const joiResponse = {
+      output: {
+        payload: {
+          validation: {
+            source: 'params'
+          }
+        }
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, joiResponse, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3101',
+        errorDescription: 'Malformed syntax - \'Type\' URI path parameter'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Joi error and missing header response with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
+    const joiError = {
+      type: 'any.required',
+      context: {
+        label: 'content-type'
+      }
+    }
+    const joiResponse = {
+      output: {
+        payload: {
+          validation: {
+            source: 'header'
+          }
+        }
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, joiResponse, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3102',
+        errorDescription: 'Missing mandatory element - \'content-type\' HTTP header'
+      }
+    })
+    test.end()
+  })
+
   factoryTest.test('create an FSPIOPError from a Joi error with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const joiError = {
       type: 'any.required',
