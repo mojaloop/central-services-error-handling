@@ -222,6 +222,7 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
       // Match any type that starts with 'string.'
       case (type.match(/^string\./) || {}).input:
       case 'date.format':
+      case 'any.allowOnly':
         return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
 
       default:
@@ -229,14 +230,30 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
     }
   })(error.type)
 
-  let stackTrace
-  if (cause && cause.stack) {
-    stackTrace = cause.stack
-  } else {
-    stackTrace = cause
+  const stackTrace = (cause && cause.stack)
+    ? cause.stack
+    : cause
+
+  const source = (
+    cause &&
+    cause.output &&
+    cause.output.payload &&
+    cause.output.payload.validation
+  ) ? cause.output.payload.validation.source
+    : undefined
+
+  const messages = {
+    header: `'${error.context.label}' HTTP header`,
+    params: `'${error.context.label}' URI path parameter`
   }
 
-  return createFSPIOPError(fspiopError, error.context.label, stackTrace, replyTo)
+  // If the error was caused by a missing header or path params respond with appropriate text
+  // indicating as much
+  const msg = (source && messages[source])
+    ? messages[source]
+    : error.context.label
+
+  return createFSPIOPError(fspiopError, msg, stackTrace, replyTo)
 }
 
 /**
