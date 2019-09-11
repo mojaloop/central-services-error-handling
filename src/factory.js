@@ -247,8 +247,8 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
     params: `'${error.context.label}' URI path parameter`
   }
 
-  // If the error was caused by a missing header or path params respond with appropriate text
-  // indicating as much
+  // If the error was caused by a missing or invalid header or path params respond with appropriate
+  // text indicating as much
   const msg = (source && messages[source])
     ? messages[source]
     : error.context.label
