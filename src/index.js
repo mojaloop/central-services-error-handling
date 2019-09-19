@@ -44,6 +44,13 @@ const plugin = {
   }
 }
 
+const validateFspioperrorCodeByCategoryPlugin = {
+  name: 'validate-fspioperror-code-by-category',
+  register: function (server) {
+    server.ext('onPreHandler', Handler.onPreHandler)
+  }
+}
+
 const validateRoutes = (options = {}) => {
   options.abortEarly = false
   const language = options.language || {}
@@ -54,6 +61,7 @@ const validateRoutes = (options = {}) => {
 
 module.exports = {
   plugin,
+  validateFspioperrorCodeByCategoryPlugin,
   validateRoutes,
   Factory: Factory,
   Enums: Enums,
