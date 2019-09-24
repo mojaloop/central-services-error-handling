@@ -62,6 +62,7 @@ const validateRoutes = (options = {}) => {
 module.exports = {
   plugin,
   validateFspioperrorCodeByCategoryPlugin,
+  Handler: Handler,
   validateRoutes,
   Factory: Factory,
   Enums: Enums,
