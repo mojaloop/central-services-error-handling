@@ -251,7 +251,7 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
   // appropriate text indicating as much
   const msg = (source && messages[source])
     ? messages[source]
-    : error.context.label
+    : error.message
 
   return createFSPIOPError(fspiopError, msg, stackTrace, replyTo)
 }
