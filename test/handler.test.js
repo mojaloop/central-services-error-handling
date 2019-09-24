@@ -105,6 +105,7 @@ Test('Handler should', handlerTest => {
       isBoom: true,
       isJoi: true,
       details: [{
+        message: 'Regular expression failed validation',
         type: 'string.regex.base',
         context: {
           label: 'Regular expression failed'
@@ -112,7 +113,7 @@ Test('Handler should', handlerTest => {
       }]
     }
     Handler.onPreResponse({ response: response }, {})
-    test.equal(response.output.payload.errorInformation.errorDescription, 'Malformed syntax - Regular expression failed')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Malformed syntax - Regular expression failed validation')
     test.equal(response.output.payload.errorInformation.errorCode, '3101')
     test.end()
   })

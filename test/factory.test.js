@@ -27,6 +27,9 @@
  - Juan Correa <juan.correa@modusbox.com>
  - Miguel de Barros <miguel.debarros@modusbox.com>
 
+ * Crosslake
+ - Lewis Daly <lewisd@crosslaketech.com>
+
  --------------
  ******/
 
@@ -189,6 +192,7 @@ Test('Factory should', factoryTest => {
 
   factoryTest.test('create an FSPIOPError from a Joi error with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const joiError = {
+      message: 'Field is required',
       type: 'any.required',
       context: {
         label: 'Field is required'
@@ -207,6 +211,7 @@ Test('Factory should', factoryTest => {
 
   factoryTest.test('create an FSPIOPError from a Joi error with toApiErrorObject includeCauseExtension: true, truncateCause: false', function (test) {
     const joiError = {
+      message: 'Field is required',
       type: 'any.required',
       context: {
         label: 'Field is required'
@@ -234,6 +239,7 @@ Test('Factory should', factoryTest => {
 
   factoryTest.test('create an FSPIOPError from a Joi error with toApiErrorObject includeCauseExtension: true, truncateCause: false', function (test) {
     const joiError = {
+      message: 'Field is required',
       type: 'any.required',
       context: {
         label: 'Field is required'
@@ -261,6 +267,7 @@ Test('Factory should', factoryTest => {
 
   factoryTest.test('create an FSPIOPError from a Joi error with a string cause with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const joiError = {
+      message: 'Field is required',
       type: 'any.required',
       context: {
         label: 'Field is required'
@@ -279,6 +286,7 @@ Test('Factory should', factoryTest => {
 
   factoryTest.test('create an FSPIOPError from a Joi error with a string cause with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const joiError = {
+      message: 'Field is required',
       type: 'any.required',
       context: {
         label: 'Field is required'
@@ -306,6 +314,7 @@ Test('Factory should', factoryTest => {
 
   factoryTest.test('create an FSPIOPError from an unknown Joi error with toApiErrorObject includeCauseExtension: false, truncateCause: true', function (test) {
     const joiError = {
+      message: 'Unknown issue',
       type: 'unknown',
       context: {
         label: 'Unknown issue'
@@ -324,6 +333,7 @@ Test('Factory should', factoryTest => {
 
   factoryTest.test('create an FSPIOPError from an unknown Joi error with toApiErrorObject includeCauseExtension: true, truncateCause: true', function (test) {
     const joiError = {
+      message: 'Unknown issue',
       type: 'unknown',
       context: {
         label: 'Unknown issue'
