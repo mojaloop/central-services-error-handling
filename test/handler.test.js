@@ -139,58 +139,87 @@ Test('Handler should', handlerTest => {
     test.end()
   })
 
-  // handlerTest.test('handle incoming mojaloop specification error code with invalid category', async function (test) {
-  //   const payload =
-  //     {
-  //       errorInformation:
-  //         {
-  //           errorCode: '15105',
-  //           errorDescription: 'Payee transaction limit reached',
-  //           extensionList:
-  //             {
-  //               extension:
-  //                 [{
-  //                   key: 'errorDetail',
-  //                   value: 'This is an abort extension'
-  //                 }]
-  //             }
-  //         }
-  //     }
-  //
-  //   const takeover =
-  //     {
-  //       errorInformation: {
-  //         errorCode: '3100',
-  //         errorDescription: 'Generic validation error - The incoming error code: 15103 is not a valid mojaloop specification error code'
-  //       }
-  //     }
-  //
-  //   test.equal(Handler.onPreHandler({ payload: payload }, { }), takeover)
-  //   test.end()
-  // })
+  handlerTest.test('handle incoming mojaloop specification error code with invalid category', async function (test) {
+    const payload =
+      {
+        errorInformation:
+          {
+            errorCode: '15105',
+            errorDescription: 'Payee transaction limit reached',
+            extensionList:
+              {
+                extension:
+                  [{
+                    key: 'errorDetail',
+                    value: 'This is an abort extension'
+                  }]
+              }
+          }
+      }
 
-  // handlerTest.test('handle incoming mojaloop specification error code with valid high and low level category, but invalid specific error', async function (test) {
-  //   const payload =
-  //     {
-  //       errorInformation:
-  //         {
-  //           errorCode: '15199',
-  //           errorDescription: 'Payee transaction limit reached',
-  //           extensionList:
-  //             {
-  //               extension:
-  //                 [{
-  //                   key: 'errorDetail',
-  //                   value: 'This is an abort extension'
-  //                 }]
-  //             }
-  //         }
-  //     }
-  //
-  //   Handler.onPreHandler({payload: payload}, {})
-  //   test.equal(payload.errorInformation.errorDescription, 'Generic validation error - The incoming error code: 5199 is not a valid mojaloop specification error code')
-  //   test.equal(payload.errorInformation.errorCode, '3101')
-  //   test.end()
-  // })
+    const takeoverMessage =
+      {
+        errorInformation: {
+          errorCode: '3100',
+          errorDescription: 'Generic validation error - The incoming error code: 15105 is not a valid mojaloop specification error code'
+        }
+      }
+
+    const h = {
+      response: () => {
+        return {
+          code: () => {
+            return {
+              takeover: () => { return takeoverMessage }
+            }
+          }
+        }
+      }
+    }
+
+    test.equal(Handler.onPreHandler({ payload: payload }, h), takeoverMessage)
+    test.end()
+  })
+
+  handlerTest.test('handle incoming mojaloop specification error code with valid high and low level category, but invalid specific error', async function (test) {
+    const payload =
+      {
+        errorInformation:
+          {
+            errorCode: '5199',
+            errorDescription: 'Payee transaction limit reached',
+            extensionList:
+              {
+                extension:
+                  [{
+                    key: 'errorDetail',
+                    value: 'This is an abort extension'
+                  }]
+              }
+          }
+      }
+    const takeoverMessage =
+      {
+        errorInformation: {
+          errorCode: '3100',
+          errorDescription: 'Generic validation error - The incoming error code: 15105 is not a valid mojaloop specification error code'
+        }
+      }
+
+    const h = {
+      response: () => {
+        return {
+          code: () => {
+            return {
+              takeover: () => { return takeoverMessage }
+            }
+          }
+        }
+      }
+    }
+
+    test.equal(Handler.onPreHandler({ payload: payload }, h), takeoverMessage)
+    test.end()
+  })
   handlerTest.end()
 })
