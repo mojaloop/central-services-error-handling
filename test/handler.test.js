@@ -36,18 +36,19 @@ const Boom = require('@hapi/boom')
 const Factory = require('../src/factory')
 const Enums = require('../src/enums')
 const Handler = require('../src/handler')
+const Sinon = require('sinon')
 
 Test('Handler should', handlerTest => {
   handlerTest.test('handle non error responses', async function (test) {
-    const response = { }
-    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    const response = {}
+    test.ok(Handler.onPreResponse({response: response}, {continue: true}))
     test.end()
   })
 
   handlerTest.test('handle FSPIOPError responses', async function (test) {
     const fspiopError = Factory.createFSPIOPError(Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, 'Internal Error')
     const response = fspiopError
-    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.ok(Handler.onPreResponse({response: response}, {continue: true}))
     test.equal(response.output.statusCode, 500)
     test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Internal Error')
@@ -57,7 +58,7 @@ Test('Handler should', handlerTest => {
   handlerTest.test('handle generic Error responses', async function (test) {
     const error = new Error('Test Error')
     const response = error
-    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.ok(Handler.onPreResponse({response: response}, {continue: true}))
     test.equal(response.output.statusCode, 500)
     test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Test Error')
@@ -75,7 +76,7 @@ Test('Handler should', handlerTest => {
             }
         }
     }
-    Handler.onPreResponse({ response: response, headers: { 'fspiop-source': 'dfsp1' } }, {})
+    Handler.onPreResponse({response: response, headers: {'fspiop-source': 'dfsp1'}}, {})
     test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.end()
   })
@@ -83,7 +84,7 @@ Test('Handler should', handlerTest => {
   handlerTest.test('handle Boom generated errors', async function (test) {
     const response = Boom.badRequest('some bad parameters')
 
-    Handler.onPreResponse({ response }, {})
+    Handler.onPreResponse({response}, {})
     test.equal(response.output.statusCode, 400)
     test.equal(response.output.payload.errorInformation.errorCode, '3000')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Generic client error - some bad parameters')
@@ -93,7 +94,7 @@ Test('Handler should', handlerTest => {
   handlerTest.test('handle a Boom 404 error', async function (test) {
     const response = Boom.notFound('Not Found')
 
-    Handler.onPreResponse({ response }, {})
+    Handler.onPreResponse({response}, {})
     test.equal(response.output.statusCode, 404)
     test.equal(response.output.payload.errorInformation.errorCode, '3002')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Unknown URI - Not Found')
@@ -111,36 +112,33 @@ Test('Handler should', handlerTest => {
         }
       }]
     }
-    Handler.onPreResponse({ response: response }, {})
+    Handler.onPreResponse({response: response}, {})
     test.equal(response.output.payload.errorInformation.errorDescription, 'Malformed syntax - Regular expression failed')
     test.equal(response.output.payload.errorInformation.errorCode, '3101')
     test.end()
   })
 
-  // handlerTest.test('handle incoming valid mojaloop specification error code', async function (test) {
-  //   const payload =
-  //     {
-  //       errorInformation:
-  //         {
-  //           errorCode: '5105',
-  //           errorDescription: 'Payee transaction limit reached',
-  //           extensionList:
-  //             {
-  //               extension:
-  //                 [{
-  //                   key: 'errorDetail',
-  //                   value: 'This is an abort extension'
-  //                 }]
-  //             }
-  //         }
-  //     }
-  //
-  //   Handler.onPreHandler({ payload: payload }, {})
-  //   test.equal(payload.errorInformation.errorDescription, 'Generic validation error - The incoming error code: 5105 is not a valid mojaloop specification error code')
-  //   test.equal(payload.errorInformation.errorCode, '3101')
-  //   test.end()
-  // })
-  //
+  handlerTest.test('handle incoming valid mojaloop specification error code', async function (test) {
+    const payload =
+      {
+        errorInformation:
+          {
+            errorCode: '5105',
+            errorDescription: 'Payee transaction limit reached',
+            extensionList:
+              {
+                extension:
+                  [{
+                    key: 'errorDetail',
+                    value: 'This is an abort extension'
+                  }]
+              }
+          }
+      }
+    test.equal(Handler.onPreHandler({ payload: payload }, { continue: payload }), payload)
+    test.end()
+  })
+
   // handlerTest.test('handle incoming mojaloop specification error code with invalid category', async function (test) {
   //   const payload =
   //     {
@@ -159,18 +157,24 @@ Test('Handler should', handlerTest => {
   //         }
   //     }
   //
-  //   Handler.onPreHandler({ payload: payload }, {})
-  //   test.equal(payload.errorInformation.errorDescription, 'Generic validation error - The incoming error code: 15105 is not a valid mojaloop specification error code')
-  //   test.equal(payload.errorInformation.errorCode, '3101')
+  //   const takeover =
+  //     {
+  //       errorInformation: {
+  //         errorCode: '3100',
+  //         errorDescription: 'Generic validation error - The incoming error code: 15103 is not a valid mojaloop specification error code'
+  //       }
+  //     }
+  //
+  //   test.equal(Handler.onPreHandler({ payload: payload }, { }), takeover)
   //   test.end()
   // })
-  //
+
   // handlerTest.test('handle incoming mojaloop specification error code with valid high and low level category, but invalid specific error', async function (test) {
   //   const payload =
   //     {
   //       errorInformation:
   //         {
-  //           errorCode: '5199',
+  //           errorCode: '15199',
   //           errorDescription: 'Payee transaction limit reached',
   //           extensionList:
   //             {
@@ -183,7 +187,7 @@ Test('Handler should', handlerTest => {
   //         }
   //     }
   //
-  //   Handler.onPreHandler({ payload: payload }, {})
+  //   Handler.onPreHandler({payload: payload}, {})
   //   test.equal(payload.errorInformation.errorDescription, 'Generic validation error - The incoming error code: 5199 is not a valid mojaloop specification error code')
   //   test.equal(payload.errorInformation.errorCode, '3101')
   //   test.end()
