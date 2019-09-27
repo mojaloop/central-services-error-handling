@@ -1,8 +1,13 @@
 {
   "name": "@mojaloop/central-services-error-handling",
-  "version": "7.5.0",
+  "version": "8.1.0",
   "description": "Hapi error handling module",
   "main": "src/index.js",
+  "pre-commit": [
+    "standard",
+    "dep:check",
+    "test"
+  ],
   "scripts": {
     "test": "npm run test:unit | faucet",
     "pretest": "standard",
@@ -11,7 +16,9 @@
     "test:coverage": "istanbul cover tape -- 'test/**/*.test.js'",
     "test:coverage-check": "npm run test:coverage && istanbul check-coverage",
     "audit:resolve": "SHELL=sh resolve-audit",
-    "audit:check": "SHELL=sh check-audit"
+    "audit:check": "SHELL=sh check-audit",
+    "dep:check": "npx ncu -e 2",
+    "dep:update": "npx ncu -u"
   },
   "repository": {
     "type": "git",
@@ -36,7 +43,6 @@
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "dependencies": {
     "@mojaloop/sdk-standard-components": "7.4.0",
-    "@mojaloop/central-services-error-handling": "7.5.0",
     "lodash": "4.17.15"
   },
   "devDependencies": {
@@ -44,6 +50,7 @@
     "faucet": "0.0.1",
     "istanbul": "1.1.0-alpha.1",
     "npm-audit-resolver": "1.5.0",
+    "npm-check-updates": "3.1.23",
     "pre-commit": "1.2.2",
     "sinon": "7.4.1",
     "standard": "14.0.2",

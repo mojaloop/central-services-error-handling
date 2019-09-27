@@ -33,7 +33,6 @@
 
 const Factory = require('./factory')
 const Errors = require('./enums').FSPIOPErrorCodes
-const ErrorHandler = require('@mojaloop/central-services-error-handling')
 
 const getReplyToFromRequestHeaders = (request) => {
   return (request.headers && request.headers['fspiop-source']) ? request.headers['fspiop-source'] : null
@@ -111,19 +110,16 @@ exports.onPreResponse = function (request, reply) {
  * @returns {boolean|h.continue|continue|((key?: IDBValidKey) => void)}
  */
 exports.onPreHandler = function (request, h) {
-  // TODO: Do we need the commented out try/catch?
-  // try {
   const incomingErrorCode = request.payload.errorInformation.errorCode
-  if (ErrorHandler.ValidateFSPIOPErrorCode(incomingErrorCode) != null) {
+  try {
+    if (Factory.validateFSPIOPErrorCode(incomingErrorCode).code === incomingErrorCode) {
+      return h.continue
+    }
+  } catch (err) {
+    const onPreHandlerApiErrorObject = Factory.createFSPIOPError(Errors.VALIDATION_ERROR, `The incoming error code: ${incomingErrorCode} is not a valid mojaloop specification error code`).toApiErrorObject()
     return h
-      .response(ErrorHandler.Factory.createFSPIOPError(ErrorHandler.Enums.FSPIOPErrorCodes.VALIDATION_ERROR, `The incoming error code: ${incomingErrorCode} is not a valid mojaloop specification error code`).toApiErrorObject())
+      .response(onPreHandlerApiErrorObject)
       .code(400)
       .takeover()
   }
-  // } catch (err) {
-  //   return h
-  //     .response(`The incoming error code: ${incomingErrorCode} is not a valid mojaloop specification error code`)
-  //     .code(400)
-  //     .takeover()
-  // }
 }
