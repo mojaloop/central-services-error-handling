@@ -135,7 +135,7 @@ Test('Handler should', handlerTest => {
               }
           }
       }
-    test.equal(Handler.onPreHandler({ payload: payload }, { continue: payload }), payload)
+    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, { continue: payload }), payload)
     test.end()
   })
 
@@ -177,7 +177,7 @@ Test('Handler should', handlerTest => {
       }
     }
 
-    test.equal(Handler.onPreHandler({ payload: payload }, h), takeoverMessage)
+    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, h), takeoverMessage)
     test.end()
   })
 
@@ -218,7 +218,7 @@ Test('Handler should', handlerTest => {
       }
     }
 
-    test.equal(Handler.onPreHandler({ payload: payload }, h), takeoverMessage)
+    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, h), takeoverMessage)
     test.end()
   })
   handlerTest.end()

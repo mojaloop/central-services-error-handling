@@ -101,7 +101,7 @@ exports.onPreResponse = function (request, reply) {
 }
 
 /**
- * Function to be used to handle the 'onPreHandler' Hapi server extension.
+ * Function to be used to handle the 'validateIncomingErrorCode' Hapi server extension.
  * This validates the error is a FSPIOPError and that it contains a valid error code
  * format as per section 7.6 of "API Definition v1.0.docx".
  *
@@ -109,7 +109,7 @@ exports.onPreResponse = function (request, reply) {
  * @param h
  * @returns {boolean|h.continue|continue|((key?: IDBValidKey) => void)}
  */
-exports.onPreHandler = function (request, h) {
+exports.validateIncomingErrorCode = function (request, h) {
   const incomingErrorCode = request.payload.errorInformation.errorCode
   try {
     if (Factory.validateFSPIOPErrorCode(incomingErrorCode).code === incomingErrorCode) {
