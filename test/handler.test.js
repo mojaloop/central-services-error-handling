@@ -36,7 +36,6 @@ const Boom = require('@hapi/boom')
 const Factory = require('../src/factory')
 const Enums = require('../src/enums')
 const Handler = require('../src/handler')
-const Sinon = require('sinon')
 
 Test('Handler should', handlerTest => {
   handlerTest.test('handle non error responses', async function (test) {
