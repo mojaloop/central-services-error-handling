@@ -99,3 +99,27 @@ exports.onPreResponse = function (request, reply) {
 
   return reply.continue
 }
+
+/**
+ * Function to be used to handle the 'validateIncomingErrorCode' Hapi server extension.
+ * This validates the error is a FSPIOPError and that it contains a valid error code
+ * format as per section 7.6 of "API Definition v1.0.docx".
+ *
+ * @param request the http request
+ * @param h
+ * @returns {boolean|h.continue|continue|((key?: IDBValidKey) => void)}
+ */
+exports.validateIncomingErrorCode = function (request, h) {
+  const incomingErrorCode = request.payload.errorInformation.errorCode
+  try {
+    if (Factory.validateFSPIOPErrorCode(incomingErrorCode).code === incomingErrorCode) {
+      return h.continue
+    }
+  } catch (err) {
+    const onPreHandlerApiErrorObject = Factory.createFSPIOPError(Errors.VALIDATION_ERROR, `The incoming error code: ${incomingErrorCode} is not a valid mojaloop specification error code`).toApiErrorObject()
+    return h
+      .response(onPreHandlerApiErrorObject)
+      .code(400)
+      .takeover()
+  }
+}

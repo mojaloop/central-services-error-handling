@@ -1,33 +1,33 @@
 /*****
-License
---------------
-  Copyright © 2017 Bill & Melinda Gates Foundation
-The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-  Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-  Contributors
---------------
-  This is the official list of the Mojaloop project contributors for this file.
-  Names of the original copyright holders (individuals or organizations)
-should be listed with a '*' in the first column. People who have
-contributed from an organization can be listed under the organization
-that actually holds the copyright for their contributions (see the
-Gates Foundation organization for an example). Those individuals should have
-their names indented and be marked with a '-'. Email address can be added
-optionally within square brackets <email>.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
 
-* Gates Foundation
-- Name Surname <name.surname@gatesfoundation.com>
+ * Gates Foundation
+ - Name Surname <name.surname@gatesfoundation.com>
 
-* ModusBox
-- Neal Donnan <neal.donnan@modusbox.com>
-- Rajiv Mothilal <rajiv.mothilal@modusbox.com>
+ * ModusBox
+ - Neal Donnan <neal.donnan@modusbox.com>
+ - Rajiv Mothilal <rajiv.mothilal@modusbox.com>
 
---------------
-******/
+ --------------
+ ******/
 
 'use strict'
 
@@ -39,7 +39,7 @@ const Handler = require('../src/handler')
 
 Test('Handler should', handlerTest => {
   handlerTest.test('handle non error responses', async function (test) {
-    const response = { }
+    const response = {}
     test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
     test.end()
   })
@@ -105,6 +105,7 @@ Test('Handler should', handlerTest => {
       isBoom: true,
       isJoi: true,
       details: [{
+        message: 'Regular expression failed validation',
         type: 'string.regex.base',
         context: {
           label: 'Regular expression failed'
@@ -112,8 +113,112 @@ Test('Handler should', handlerTest => {
       }]
     }
     Handler.onPreResponse({ response: response }, {})
-    test.equal(response.output.payload.errorInformation.errorDescription, 'Malformed syntax - Regular expression failed')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Malformed syntax - Regular expression failed validation')
     test.equal(response.output.payload.errorInformation.errorCode, '3101')
+    test.end()
+  })
+
+  handlerTest.test('handle incoming valid mojaloop specification error code', async function (test) {
+    const payload =
+      {
+        errorInformation:
+          {
+            errorCode: '5105',
+            errorDescription: 'Payee transaction limit reached',
+            extensionList:
+              {
+                extension:
+                  [{
+                    key: 'errorDetail',
+                    value: 'This is an abort extension'
+                  }]
+              }
+          }
+      }
+    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, { continue: payload }), payload)
+    test.end()
+  })
+
+  handlerTest.test('handle incoming mojaloop specification error code with invalid category', async function (test) {
+    const payload =
+      {
+        errorInformation:
+          {
+            errorCode: '15105',
+            errorDescription: 'Payee transaction limit reached',
+            extensionList:
+              {
+                extension:
+                  [{
+                    key: 'errorDetail',
+                    value: 'This is an abort extension'
+                  }]
+              }
+          }
+      }
+
+    const takeoverMessage =
+      {
+        errorInformation: {
+          errorCode: '3100',
+          errorDescription: 'Generic validation error - The incoming error code: 15105 is not a valid mojaloop specification error code'
+        }
+      }
+
+    const h = {
+      response: () => {
+        return {
+          code: () => {
+            return {
+              takeover: () => { return takeoverMessage }
+            }
+          }
+        }
+      }
+    }
+
+    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, h), takeoverMessage)
+    test.end()
+  })
+
+  handlerTest.test('handle incoming mojaloop specification error code with valid high and low level category, but invalid specific error', async function (test) {
+    const payload =
+      {
+        errorInformation:
+          {
+            errorCode: '5199',
+            errorDescription: 'Payee transaction limit reached',
+            extensionList:
+              {
+                extension:
+                  [{
+                    key: 'errorDetail',
+                    value: 'This is an abort extension'
+                  }]
+              }
+          }
+      }
+    const takeoverMessage =
+      {
+        errorInformation: {
+          errorCode: '3100',
+          errorDescription: 'Generic validation error - The incoming error code: 15105 is not a valid mojaloop specification error code'
+        }
+      }
+
+    const h = {
+      response: () => {
+        return {
+          code: () => {
+            return {
+              takeover: () => { return takeoverMessage }
+            }
+          }
+        }
+      }
+    }
+
+    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, h), takeoverMessage)
     test.end()
   })
   handlerTest.end()

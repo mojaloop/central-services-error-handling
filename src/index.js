@@ -54,6 +54,7 @@ const validateRoutes = (options = {}) => {
 
 module.exports = {
   plugin,
+  Handler: Handler,
   validateRoutes,
   Factory: Factory,
   Enums: Enums,
