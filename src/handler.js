@@ -47,14 +47,15 @@ const createFSPIOPErrorFromErrorResponse = (request, response) => {
       case 404:
         return Errors.UNKNOWN_URI
 
+      case 415:
+        return Errors.MALFORMED_SYNTAX
+
       default:
         return Errors.INTERNAL_SERVER_ERROR
     }
   })(response.output.statusCode)
 
-  return Factory.createFSPIOPError(fspiopError, response.message, response, getReplyToFromRequestHeaders(request), [
-    { key: 'cause', value: response.stack }
-  ])
+  return Factory.createFSPIOPError(fspiopError, response.message, response.stack, getReplyToFromRequestHeaders(request))
 }
 
 const reformatError = (request, response) => {
