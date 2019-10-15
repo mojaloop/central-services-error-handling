@@ -75,6 +75,15 @@ const MojaloopTypes = {
 }
 
 /**
+ *  Mojaloop API Error Codes Override
+ */
+const MojaloopApiErrorCodesOverride = {
+  INTERNAL_SERVER_ERROR: { httpStatusCode: 500 }, // Internal Server Error
+  ADD_PARTY_INFO_ERROR: { httpStatusCode: 403 }, // Forbidden
+  ID_NOT_FOUND: { httpStatusCode: 404 } // Not Found
+}
+
+/**
  * Returns an object representing a Mojaloop API spec error code combined with error types enums
  *
  * @param errorCodes {object} - Mojaloop API spec error code enums
@@ -99,6 +108,27 @@ const populateErrorTypes = (errorCodes, errorTypes) => {
 }
 
 /**
+ * Returns an object representing a Mojaloop API spec error code combined with overrides
+ *
+ * @param errorCodes {object} - Mojaloop API spec error code enums
+ * @param override {object} - central-services-error-handling defined override enum
+ * @returns {object} - Object representing the Mojaloop API spec error enums with associated types
+ */
+const populateOverrides = (errorCodes, override) => {
+  const newErrorCodes = {}
+  for (const [errorCodeKey, errorCodeValue] of Object.entries(errorCodes)) {
+    const newErrorCodeValue = _.cloneDeep(errorCodeValue)
+    if (override[errorCodeKey]) {
+      for (const [key, value] of Object.entries(override[errorCodeKey])) {
+        _.set(newErrorCodeValue, key, value)
+      }
+    }
+    _.set(newErrorCodes, errorCodeKey, newErrorCodeValue)
+  }
+  return newErrorCodes
+}
+
+/**
  * Returns an object representing a Mojaloop API spec error code map using the error code as the key
  *
  * @param errorCodes {object} - Mojaloop API spec error code enums
@@ -117,7 +147,12 @@ const errorCodesToMap = (errorCodes) => {
 /**
  *  Mojaloop API spec error enums with associated type enums
  */
-const FSPIOPErrorCodes = populateErrorTypes(MojaloopSDKError.MojaloopApiErrorCodes, MojaloopTypes)
+let FSPIOPErrorCodes = populateErrorTypes(MojaloopSDKError.MojaloopApiErrorCodes, MojaloopTypes)
+
+/**
+ *  Mojaloop API spec error enums with merged overrides
+ */
+FSPIOPErrorCodes = populateOverrides(FSPIOPErrorCodes, MojaloopApiErrorCodesOverride)
 
 /**
  *  Mojaloop API spec error map enums with associated type enums by error code as the key map
