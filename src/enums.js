@@ -42,35 +42,43 @@ const MojaloopSDKError = require('@mojaloop/sdk-standard-components').Errors
 const MojaloopTypes = {
   GENERIC_COMMUNICATION_ERROR: {
     regex: '^10[0-9]{2}$',
-    description: 'Generic Communication Error'
+    description: 'Generic Communication Error',
+    httpStatusCode: 503
   },
   GENERIC_SERVER_ERROR: {
     regex: '^20[0-9]{2}$',
-    description: 'Generic Server Error'
+    description: 'Generic Server Error',
+    httpStatusCode: 500
   },
   GENERIC_CLIENT_ERROR: {
     regex: '^30[0-9]{2}$',
-    description: 'Generic Client Error'
+    description: 'Generic Client Error',
+    httpStatusCode: 400
   },
   CLIENT_VALIDATION_ERROR: {
     regex: '^31[0-9]{2}$',
-    description: 'Client Validation Error'
+    description: 'Client Validation Error',
+    httpStatusCode: 400
   },
   IDENTIFIER_ERROR: {
     regex: '^32[0-9]{2}$',
-    description: 'Identifier Error'
+    description: 'Identifier Error',
+    httpStatusCode: 400
   },
   EXPIRED_ERROR: {
     regex: '^33[0-9]{2}$',
-    description: 'Expired Error'
+    description: 'Expired Error',
+    httpStatusCode: 400
   },
   PAYER_ERROR: {
     regex: '^4[0-9]{3}$',
-    description: 'Payer Error'
+    description: 'Payer Error',
+    httpStatusCode: 400
   },
   PAYEE_ERROR: {
     regex: '^5[0-9]{3}$',
-    description: 'Payee Error'
+    description: 'Payee Error',
+    httpStatusCode: 400
   }
 }
 
@@ -78,9 +86,29 @@ const MojaloopTypes = {
  *  Mojaloop API Error Codes Override
  */
 const MojaloopApiErrorCodesOverride = {
-  INTERNAL_SERVER_ERROR: { httpStatusCode: 500 }, // Internal Server Error
-  ADD_PARTY_INFO_ERROR: { httpStatusCode: 403 }, // Forbidden
-  ID_NOT_FOUND: { httpStatusCode: 404 } // Not Found
+  // INTERNAL_SERVER_ERROR: { httpStatusCode: 500 }, // Example of overriding default or undefined values for INTERNAL_SERVER_ERROR error
+  // CUSTOM_ERROR: { code: '3241', description: 'Error text' } // Example of adding new CUSTOM_ERROR with default MojaloopErrorType.httpStatusCode
+}
+
+/**
+ * Returns an object representing a Mojaloop API spec error code combined with overrides
+ *
+ * @param errorCodes {object} - Mojaloop API spec error code enums
+ * @param override {object} - Override enum
+ * @returns {object} - Object representing the Mojaloop API spec combined with overrides
+ */
+const populateOverrides = (errorCodes, override) => {
+  const newErrorCodes = _.cloneDeep(errorCodes)
+  for (const [overrideKey, overrideValue] of Object.entries(override)) {
+    if (newErrorCodes[overrideKey]) {
+      for (const [key, value] of Object.entries(overrideValue)) {
+        _.set(newErrorCodes[overrideKey], key, value)
+      }
+    } else {
+      _.set(newErrorCodes, overrideKey, overrideValue)
+    }
+  }
+  return newErrorCodes
 }
 
 /**
@@ -100,30 +128,12 @@ const populateErrorTypes = (errorCodes, errorTypes) => {
         _.set(newErrorCodeValue, 'name', errorCodeKey)
         _.set(newErrorCodeValue, 'type', errorTypeValue)
         _.set(newErrorCodeValue, 'type.name', errorTypeKey)
+        if (_.get(newErrorCodeValue, 'httpStatusCode') === undefined) {
+          _.set(newErrorCodeValue, 'httpStatusCode', errorTypeValue.httpStatusCode)
+        }
         _.set(newErrorCodes, errorCodeKey, newErrorCodeValue)
       }
     }
-  }
-  return newErrorCodes
-}
-
-/**
- * Returns an object representing a Mojaloop API spec error code combined with overrides
- *
- * @param errorCodes {object} - Mojaloop API spec error code enums
- * @param override {object} - central-services-error-handling defined override enum
- * @returns {object} - Object representing the Mojaloop API spec error enums with associated types
- */
-const populateOverrides = (errorCodes, override) => {
-  const newErrorCodes = {}
-  for (const [errorCodeKey, errorCodeValue] of Object.entries(errorCodes)) {
-    const newErrorCodeValue = _.cloneDeep(errorCodeValue)
-    if (override[errorCodeKey]) {
-      for (const [key, value] of Object.entries(override[errorCodeKey])) {
-        _.set(newErrorCodeValue, key, value)
-      }
-    }
-    _.set(newErrorCodes, errorCodeKey, newErrorCodeValue)
   }
   return newErrorCodes
 }
@@ -145,14 +155,14 @@ const errorCodesToMap = (errorCodes) => {
 }
 
 /**
- *  Mojaloop API spec error enums with associated type enums
- */
-let FSPIOPErrorCodes = populateErrorTypes(MojaloopSDKError.MojaloopApiErrorCodes, MojaloopTypes)
-
-/**
  *  Mojaloop API spec error enums with merged overrides
  */
-FSPIOPErrorCodes = populateOverrides(FSPIOPErrorCodes, MojaloopApiErrorCodesOverride)
+let FSPIOPErrorCodes = populateOverrides(MojaloopSDKError.MojaloopApiErrorCodes, MojaloopApiErrorCodesOverride)
+
+/**
+ *  Mojaloop API spec error enums with associated type enums
+ */
+FSPIOPErrorCodes = populateErrorTypes(FSPIOPErrorCodes, MojaloopTypes)
 
 /**
  *  Mojaloop API spec error map enums with associated type enums by error code as the key map
