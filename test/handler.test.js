@@ -56,6 +56,17 @@ Test('Handler should', handlerTest => {
     test.end()
   })
 
+  handlerTest.test('handle FSPIOPError with undefined httpStatusCode', async function (test) {
+    const fspiopError = Factory.createFSPIOPError(Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, 'Internal Error without httpStatusCode')
+    delete fspiopError.httpStatusCode
+    const response = fspiopError
+    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.equal(response.output.statusCode, 500)
+    test.equal(response.output.payload.errorInformation.errorCode, '2001')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Internal Error without httpStatusCode')
+    test.end()
+  })
+
   handlerTest.test('handle generic Error responses', async function (test) {
     const error = new Error('Test Error')
     const response = error

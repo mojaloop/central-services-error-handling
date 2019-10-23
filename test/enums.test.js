@@ -78,5 +78,23 @@ Test('Enum should', enumTest => {
     test.end()
   })
 
+  enumTest.test('populateOverrides redefines existing errors and allows adding new errors', function (test) {
+    const errorCodes = {
+      INTERNAL_SERVER_ERROR: { code: '2001', message: 'Internal Server Error' }
+    }
+    const override = {
+      INTERNAL_SERVER_ERROR: { code: '9000' },
+      NEW_CUSTOM_ERROR: { code: '9001', message: 'Custom Error' }
+    }
+    const expected = {
+      INTERNAL_SERVER_ERROR: { code: '9000', message: 'Internal Server Error' },
+      NEW_CUSTOM_ERROR: { code: '9001', message: 'Custom Error' }
+    }
+
+    const result = ErrorEnums._populateOverrides(errorCodes, override)
+    test.deepEqual(result, expected)
+    test.end()
+  })
+
   enumTest.end()
 })

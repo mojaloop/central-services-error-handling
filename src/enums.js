@@ -224,5 +224,6 @@ module.exports = {
   FSPIOPErrorCodeMap,
   findFSPIOPErrorCode,
   MojaloopModelTypes,
-  Internal
+  Internal,
+  _populateOverrides: populateOverrides
 }
