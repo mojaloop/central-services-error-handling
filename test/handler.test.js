@@ -36,6 +36,8 @@ const Boom = require('@hapi/boom')
 const Factory = require('../src/factory')
 const Enums = require('../src/enums')
 const Handler = require('../src/handler')
+const Proxyquire = require('proxyquire')
+const Sinon = require('sinon')
 
 Test('Handler should', handlerTest => {
   handlerTest.test('handle non error responses', async function (test) {
@@ -51,6 +53,17 @@ Test('Handler should', handlerTest => {
     test.equal(response.output.statusCode, 500)
     test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Internal Error')
+    test.end()
+  })
+
+  handlerTest.test('handle FSPIOPError with undefined httpStatusCode', async function (test) {
+    const fspiopError = Factory.createFSPIOPError(Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, 'Internal Error without httpStatusCode')
+    delete fspiopError.httpStatusCode
+    const response = fspiopError
+    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.equal(response.output.statusCode, 500)
+    test.equal(response.output.payload.errorInformation.errorCode, '2001')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Internal Error without httpStatusCode')
     test.end()
   })
 
@@ -97,6 +110,39 @@ Test('Handler should', handlerTest => {
     test.equal(response.output.statusCode, 404)
     test.equal(response.output.payload.errorInformation.errorCode, '3002')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Unknown URI - Not Found')
+    test.end()
+  })
+
+  handlerTest.test('handle a Boom 415 error', async function (test) {
+    const response = Boom.forbidden()
+    response.output.statusCode = 415
+    // response.output.payload['csrf-decorator'] = request.headers['csrf-decorator']
+    response.reformat()
+
+    Handler.onPreResponse({ response }, {})
+    test.equal(response.output.statusCode, 400)
+    test.equal(response.output.payload.errorInformation.errorCode, '3101')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Malformed syntax - Forbidden')
+    test.end()
+  })
+
+  handlerTest.test('handle a Boom Generic server error', async function (test) {
+    const sandbox = Sinon.createSandbox()
+    const FactoryStub = {
+      createFSPIOPError: sandbox.stub().returns(Factory.createFSPIOPErrorFromErrorCode('2000'))
+    }
+    const Handler = Proxyquire('../src/handler', {
+      './factory': FactoryStub
+    })
+
+    const response = Boom.forbidden()
+    response.output.statusCode = null
+    response.reformat()
+
+    Handler.onPreResponse({ response }, {})
+    test.equal(response.output.statusCode, 500)
+    test.equal(response.output.payload.errorInformation.errorCode, '2000')
+    test.equal(response.output.payload.errorInformation.errorDescription, 'Generic server error')
     test.end()
   })
 
