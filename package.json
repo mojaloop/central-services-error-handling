@@ -1,0 +1,64 @@
+{
+  "name": "@mojaloop/central-services-error-handling",
+  "version": "8.3.0",
+  "description": "Hapi error handling module",
+  "main": "src/index.js",
+  "pre-commit": [
+    "standard",
+    "dep:check",
+    "test"
+  ],
+  "scripts": {
+    "test": "npm run test:unit | faucet",
+    "standard": "standard",
+    "test:unit": "tape 'test/**/*.test.js'",
+    "test:xunit": "npm run test:unit | tap-xunit",
+    "test:coverage": "nyc --reporter=lcov --reporter=text-summary tape -- 'test/**/*.test.js'",
+    "test:coverage-check": "npm run test:coverage && nyc check-coverage",
+    "audit:resolve": "SHELL=sh resolve-audit",
+    "audit:check": "SHELL=sh check-audit",
+    "dep:check": "npx ncu -e 2",
+    "dep:update": "npx ncu -u"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mojaloop/central-services-error-handling.git"
+  },
+  "keywords": [
+    "central",
+    "services",
+    "hapi",
+    "error",
+    "handling"
+  ],
+  "author": "ModusBox",
+  "contributors": [
+    "Dwolla",
+    "ModusBox"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mojaloop/central-services-error-handling/issues"
+  },
+  "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
+  "dependencies": {
+    "@mojaloop/sdk-standard-components": "8.1.4",
+    "lodash": "4.17.15"
+  },
+  "devDependencies": {
+    "@hapi/boom": "8.0.1",
+    "faucet": "0.0.1",
+    "npm-audit-resolver": "2.0.1",
+    "npm-check-updates": "3.2.0",
+    "nyc": "14.1.1",
+    "pre-commit": "1.2.2",
+    "proxyquire": "2.1.3",
+    "sinon": "7.5.0",
+    "standard": "14.3.1",
+    "tap-xunit": "2.4.1",
+    "tape": "4.11.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  }
+}
