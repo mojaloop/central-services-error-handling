@@ -152,6 +152,9 @@ class FSPIOPError extends MojaloopFSPIOPError {
         _.remove(e.errorInformation.extensionList.extension, (extensionKeyValue) => {
           return extensionKeyValue.key === Enums.Internal.FSPIOPError.ExtensionsKeys.cause
         })
+        if (e.errorInformation.extensionList.extension.length === 0) {
+          delete e.errorInformation.extensionList
+        }
       }
     } else {
       if (includeCauseExtension === true) {

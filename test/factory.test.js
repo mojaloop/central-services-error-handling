@@ -393,10 +393,8 @@ Test('Factory should', factoryTest => {
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
         errorCode: '2001',
-        errorDescription: 'Internal server error - Test Internal Error',
-        extensionList: {
-          extension: []
-        }
+        errorDescription: 'Internal server error - Test Internal Error'
+        /* Issue #1030: the extensionList should be removed when extension array is empty */
       }
     })
     test.end()
