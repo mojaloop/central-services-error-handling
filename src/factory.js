@@ -95,7 +95,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
    *
    * @returns {object}
    */
-  toApiErrorObject ({ includeCauseExtension = false, truncateCause = true } = {}) {
+  toApiErrorObject ({ includeCauseExtension = false, truncateExtensions = true } = {}) {
     let errorDescription = this.apiErrorCode.message
 
     // Lets check if the message is defined, not null or empty (i.e. undefined).
@@ -119,33 +119,19 @@ class FSPIOPError extends MojaloopFSPIOPError {
         // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
         // e.errorInformation.extensionList = _.cloneDeep(this.extensions)
         e.errorInformation.extensionList.extension = _.cloneDeep(this.extensions)
-      } else if (this.extensions.extension && Array.isArray(this.extensions.extension)) { // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
+      } else if (this.extensions.extension && Array.isArray(this.extensions.extension)) {
         e.errorInformation.extensionList.extension = _.cloneDeep(this.extensions.extension)
       }
 
       if (includeCauseExtension === true) {
-        // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
         const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === Enums.Internal.FSPIOPError.ExtensionsKeys.cause)
         if (causeKeyValueFromExtensions) {
-          if (truncateCause === true) {
-            causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`.substring(Enums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, Enums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
-          } else {
-            causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
-          }
+          causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
         } else {
-          let causeKeyValue
-          if (truncateCause === true) {
-            causeKeyValue = {
-              key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
-              value: this.stack.substring(Enums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, Enums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
-            }
-          } else {
-            causeKeyValue = {
-              key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
-              value: this.stack
-            }
+          const causeKeyValue = {
+            key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
+            value: this.stack
           }
-          // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
           e.errorInformation.extensionList.extension.push(causeKeyValue)
         }
       } else if (e.errorInformation.extensionList.extension && Array.isArray(e.errorInformation.extensionList.extension)) {
@@ -158,25 +144,18 @@ class FSPIOPError extends MojaloopFSPIOPError {
       }
     } else {
       if (includeCauseExtension === true) {
-        // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
         e.errorInformation.extensionList = {
-          extension: []
-        }
-        let causeKeyValue
-        if (truncateCause === true) {
-          causeKeyValue = {
-            key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
-            value: this.stack.substring(Enums.MojaloopModelTypes.ExtensionValue.constraints.min - 1, Enums.MojaloopModelTypes.ExtensionValue.constraints.max) // truncate string to match Mojaloop API v1.0 Spec
-          }
-        } else {
-          causeKeyValue = {
+          extension: [{
             key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
             value: this.stack
-          }
+          }]
         }
-        // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-        // e.errorInformation.extensionList.push(causeKeyValue)
-        e.errorInformation.extensionList.extension.push(causeKeyValue)
+      }
+    }
+    const hasExtension = e.errorInformation.extensionList && e.errorInformation.extensionList.extension && e.errorInformation.extensionList.extension.length
+    if (truncateExtensions && hasExtension) {
+      for (const i in e.errorInformation.extensionList.extension) {
+        e.errorInformation.extensionList.extension[i].value = e.errorInformation.extensionList.extension[i].value.substr(0, Enums.MojaloopModelTypes.ExtensionValue.constraints.max)
       }
     }
 
@@ -285,7 +264,7 @@ const createInternalServerFSPIOPError = (message, cause, replyTo, extensions) =>
  * @returns {FSPIOPError}
  */
 const reformatFSPIOPError = (error, apiErrorCode = Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, replyTo, extensions) => {
-  if (error instanceof FSPIOPError) {
+  if (error.constructor && error.constructor.name === FSPIOPError.name) {
     return error
   } else {
     return createFSPIOPError(apiErrorCode, error.message, error.stack, replyTo, extensions)
