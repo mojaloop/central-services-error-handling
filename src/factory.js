@@ -155,8 +155,8 @@ class FSPIOPError extends MojaloopFSPIOPError {
     const hasExtension = e.errorInformation.extensionList && e.errorInformation.extensionList.extension && e.errorInformation.extensionList.extension.length
     if (truncateExtensions && hasExtension) {
       for (const i in e.errorInformation.extensionList.extension) {
-        if (typeof e.errorInformation.extensionList.extension[i].value === 'string') {
-          e.errorInformation.extensionList.extension[i].value = e.errorInformation.extensionList.extension[i].value.substr(0, Enums.MojaloopModelTypes.ExtensionValue.constraints.max)
+        if (e.errorInformation.extensionList.extension[i].value) {
+          e.errorInformation.extensionList.extension[i].value = e.errorInformation.extensionList.extension[i].value.toString().substr(0, Enums.MojaloopModelTypes.ExtensionValue.constraints.max)
         }
       }
     }
