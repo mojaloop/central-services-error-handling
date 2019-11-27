@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-error-handling",
-  "version": "8.6.1",
+  "version": "8.6.2",
   "description": "Hapi error handling module",
   "main": "src/index.js",
   "pre-commit": [
@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "dependencies": {
-    "@mojaloop/sdk-standard-components": "8.4.2",
+    "@mojaloop/sdk-standard-components": "8.6.1",
     "lodash": "4.17.15"
   },
   "devDependencies": {
