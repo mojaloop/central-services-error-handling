@@ -185,7 +185,7 @@ Test('Handler should', handlerTest => {
     test.end()
   })
 
-  handlerTest.test('handle custom incoming valid mojaloop specification error code', async function (test) {
+  handlerTest.test('handle incoming valid mojaloop specification error code, with a specific error above 39 which can be used for scheme-specific errors', async function (test) {
     const payload =
       {
         errorInformation:
