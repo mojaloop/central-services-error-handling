@@ -185,6 +185,27 @@ Test('Handler should', handlerTest => {
     test.end()
   })
 
+  handlerTest.test('handle custom incoming valid mojaloop specification error code', async function (test) {
+    const payload =
+      {
+        errorInformation:
+          {
+            errorCode: '5199',
+            errorDescription: 'Payee transaction limit reached',
+            extensionList:
+              {
+                extension:
+                  [{
+                    key: 'errorDetail',
+                    value: 'This is an abort extension'
+                  }]
+              }
+          }
+      }
+    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, { continue: payload }), payload)
+    test.end()
+  })
+
   handlerTest.test('handle incoming mojaloop specification error code with invalid category', async function (test) {
     const payload =
       {
