@@ -326,6 +326,31 @@ const validateFSPIOPErrorCode = (code) => {
   }
 }
 
+/**
+ * Validate a code against the Mojaloop API spec, specifically custom errors, returns the incoming error code or throws an exception if invalid.
+ *
+ * @param code {number/string/object} - Mojaloop API spec error code (four digit integer as number or string or apiErrorCode enum)
+ * @param throwException {boolean} - Mojaloop API spec error code (four digit integer as number or string)
+ * @returns boolean -  if valid, true, if false then an exception will be thrown instead)
+ * @throws {FSPIOPError} - Internal Server Error indicating that the error code is invalid.
+ */
+const validateFSPIOPErrorGroups = (code) => {
+  const errorMessage = 'Validation failed due to error code being invalid'
+  let codeToValidate
+  if (typeof code === 'number' || typeof code === 'string') { // check to see if this is a normal error code represented by a number or string
+    codeToValidate = code
+  } else if (typeof code === 'object' && code.code) { // check to see if this is a apiErrorCode error
+    codeToValidate = code.code
+  }
+  // validate the custom error code
+  const regex = /^(10|20|30|31|32|33|40|41|42|43|44|50|51|52|53|54)[0-9]{2}$/
+  if (regex.test(codeToValidate)) {
+    return true
+  } else {
+    throw createInternalServerFSPIOPError(`${errorMessage} - ${JSON.stringify(code)}.`)
+  }
+}
+
 module.exports = {
   FSPIOPError,
   createFSPIOPError,
@@ -334,5 +359,6 @@ module.exports = {
   createFSPIOPErrorFromErrorInformation,
   createFSPIOPErrorFromErrorCode,
   reformatFSPIOPError,
-  validateFSPIOPErrorCode
+  validateFSPIOPErrorCode,
+  validateFSPIOPErrorGroups
 }

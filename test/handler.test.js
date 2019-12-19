@@ -226,46 +226,5 @@ Test('Handler should', handlerTest => {
     test.equal(Handler.validateIncomingErrorCode({ payload: payload }, h), takeoverMessage)
     test.end()
   })
-
-  handlerTest.test('handle incoming mojaloop specification error code with valid high and low level category, but invalid specific error', async function (test) {
-    const payload =
-      {
-        errorInformation:
-          {
-            errorCode: '5199',
-            errorDescription: 'Payee transaction limit reached',
-            extensionList:
-              {
-                extension:
-                  [{
-                    key: 'errorDetail',
-                    value: 'This is an abort extension'
-                  }]
-              }
-          }
-      }
-    const takeoverMessage =
-      {
-        errorInformation: {
-          errorCode: '3100',
-          errorDescription: 'Generic validation error - The incoming error code: 15105 is not a valid mojaloop specification error code'
-        }
-      }
-
-    const h = {
-      response: () => {
-        return {
-          code: () => {
-            return {
-              takeover: () => { return takeoverMessage }
-            }
-          }
-        }
-      }
-    }
-
-    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, h), takeoverMessage)
-    test.end()
-  })
   handlerTest.end()
 })
