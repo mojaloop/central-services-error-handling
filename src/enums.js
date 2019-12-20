@@ -189,6 +189,24 @@ const findFSPIOPErrorCode = (code) => {
 }
 
 /**
+ * Returns an object representing a Mojaloop API spec error code combined with error types enums
+ *
+ * @param errorCode {string/number} - Mojaloop API spec error code enums
+ * @returns {object} - Object representing the Mojaloop API spec error enums with associated types
+ */
+const findErrorType = (errorCode) => {
+  for (const [errorTypeKey, errorTypeValue] of Object.entries(MojaloopTypes)) {
+    const regExp = new RegExp(errorTypeValue.regex)
+    if (regExp.test(errorCode)) {
+      const newErrorCodeType = _.cloneDeep(errorTypeValue)
+      _.set(newErrorCodeType, 'name', errorTypeKey)
+      return newErrorCodeType
+    }
+  }
+  return undefined
+}
+
+/**
  *  Mojaloop API spec Model Types related to ErrorInformation
  */
 const MojaloopModelTypes = {
@@ -223,6 +241,7 @@ module.exports = {
   FSPIOPErrorTypes: MojaloopTypes,
   FSPIOPErrorCodeMap,
   findFSPIOPErrorCode,
+  findErrorType,
   MojaloopModelTypes,
   Internal,
   _populateOverrides: populateOverrides
