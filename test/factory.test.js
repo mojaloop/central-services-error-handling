@@ -62,6 +62,30 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create a valid FSPIOPError with specific error above 39 with extensions and error object cause and useDescriptionAsMessage set to false', function (test) {
+    const errorInformation = {
+      code: '3399',
+      errorDescription: 'Internal server error - Test Cause',
+      message: 'Internal server error - Test Cause',
+      extensionList: {
+        extension: [
+          {
+            key: 'test',
+            value: 'test'
+          }
+        ]
+      }
+    }
+    const standardError = new Error('Here be dragons!')
+    const fspiopError = Factory.createFSPIOPError(errorInformation, 'An error has occurred', standardError, 'dfsp1', [
+      { key: 'testKey', value: 'testValue' }
+    ], false)
+    const apiErrorObject = fspiopError.toApiErrorObject()
+    test.ok(fspiopError)
+    test.equal(apiErrorObject.errorInformation.errorCode, errorInformation.code)
+    test.end()
+  })
+
   factoryTest.test('create an FSPIOPError with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
     const fspiopError = Factory.createFSPIOPError(Errors.SERVER_ERROR, 'An error has occurred', { stack: 'Error:...' }, 'dfsp1')
     const apiErrorObject = fspiopError.toApiErrorObject()

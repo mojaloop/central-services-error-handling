@@ -177,12 +177,25 @@ class FSPIOPError extends MojaloopFSPIOPError {
  * @param cause {object/string} - the original Error
  * @param replyTo {string} - the FSP to notify of the error
  * @param extensions {object} - additional information to associate with the error
- * @param dontConcatMessageAndDescription {boolean} - Enables concatinations of the Message & Error Description on the
+ * @param useDescriptionAsMessage {boolean} - Enables concatinations of the Message & Error Description on the
  * @returns {FSPIOPError} - create the specified error, will fall back to INTERNAL_SERVER_ERROR if the apiErrorCode is undefined
  */
-const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions, useDescriptionAsMessage) => {
-  if (apiErrorCode && Enums.findFSPIOPErrorCode(apiErrorCode.code)) {
-    return new FSPIOPError(cause, message, replyTo, apiErrorCode, extensions, useDescriptionAsMessage)
+const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions, useDescriptionAsMessage = false) => {
+  if (apiErrorCode && apiErrorCode.code && apiErrorCode.message) {
+    const newApiError = Object.assign({}, apiErrorCode)
+    let match = Enums.findFSPIOPErrorCode(apiErrorCode.code)
+    if (!match) {
+      match = Enums.findErrorType(apiErrorCode.code)
+      if (!match) {
+        throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
+      }
+      if (!newApiError.httpStatusCode) {
+        newApiError.httpStatusCode = match.httpStatusCode
+      }
+    } else if (!newApiError.httpStatusCode) {
+      newApiError.httpStatusCode = match.httpStatusCode
+    }
+    return new FSPIOPError(cause, message, replyTo, newApiError, extensions, useDescriptionAsMessage)
   } else {
     throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
   }
@@ -282,7 +295,10 @@ const reformatFSPIOPError = (error, apiErrorCode = Enums.FSPIOPErrorCodes.INTERN
  * @returns {FSPIOPError}
  */
 const createFSPIOPErrorFromErrorInformation = (errorInformation, cause, replyTo) => {
-  const errorCode = validateFSPIOPErrorCode(errorInformation.errorCode)
+  const errorCode = {
+    code: errorInformation.errorCode,
+    message: errorInformation.errorDescription
+  }
   return createFSPIOPError(errorCode, errorInformation.errorDescription, cause, replyTo, errorInformation.extensionList, true)
 }
 
@@ -343,7 +359,7 @@ const validateFSPIOPErrorGroups = (code) => {
     codeToValidate = code.code
   }
   // validate the custom error code
-  const regex = /^(10|20|30|31|32|33|40|41|42|43|44|50|51|52|53|54)[0-9]{2}$/
+  const regex = /^(10|20|3[0-4]|4[0-4]|5[0-4])[0-9]{2}$/
   if (regex.test(codeToValidate)) {
     return true
   } else {
