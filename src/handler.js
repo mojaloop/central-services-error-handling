@@ -117,10 +117,16 @@ exports.validateIncomingErrorCode = function (request, h) {
       return h.continue
     }
   } catch (err) {
-    const onPreHandlerApiErrorObject = Factory.createFSPIOPError(Errors.VALIDATION_ERROR, `The incoming error code: ${incomingErrorCode} is not a valid mojaloop specification error code`).toApiErrorObject()
-    return h
-      .response(onPreHandlerApiErrorObject)
-      .code(400)
-      .takeover()
+    try {
+      if (Factory.validateFSPIOPErrorGroups(incomingErrorCode)) {
+        return h.continue
+      }
+    } catch (err) {
+      const onPreHandlerApiErrorObject = Factory.createFSPIOPError(Errors.VALIDATION_ERROR, `The incoming error code: ${incomingErrorCode} is not a valid mojaloop specification error code`).toApiErrorObject()
+      return h
+        .response(onPreHandlerApiErrorObject)
+        .code(400)
+        .takeover()
+    }
   }
 }

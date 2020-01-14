@@ -70,14 +70,54 @@ const MojaloopTypes = {
     description: 'Expired Error',
     httpStatusCode: 400
   },
-  PAYER_ERROR: {
-    regex: '^4[0-9]{3}$',
-    description: 'Payer Error',
+  GENERIC_PAYER_ERROR: {
+    regex: '^40[0-9]{2}$',
+    description: 'Generic Payer Error',
     httpStatusCode: 400
   },
-  PAYEE_ERROR: {
-    regex: '^5[0-9]{3}$',
-    description: 'Payee Error',
+  PAYER_REJECTION_ERROR: {
+    regex: '^41[0-9]{2}$',
+    description: 'Payer Rejection Error',
+    httpStatusCode: 400
+  },
+  PAYER_LIMIT_ERROR: {
+    regex: '^42[0-9]{2}$',
+    description: 'Payer Limit Error',
+    httpStatusCode: 400
+  },
+  PAYER_PERMISSION_ERROR: {
+    regex: '^43[0-9]{2}$',
+    description: 'Payer Permission Error',
+    httpStatusCode: 400
+  },
+  PAYER_BLOCKED_ERROR: {
+    regex: '^44[0-9]{2}$',
+    description: 'Payer Blocker Error',
+    httpStatusCode: 400
+  },
+  GENERIC_PAYEE_ERROR: {
+    regex: '^50[0-9]{2}$',
+    description: 'Generic Payee Error',
+    httpStatusCode: 400
+  },
+  PAYEE_REJECTION_ERROR: {
+    regex: '^51[0-9]{2}$',
+    description: 'Payee Rejection Error',
+    httpStatusCode: 400
+  },
+  PAYEE_LIMIT_ERROR: {
+    regex: '^52[0-9]{2}$',
+    description: 'Payee Limit Error',
+    httpStatusCode: 400
+  },
+  PAYEE_PERMISSION_ERROR: {
+    regex: '^53[0-9]{2}$',
+    description: 'Payee Permission Error',
+    httpStatusCode: 400
+  },
+  PAYEE_BLOCKED_ERROR: {
+    regex: '^54[0-9]{2}$',
+    description: 'Payee Blocker Error',
     httpStatusCode: 400
   }
 }
@@ -189,6 +229,24 @@ const findFSPIOPErrorCode = (code) => {
 }
 
 /**
+ * Returns an object representing a Mojaloop API spec error code combined with error types enums
+ *
+ * @param errorCode {string/number} - Mojaloop API spec error code enums
+ * @returns {object} - Object representing the Mojaloop API spec error enums with associated types
+ */
+const findErrorType = (errorCode) => {
+  for (const [errorTypeKey, errorTypeValue] of Object.entries(MojaloopTypes)) {
+    const regExp = new RegExp(errorTypeValue.regex)
+    if (regExp.test(errorCode)) {
+      const newErrorCodeType = _.cloneDeep(errorTypeValue)
+      _.set(newErrorCodeType, 'name', errorTypeKey)
+      return newErrorCodeType
+    }
+  }
+  return undefined
+}
+
+/**
  *  Mojaloop API spec Model Types related to ErrorInformation
  */
 const MojaloopModelTypes = {
@@ -223,6 +281,7 @@ module.exports = {
   FSPIOPErrorTypes: MojaloopTypes,
   FSPIOPErrorCodeMap,
   findFSPIOPErrorCode,
+  findErrorType,
   MojaloopModelTypes,
   Internal,
   _populateOverrides: populateOverrides
