@@ -271,7 +271,8 @@ const MojaloopModelTypes = {
 const Internal = {
   FSPIOPError: {
     ExtensionsKeys: {
-      cause: '_cause'
+      cause: 'cause',
+      _cause: '_cause'
     }
   }
 }
