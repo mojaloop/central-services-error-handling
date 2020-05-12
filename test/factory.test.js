@@ -964,5 +964,43 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError from a Joi error for too many elements', function (test) {
+    const joiError = {
+      message: 'Too many elements',
+      type: 'object.allowUnknown',
+      context: {
+        label: 'Too many elements 2'
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, { stack: 'Stack trace...' }, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3103',
+        errorDescription: 'Too many elements - Too many elements'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Joi error for invalid integer', function (test) {
+    const joiError = {
+      message: 'Malformed syntax',
+      type: 'number.integer',
+      context: {
+        label: 'Malformed syntax 2'
+      }
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromJoiError(joiError, { stack: 'Stack trace...' }, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3101',
+        errorDescription: 'Malformed syntax - Malformed syntax'
+      }
+    })
+    test.end()
+  })
+
   factoryTest.end()
 })
