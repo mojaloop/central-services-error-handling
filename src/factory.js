@@ -268,7 +268,6 @@ const createFSPIOPErrorFromOpenapiError = (errors, replyTo) => {
         return Enums.FSPIOPErrorCodes.MISSING_ELEMENT
       case 'additionalProperties':
         return Enums.FSPIOPErrorCodes.TOO_MANY_ELEMENTS
-      // Match any type that starts with 'string.'
       case 'type':
         return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
       default:
