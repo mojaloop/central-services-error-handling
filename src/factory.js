@@ -254,6 +254,31 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
 }
 
 /**
+ * Factory method to create an FSPIOPError from a openapi-backend error.
+ *
+ * @param error {Error} - the openapi error
+ * @param replyTo {string} - the FSP to notify of the error if applicable
+ * @returns {FSPIOPError}
+ */
+const createFSPIOPErrorFromOpenapiError = (errors, replyTo) => {
+  const fspiopError = ((type) => {
+    switch (type) {
+      case 'required':
+        return Enums.FSPIOPErrorCodes.MISSING_ELEMENT
+      case 'additionalProperties':
+        return Enums.FSPIOPErrorCodes.TOO_MANY_ELEMENTS
+      // Match any type that starts with 'string.'
+      case 'type':
+        return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
+      default:
+        return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
+    }
+  })(errors[0].keyword)
+  const message = errors[0].dataPath + ' ' + errors[0].message
+  return createFSPIOPError(fspiopError, message, replyTo)
+}
+
+/**
  * Convenience factory method to create a FSPIOPError Internal Server Error
  *
  * @param message {string} - a description of the error
@@ -371,6 +396,7 @@ module.exports = {
   FSPIOPError,
   createFSPIOPError,
   createFSPIOPErrorFromJoiError,
+  createFSPIOPErrorFromOpenapiError,
   createInternalServerFSPIOPError,
   createFSPIOPErrorFromErrorInformation,
   createFSPIOPErrorFromErrorCode,
