@@ -215,13 +215,14 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
       case 'any.required':
       case 'any.empty':
         return Enums.FSPIOPErrorCodes.MISSING_ELEMENT
-
+      case 'object.allowUnknown':
+        return Enums.FSPIOPErrorCodes.TOO_MANY_ELEMENTS
       // Match any type that starts with 'string.'
       case (type.match(/^string\./) || {}).input:
       case 'date.format':
+      case 'number.integer':
       case 'any.allowOnly':
         return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
-
       default:
         return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
     }
