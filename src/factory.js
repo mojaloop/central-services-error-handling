@@ -257,11 +257,11 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
 /**
  * Factory method to create an FSPIOPError from a openapi-backend error.
  *
- * @param error {Error} - the openapi error
+ * @param error {Object} - the openapi error
  * @param replyTo {string} - the FSP to notify of the error if applicable
  * @returns {FSPIOPError}
  */
-const createFSPIOPErrorFromOpenapiError = (errors, replyTo) => {
+const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
   const fspiopError = ((type) => {
     switch (type) {
       case 'required':
@@ -273,8 +273,8 @@ const createFSPIOPErrorFromOpenapiError = (errors, replyTo) => {
       default:
         return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
     }
-  })(errors[0].keyword)
-  const message = errors[0].dataPath + ' ' + errors[0].message
+  })(error.keyword)
+  const message = error.dataPath + ' ' + error.message
   return createFSPIOPError(fspiopError, message, replyTo)
 }
 
