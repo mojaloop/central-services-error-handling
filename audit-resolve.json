@@ -1,24 +1,20 @@
 {
   "decisions": {
     "1179|tap-xunit>minimist": {
-      "decision": "ignore",
-      "madeAt": 1588936330953,
-      "expiresAt": 1589541123924
+      "decision": "postpone",
+      "madeAt": 1589909002743
     },
     "1500|npm-audit-resolver>yargs-unparser>yargs>yargs-parser": {
-      "decision": "ignore",
-      "madeAt": 1588936336673,
-      "expiresAt": 1589541123924
+      "decision": "postpone",
+      "madeAt": 1589908441082
     },
     "1179|faucet>minimist": {
-      "decision": "ignore",
-      "madeAt": 1588936340320,
-      "expiresAt": 1589541123924
+      "decision": "postpone",
+      "madeAt": 1589908444466
     },
     "1500|npm-audit-resolver>audit-resolve-core>yargs-parser": {
-      "decision": "ignore",
-      "madeAt": 1588936343161,
-      "expiresAt": 1589541123924
+      "decision": "postpone",
+      "madeAt": 1589908445862
     }
   },
   "rules": {},

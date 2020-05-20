@@ -160,6 +160,90 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError from a Openapi-backend invalid type error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
+    const error = {
+      keyword: 'type',
+      dataPath: '.header[\'content-length\']',
+      schemaPath: '#/properties/header/properties/content-length/type',
+      params: {
+        type: 'number'
+      },
+      message: 'should be number'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3101',
+        errorDescription: 'Malformed syntax - .header[\'content-length\'] should be number'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend additional property error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
+    const error = {
+      keyword: 'additionalProperties',
+      dataPath: '.requestBody.payee.partyIdInfo',
+      schemaPath: '#/properties/requestBody/properties/payee/properties/partyIdInfo/additionalProperties',
+      params: {
+        additionalProperty: 'fake'
+      },
+      message: 'should NOT have additional properties'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3103',
+        errorDescription: 'Too many elements - .requestBody.payee.partyIdInfo should NOT have additional properties'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend required error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
+    const error = {
+      keyword: 'required',
+      dataPath: '.requestBody.payee.partyIdInfo',
+      schemaPath: '#/properties/requestBody/properties/payee/properties/partyIdInfo/required',
+      params: {
+        missingProperty: 'partyIdType'
+      },
+      message: 'should have required property \'partyIdType\''
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3102',
+        errorDescription: 'Missing mandatory element - .requestBody.payee.partyIdInfo should have required property \'partyIdType\''
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend generic validation error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
+    const error = {
+      keyword: 'validation',
+      dataPath: '.requestBody.payee.partyIdInfo',
+      schemaPath: '#/properties/requestBody/properties/payee/properties/partyIdInfo/required',
+      params: {
+        missingProperty: 'partyIdType'
+      },
+      message: 'should have required property \'partyIdType\''
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3100',
+        errorDescription: 'Generic validation error - .requestBody.payee.partyIdInfo should have required property \'partyIdType\''
+      }
+    })
+    test.end()
+  })
+
   factoryTest.test('create an FSPIOPError from a Joi error and invalid path parameter response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
     const joiError = {
       type: 'any.allowOnly',
