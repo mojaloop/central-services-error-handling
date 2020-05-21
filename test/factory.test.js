@@ -223,7 +223,7 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Openapi-backend generic validation error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
+  factoryTest.test('create an FSPIOPError from a Openapi-backend generic validation error response with includeCauseExtension: false, truncateExtensions: true', function (test) {
     const error = {
       keyword: 'validation',
       dataPath: '.requestBody.payee.partyIdInfo',
@@ -239,6 +239,40 @@ Test('Factory should', factoryTest => {
       errorInformation: {
         errorCode: '3100',
         errorDescription: 'Generic validation error - .requestBody.payee.partyIdInfo should have required property \'partyIdType\''
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend generic validation error response not found URI', function (test) {
+    const error = {
+      keyword: 'notFound',
+      dataPath: '/invalidURIandMethod',
+      message: 'Not found'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3002',
+        errorDescription: 'Unknown URI - /invalidURIandMethod Not found'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend generic validation error response for invalid method for valid path', function (test) {
+    const error = {
+      keyword: 'methodNotAllowed',
+      dataPath: 'POST /health',
+      message: 'Method not allowed'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3000',
+        errorDescription: 'Generic client error - POST /health Method not allowed'
       }
     })
     test.end()

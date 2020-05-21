@@ -270,6 +270,10 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
         return Enums.FSPIOPErrorCodes.TOO_MANY_ELEMENTS
       case 'type':
         return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
+      case 'notFound':
+        return Enums.FSPIOPErrorCodes.UNKNOWN_URI
+      case 'methodNotAllowed':
+        return Enums.FSPIOPErrorCodes.CLIENT_ERROR
       default:
         return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
     }
