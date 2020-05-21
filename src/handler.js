@@ -54,7 +54,7 @@ const createFSPIOPErrorFromErrorResponse = (request, response) => {
             if (matchingRoutes) {
               const allowedHeaderValues = getAllowHeaders(request.server.table(), request.path)
               response.message = ''
-              response.output.header('Allow', allowedHeaderValues)
+              response.output.headers.Allow = allowedHeaderValues
               return Errors.METHOD_NOT_ALLOWED
             }
           }
