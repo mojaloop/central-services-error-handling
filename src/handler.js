@@ -39,23 +39,119 @@ const getReplyToFromRequestHeaders = (request) => {
 }
 
 const createFSPIOPErrorFromErrorResponse = (request, response) => {
-  const fspiopError = ((httpStatusCode) => {
-    switch (httpStatusCode) {
+  const fspiopError = ((response, request) => {
+    switch (response.output.statusCode) {
       case 400:
         return Errors.CLIENT_ERROR
-
       case 404:
-        return Errors.UNKNOWN_URI
+        try {
+          const splittedRoutes = splitRoutePaths(request.server.table())
+          const apiPath = request.path.split('/')
+          const pathCandidates = findRoutesSameSize(splittedRoutes, apiPath.length)
 
+          if (pathCandidates.length > 0) {
+            const matchingRoutes = findMatchingRoutes(splittedRoutes, apiPath)
+            if (matchingRoutes) {
+              const allowedHeaderValues = getAllowHeaders(request.server.table(), request.path)
+              response.message = ''
+              response.output.header('Allow', allowedHeaderValues)
+              return Errors.METHOD_NOT_ALLOWED
+            }
+          }
+        } catch (err) {
+          console.log('Error processing METHOD_NOT_ALLOWED error ' + err)
+        }
+        return Errors.UNKNOWN_URI
       case 415:
         return Errors.MALFORMED_SYNTAX
 
       default:
         return Errors.INTERNAL_SERVER_ERROR
     }
-  })(response.output.statusCode)
+  })(response, request)
 
   return Factory.createFSPIOPError(fspiopError, response.message, response.stack, getReplyToFromRequestHeaders(request))
+}
+
+const getAllowHeaders = (routes, apiPath) => {
+  let headers = ''
+  const splitApiPath = apiPath.split('/')
+
+  for (var i in routes) {
+    const currentMethod = routes[i].method
+    const splitRoute = routes[i].path.split('/')
+    let match = false
+
+    for (var j in splitRoute) {
+      if (splitRoute[j].includes('{') && splitRoute[j].includes('}') && !splitRoute[j].includes('{any*}')) {
+        match = true
+        continue
+      } else if (splitRoute[j] === splitApiPath[j]) {
+        match = true
+        continue
+      } else {
+        match = false
+        break
+      }
+    }
+
+    if (match) {
+      if (headers === '') {
+        headers += currentMethod
+      } else {
+        headers += ',' + currentMethod
+      }
+    }
+  }
+
+  return headers
+}
+
+const findMatchingRoutes = (routes, apiPath) => {
+  let containsMatchingRoutes = false
+
+  for (var i in routes) {
+    const data = routes[i]
+    let match = false
+
+    for (var j in data) {
+      if (data[j].includes('{') && data[j].includes('}') && !data[j].includes('{any*}')) {
+        match = true
+        continue
+      } else if (data[j] === apiPath[j]) {
+        match = true
+        continue
+      } else {
+        match = false
+        break
+      }
+    }
+
+    containsMatchingRoutes = match
+    if (containsMatchingRoutes) return containsMatchingRoutes
+  }
+
+  return containsMatchingRoutes
+}
+
+const findRoutesSameSize = (routes, apiPathSize) => {
+  const pathCandidates = []
+
+  for (var i in routes) {
+    if (routes[i].length === apiPathSize) pathCandidates.push(routes[i])
+  }
+
+  return pathCandidates
+}
+
+const splitRoutePaths = (routes) => {
+  const splittedRoutes = []
+
+  for (var i in routes) {
+    splittedRoutes[i] = routes[i].path.split('/')
+  }
+
+  return splittedRoutes
 }
 
 const reformatError = (request, response) => {
