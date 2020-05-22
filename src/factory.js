@@ -273,12 +273,17 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
       case 'notFound':
         return Enums.FSPIOPErrorCodes.UNKNOWN_URI
       case 'methodNotAllowed':
-        return Enums.FSPIOPErrorCodes.CLIENT_ERROR
+        return Enums.FSPIOPErrorCodes.METHOD_NOT_ALLOWED
       default:
         return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
     }
   })(error.keyword)
-  const message = error.dataPath + ' ' + error.message
+  let message
+  if (error.message) {
+    message = error.dataPath + ' ' + error.message
+  } else {
+    message = error.dataPath
+  }
   return createFSPIOPError(fspiopError, message, replyTo)
 }
 

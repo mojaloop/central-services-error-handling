@@ -265,14 +265,14 @@ Test('Factory should', factoryTest => {
     const error = {
       keyword: 'methodNotAllowed',
       dataPath: 'POST /health',
-      message: 'Method not allowed'
+      message: ''
     }
     const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
     test.ok(fspiopError)
     test.deepEqual(fspiopError.toApiErrorObject(), {
       errorInformation: {
         errorCode: '3000',
-        errorDescription: 'Generic client error - POST /health Method not allowed'
+        errorDescription: 'Generic client error - Method Not Allowed - POST /health'
       }
     })
     test.end()
