@@ -113,6 +113,96 @@ Test('Handler should', handlerTest => {
     test.end()
   })
 
+  handlerTest.test('handle a Boom 405 error 1 with no match so actually a 404', async function (test) {
+    const response = {
+      message: '',
+      output: {
+        statusCode: 404,
+        headers: {
+          Allow: 'get'
+        }
+      }
+    }
+
+    const request = {
+      path: '/authorizationsxx/1357902468',
+      server: {}
+    }
+
+    request.server.table = function () {
+      return [{ method: 'get', path: '/authorizations/{ID}' }]
+    }
+
+    const handlerResult = Handler.createFSPIOPErrorFromErrorResponse(request, response)
+    test.equal(handlerResult.apiErrorCode.code, '3002')
+    test.equal(handlerResult.apiErrorCode.message, 'Unknown URI')
+    test.equal(handlerResult.apiErrorCode.httpStatusCode, 404)
+  })
+
+  handlerTest.test('handle a Boom 405 error 2 with no match so actually a 404', async function (test) {
+    const response = {
+      message: '',
+      output: {
+        statusCode: 404,
+        headers: {
+          Allow: 'get'
+        }
+      }
+    }
+
+    const request = {
+      path: '/authorizations/1357902468/something',
+      server: {}
+    }
+
+    request.server.table = function () {
+      return [{ method: 'get', path: '/authorizations/{ID}' }]
+    }
+
+    const handlerResult = Handler.createFSPIOPErrorFromErrorResponse(request, response)
+    test.equal(handlerResult.apiErrorCode.code, '3002')
+    test.equal(handlerResult.apiErrorCode.message, 'Unknown URI')
+    test.equal(handlerResult.apiErrorCode.httpStatusCode, 404)
+  })
+
+  handlerTest.test('handle a Boom 405 error', async function (test) {
+    const response = {
+      message: '',
+      output: {
+        statusCode: 404,
+        headers: {
+          Allow: 'get'
+        }
+      }
+    }
+
+    const request = {
+      path: '/authorizations/1357902468',
+      server: {}
+    }
+
+    request.server.table = function () {
+      return [{ method: 'get', path: '/authorizations/{ID}' }]
+    }
+
+    const handlerResult = Handler.createFSPIOPErrorFromErrorResponse(request, response)
+    test.equal(handlerResult.apiErrorCode.code, '3000')
+    test.equal(handlerResult.apiErrorCode.message, 'Generic client error - Method Not Allowed')
+    test.equal(handlerResult.apiErrorCode.httpStatusCode, 405)
+
+    const splittedRoutes = Handler.splitRoutePaths(request.server.table())
+    test.equal(splittedRoutes.length, 1)
+
+    const apiPath = request.path.split('/')
+    test.equal(apiPath.length, 3)
+
+    const pathCandidates = Handler.findRoutesSameSize(splittedRoutes, apiPath.length)
+    test.equal(pathCandidates.length, 1)
+
+    const allowedHeaderValues = Handler.getAllowHeaders(request.server.table(), request.path)
+    test.equal(allowedHeaderValues, 'get')
+  })
+
   handlerTest.test('handle a Boom 415 error', async function (test) {
     const response = Boom.forbidden()
     response.output.statusCode = 415

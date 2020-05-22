@@ -188,7 +188,7 @@ const reformatError = (request, response) => {
  * @param reply
  * @returns {boolean|reply.continue|continue|((key?: IDBValidKey) => void)}
  */
-exports.onPreResponse = function (request, reply) {
+const onPreResponse = (request, reply) => {
   const response = request.response
   if (response instanceof Error || response.isBoom) {
     reformatError(request, response)
@@ -206,7 +206,7 @@ exports.onPreResponse = function (request, reply) {
  * @param h
  * @returns {boolean|h.continue|continue|((key?: IDBValidKey) => void)}
  */
-exports.validateIncomingErrorCode = function (request, h) {
+const validateIncomingErrorCode = (request, h) => {
   const incomingErrorCode = request.payload.errorInformation.errorCode
   try {
     if (Factory.validateFSPIOPErrorCode(incomingErrorCode).code === incomingErrorCode) {
@@ -225,4 +225,14 @@ exports.validateIncomingErrorCode = function (request, h) {
         .takeover()
     }
   }
+}
+
+module.exports = {
+  validateIncomingErrorCode,
+  onPreResponse,
+  createFSPIOPErrorFromErrorResponse,
+  splitRoutePaths,
+  findRoutesSameSize,
+  findMatchingRoutes,
+  getAllowHeaders
 }
