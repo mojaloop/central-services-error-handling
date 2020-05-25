@@ -44,24 +44,18 @@ const createFSPIOPErrorFromErrorResponse = (request, response) => {
       case 400:
         return Errors.CLIENT_ERROR
       case 404:
-        try {
-          const splittedRoutes = splitRoutePaths(request.server.table())
-          const apiPath = request.path.split('/')
-          const pathCandidates = findRoutesSameSize(splittedRoutes, apiPath.length)
+      {
+        const matches = findMatches(request)
 
-          if (pathCandidates.length > 0) {
-            const matchingRoutes = findMatchingRoutes(splittedRoutes, apiPath)
-            if (matchingRoutes) {
-              const allowedHeaderValues = getAllowHeaders(request.server.table(), request.path)
-              response.message = ''
-              response.output.headers.Allow = allowedHeaderValues
-              return Errors.METHOD_NOT_ALLOWED
-            }
-          }
-        } catch (err) {
-          console.log('Error processing METHOD_NOT_ALLOWED error ' + err)
+        if (matches.length > 0) {
+          const allowedHeaderValues = getAllowHeaders(matches)
+          response.message = ''
+          response.output.headers.Allow = allowedHeaderValues
+          return Errors.METHOD_NOT_ALLOWED
+        } else {
+          return Errors.UNKNOWN_URI
         }
-        return Errors.UNKNOWN_URI
+      }
       case 415:
         return Errors.MALFORMED_SYNTAX
 
@@ -73,85 +67,37 @@ const createFSPIOPErrorFromErrorResponse = (request, response) => {
   return Factory.createFSPIOPError(fspiopError, response.message, response.stack, getReplyToFromRequestHeaders(request))
 }
 
-const getAllowHeaders = (routes, apiPath) => {
-  let headers = ''
-  const splitApiPath = apiPath.split('/')
+const findMatches = (request) => {
+  const server = request.server
+  const path = request.path
+  const matches = []
+  const methods = ['get', 'post', 'put', 'patch', 'delete']
 
-  for (var i in routes) {
-    const currentMethod = routes[i].method
-    const splitRoute = routes[i].path.split('/')
-    let match = false
-
-    for (var j in splitRoute) {
-      if (splitRoute[j].includes('{') && splitRoute[j].includes('}') && !splitRoute[j].includes('{any*}')) {
-        match = true
-        continue
-      } else if (splitRoute[j] === splitApiPath[j]) {
-        match = true
-        continue
-      } else {
-        match = false
-        break
-      }
+  for (var i in methods) {
+    const match = server.match(methods[i], path)
+    if (match != null) {
+      const data = { method: match.method }
+      matches.push(data)
     }
+  }
 
-    if (match) {
-      if (headers === '') {
-        headers += currentMethod
-      } else {
-        headers += ',' + currentMethod
-      }
+  return matches
+}
+
+const getAllowHeaders = (matches) => {
+  let headers = ''
+
+  for (var i in matches) {
+    const method = matches[i].method
+
+    if (headers === '') {
+      headers += method
+    } else {
+      headers += ',' + method
     }
   }
 
   return headers
-}
-
-const findMatchingRoutes = (routes, apiPath) => {
-  let containsMatchingRoutes = false
-
-  for (var i in routes) {
-    const data = routes[i]
-    let match = false
-
-    for (var j in data) {
-      if (data[j].includes('{') && data[j].includes('}') && !data[j].includes('{any*}')) {
-        match = true
-        continue
-      } else if (data[j] === apiPath[j]) {
-        match = true
-        continue
-      } else {
-        match = false
-        break
-      }
-    }
-
-    containsMatchingRoutes = match
-    if (containsMatchingRoutes) return containsMatchingRoutes
-  }
-
-  return containsMatchingRoutes
-}
-
-const findRoutesSameSize = (routes, apiPathSize) => {
-  const pathCandidates = []
-
-  for (var i in routes) {
-    if (routes[i].length === apiPathSize) pathCandidates.push(routes[i])
-  }
-
-  return pathCandidates
-}
-
-const splitRoutePaths = (routes) => {
-  const splittedRoutes = []
-
-  for (var i in routes) {
-    splittedRoutes[i] = routes[i].path.split('/')
-  }
-
-  return splittedRoutes
 }
 
 const reformatError = (request, response) => {
@@ -231,8 +177,6 @@ module.exports = {
   validateIncomingErrorCode,
   onPreResponse,
   createFSPIOPErrorFromErrorResponse,
-  splitRoutePaths,
-  findRoutesSameSize,
-  findMatchingRoutes,
-  getAllowHeaders
+  getAllowHeaders,
+  findMatches
 }

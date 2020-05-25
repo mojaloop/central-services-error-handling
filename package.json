@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-error-handling",
-  "version": "10.2.4",
+  "version": "10.3.0",
   "description": "Hapi error handling module",
   "main": "src/index.js",
   "pre-commit": [
@@ -57,7 +57,7 @@
     "sinon": "9.0.2",
     "standard": "14.3.4",
     "tap-xunit": "2.4.1",
-    "tape": "5.0.0"
+    "tape": "5.0.1"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

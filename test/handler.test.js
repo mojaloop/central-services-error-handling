@@ -104,65 +104,45 @@ Test('Handler should', handlerTest => {
   })
 
   handlerTest.test('handle a Boom 404 error', async function (test) {
-    const response = Boom.notFound('Not Found')
+    const response = {
+      isBoom: true,
+      output:
+        {
+          statusCode: 404,
+          payload:
+            {
+              error: 'BadRequest'
+            },
+          headers: {
+            Allow: 'get'
+          }
+        },
+      message: 'Not Found'
+    }
 
-    Handler.onPreResponse({ response }, {})
+    const request = {
+      path: '/noMatchingUrl/1357902468/vlkdfnvfdvnkj/vcjknsdjcnsj',
+      server: {},
+      response: response
+    }
+
+    request.server.table = function () {
+      return [{ method: 'get', path: '/XXXX' }]
+    }
+
+    request.server.match = function (server, path) {
+      return null
+    }
+
+    const reply = {
+      continue: 123
+    }
+
+    Handler.onPreResponse(request, reply)
     test.equal(response.output.statusCode, 404)
     test.equal(response.output.payload.errorInformation.errorCode, '3002')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Unknown URI - Not Found')
     test.end()
-  })
-
-  handlerTest.test('handle a Boom 405 error 1 with no match so actually a 404', async function (test) {
-    const response = {
-      message: '',
-      output: {
-        statusCode: 404,
-        headers: {
-          Allow: 'get'
-        }
-      }
-    }
-
-    const request = {
-      path: '/authorizationsxx/1357902468',
-      server: {}
-    }
-
-    request.server.table = function () {
-      return [{ method: 'get', path: '/authorizations/{ID}' }]
-    }
-
-    const handlerResult = Handler.createFSPIOPErrorFromErrorResponse(request, response)
-    test.equal(handlerResult.apiErrorCode.code, '3002')
-    test.equal(handlerResult.apiErrorCode.message, 'Unknown URI')
-    test.equal(handlerResult.apiErrorCode.httpStatusCode, 404)
-  })
-
-  handlerTest.test('handle a Boom 405 error 2 with no match so actually a 404', async function (test) {
-    const response = {
-      message: '',
-      output: {
-        statusCode: 404,
-        headers: {
-          Allow: 'get'
-        }
-      }
-    }
-
-    const request = {
-      path: '/authorizations/1357902468/something',
-      server: {}
-    }
-
-    request.server.table = function () {
-      return [{ method: 'get', path: '/authorizations/{ID}' }]
-    }
-
-    const handlerResult = Handler.createFSPIOPErrorFromErrorResponse(request, response)
-    test.equal(handlerResult.apiErrorCode.code, '3002')
-    test.equal(handlerResult.apiErrorCode.message, 'Unknown URI')
-    test.equal(handlerResult.apiErrorCode.httpStatusCode, 404)
   })
 
   handlerTest.test('handle a Boom 405 error', async function (test) {
@@ -185,22 +165,31 @@ Test('Handler should', handlerTest => {
       return [{ method: 'get', path: '/authorizations/{ID}' }]
     }
 
+    request.server.match = function (server, path) {
+      return {}
+    }
+
     const handlerResult = Handler.createFSPIOPErrorFromErrorResponse(request, response)
     test.equal(handlerResult.apiErrorCode.code, '3000')
     test.equal(handlerResult.apiErrorCode.message, 'Generic client error - Method Not Allowed')
     test.equal(handlerResult.apiErrorCode.httpStatusCode, 405)
 
-    const splittedRoutes = Handler.splitRoutePaths(request.server.table())
-    test.equal(splittedRoutes.length, 1)
+    let matches = [{ method: 'get' }]
 
-    const apiPath = request.path.split('/')
-    test.equal(apiPath.length, 3)
-
-    const pathCandidates = Handler.findRoutesSameSize(splittedRoutes, apiPath.length)
-    test.equal(pathCandidates.length, 1)
-
-    const allowedHeaderValues = Handler.getAllowHeaders(request.server.table(), request.path)
+    let allowedHeaderValues = Handler.getAllowHeaders(matches)
     test.equal(allowedHeaderValues, 'get')
+
+    request.server.table = function () {
+      return [{ method: 'get', path: '/authorizations/{ID}' },
+        { method: 'put', path: '/authorizations/{ID}' },
+        { method: 'post', path: '/authorizationsXX/{ID}' }]
+    }
+
+    matches = [{ method: 'get' }, { method: 'put' }]
+
+    allowedHeaderValues = Handler.getAllowHeaders(matches)
+    test.equal(allowedHeaderValues, 'get,put')
+    test.end()
   })
 
   handlerTest.test('handle a Boom 415 error', async function (test) {
