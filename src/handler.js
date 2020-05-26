@@ -39,23 +39,65 @@ const getReplyToFromRequestHeaders = (request) => {
 }
 
 const createFSPIOPErrorFromErrorResponse = (request, response) => {
-  const fspiopError = ((httpStatusCode) => {
-    switch (httpStatusCode) {
+  const fspiopError = ((response, request) => {
+    switch (response.output.statusCode) {
       case 400:
         return Errors.CLIENT_ERROR
-
       case 404:
-        return Errors.UNKNOWN_URI
+      {
+        const matches = findMatches(request)
 
+        if (matches.length > 0) {
+          const allowedHeaderValues = getAllowHeaders(matches)
+          response.message = ''
+          response.output.headers.Allow = allowedHeaderValues
+          return Errors.METHOD_NOT_ALLOWED
+        } else {
+          return Errors.UNKNOWN_URI
+        }
+      }
       case 415:
         return Errors.MALFORMED_SYNTAX
 
       default:
         return Errors.INTERNAL_SERVER_ERROR
     }
-  })(response.output.statusCode)
+  })(response, request)
 
   return Factory.createFSPIOPError(fspiopError, response.message, response.stack, getReplyToFromRequestHeaders(request))
+}
+
+const findMatches = (request) => {
+  const server = request.server
+  const path = request.path
+  const matches = []
+  const methods = ['get', 'post', 'put', 'patch', 'delete']
+
+  for (var i in methods) {
+    const match = server.match(methods[i], path)
+    if (match != null) {
+      const data = { method: match.method }
+      matches.push(data)
+    }
+  }
+
+  return matches
+}
+
+const getAllowHeaders = (matches) => {
+  let headers = ''
+
+  for (var i in matches) {
+    const method = matches[i].method
+
+    if (headers === '') {
+      headers += method
+    } else {
+      headers += ',' + method
+    }
+  }
+
+  return headers
 }
 
 const reformatError = (request, response) => {
@@ -92,7 +134,7 @@ const reformatError = (request, response) => {
  * @param reply
  * @returns {boolean|reply.continue|continue|((key?: IDBValidKey) => void)}
  */
-exports.onPreResponse = function (request, reply) {
+const onPreResponse = (request, reply) => {
   const response = request.response
   if (response instanceof Error || response.isBoom) {
     reformatError(request, response)
@@ -110,7 +152,7 @@ exports.onPreResponse = function (request, reply) {
  * @param h
  * @returns {boolean|h.continue|continue|((key?: IDBValidKey) => void)}
  */
-exports.validateIncomingErrorCode = function (request, h) {
+const validateIncomingErrorCode = (request, h) => {
   const incomingErrorCode = request.payload.errorInformation.errorCode
   try {
     if (Factory.validateFSPIOPErrorCode(incomingErrorCode).code === incomingErrorCode) {
@@ -129,4 +171,12 @@ exports.validateIncomingErrorCode = function (request, h) {
         .takeover()
     }
   }
+}
+
+module.exports = {
+  validateIncomingErrorCode,
+  onPreResponse,
+  createFSPIOPErrorFromErrorResponse,
+  getAllowHeaders,
+  findMatches
 }

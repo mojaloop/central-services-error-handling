@@ -104,12 +104,91 @@ Test('Handler should', handlerTest => {
   })
 
   handlerTest.test('handle a Boom 404 error', async function (test) {
-    const response = Boom.notFound('Not Found')
+    const response = {
+      isBoom: true,
+      output:
+        {
+          statusCode: 404,
+          payload:
+            {
+              error: 'BadRequest'
+            },
+          headers: {
+            Allow: 'get'
+          }
+        },
+      message: 'Not Found'
+    }
 
-    Handler.onPreResponse({ response }, {})
+    const request = {
+      path: '/noMatchingUrl/1357902468/vlkdfnvfdvnkj/vcjknsdjcnsj',
+      server: {},
+      response: response
+    }
+
+    request.server.table = function () {
+      return [{ method: 'get', path: '/XXXX' }]
+    }
+
+    request.server.match = function (server, path) {
+      return null
+    }
+
+    const reply = {
+      continue: 123
+    }
+
+    Handler.onPreResponse(request, reply)
     test.equal(response.output.statusCode, 404)
     test.equal(response.output.payload.errorInformation.errorCode, '3002')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Unknown URI - Not Found')
+    test.end()
+  })
+
+  handlerTest.test('handle a Boom 405 error', async function (test) {
+    const response = {
+      message: '',
+      output: {
+        statusCode: 404,
+        headers: {
+          Allow: 'get'
+        }
+      }
+    }
+
+    const request = {
+      path: '/authorizations/1357902468',
+      server: {}
+    }
+
+    request.server.table = function () {
+      return [{ method: 'get', path: '/authorizations/{ID}' }]
+    }
+
+    request.server.match = function (server, path) {
+      return {}
+    }
+
+    const handlerResult = Handler.createFSPIOPErrorFromErrorResponse(request, response)
+    test.equal(handlerResult.apiErrorCode.code, '3000')
+    test.equal(handlerResult.apiErrorCode.message, 'Generic client error - Method Not Allowed')
+    test.equal(handlerResult.apiErrorCode.httpStatusCode, 405)
+
+    let matches = [{ method: 'get' }]
+
+    let allowedHeaderValues = Handler.getAllowHeaders(matches)
+    test.equal(allowedHeaderValues, 'get')
+
+    request.server.table = function () {
+      return [{ method: 'get', path: '/authorizations/{ID}' },
+        { method: 'put', path: '/authorizations/{ID}' },
+        { method: 'post', path: '/authorizationsXX/{ID}' }]
+    }
+
+    matches = [{ method: 'get' }, { method: 'put' }]
+
+    allowedHeaderValues = Handler.getAllowHeaders(matches)
+    test.equal(allowedHeaderValues, 'get,put')
     test.end()
   })
 
