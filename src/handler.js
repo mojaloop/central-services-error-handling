@@ -73,7 +73,7 @@ const findMatches = (request) => {
   const matches = []
   const methods = ['get', 'post', 'put', 'patch', 'delete']
 
-  for (var i in methods) {
+  for (const i in methods) {
     const match = server.match(methods[i], path)
     if (match != null) {
       const data = { method: match.method }
@@ -87,7 +87,7 @@ const findMatches = (request) => {
 const getAllowHeaders = (matches) => {
   let headers = ''
 
-  for (var i in matches) {
+  for (const i in matches) {
     const method = matches[i].method
 
     if (headers === '') {

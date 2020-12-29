@@ -237,7 +237,8 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
     cause.output &&
     cause.output.payload &&
     cause.output.payload.validation
-  ) ? cause.output.payload.validation.source
+  )
+    ? cause.output.payload.validation.source
     : undefined
 
   const messages = {
