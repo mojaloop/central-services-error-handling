@@ -222,6 +222,7 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
       case 'date.format':
       case 'number.integer':
       case 'any.allowOnly':
+      case 'any.only':
         return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
       default:
         return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
