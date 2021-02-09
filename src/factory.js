@@ -222,7 +222,7 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
       case 'date.format':
       case 'number.integer':
       case 'any.allowOnly':
-      case 'any.only':
+      case 'any.only': // added as a fix for https://github.com/mojaloop/project/issues/2013
         return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
       default:
         return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
