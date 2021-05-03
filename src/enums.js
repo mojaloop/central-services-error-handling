@@ -122,7 +122,7 @@ const MojaloopTypes = {
   },
   GENERIC_SETTLEMENT_ERROR: {
     regex: '^60[0-9]{2}$',
-    description: 'Settlement related Rrror',
+    description: 'Settlement related Error',
     httpStatusCode: 400
   }
 }
