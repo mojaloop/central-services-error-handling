@@ -119,6 +119,11 @@ const MojaloopTypes = {
     regex: '^54[0-9]{2}$',
     description: 'Payee Blocker Error',
     httpStatusCode: 400
+  },
+  GENERIC_SETTLEMENT_ERROR: {
+    regex: '^60[0-9]{2}$',
+    description: 'Settlement related Rrror',
+    httpStatusCode: 400
   }
 }
 
