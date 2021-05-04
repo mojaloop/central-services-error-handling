@@ -160,6 +160,61 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError from a Openapi-backend (AVJ v8.x.x with instancePath) invalid type error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
+    const error = {
+      keyword: 'type',
+      instancePath: '.header[\'content-length\']',
+      schemaPath: '#/properties/header/properties/content-length/type',
+      params: {
+        type: 'number'
+      },
+      message: 'should be number'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3101',
+        errorDescription: 'Malformed syntax - .header[\'content-length\'] should be number'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend (with no dataPath or instancePath) invalid type error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
+    const error = {
+      keyword: 'type',
+      instancePath: null,
+      schemaPath: '#/properties/header/properties/content-length/type',
+      params: {
+        type: 'number'
+      },
+      message: 'should be number'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3101',
+        errorDescription: 'Malformed syntax - should be number'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend (with no dataPath or instancePath and invalid error type) invalid type error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
+    const error = 'should be number'
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3100',
+        errorDescription: 'Generic validation error - "should be number"'
+      }
+    })
+    test.end()
+  })
+
   factoryTest.test('create an FSPIOPError from a Openapi-backend invalid type error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
     const error = {
       keyword: 'type',
