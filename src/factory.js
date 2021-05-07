@@ -282,9 +282,21 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
   })(error.keyword)
   let message
   if (error.message) {
-    message = error.dataPath + ' ' + error.message
+    if (error.instancePath) {
+      message = error.instancePath + ' ' + error.message
+    } else if (error.dataPath) { // replaced by instancePath, ref: https://github.com/ajv-validator/ajv/releases/tag/v8.0.0. This branch is kept here for backward compatibility.
+      message = error.dataPath + ' ' + error.message
+    } else {
+      message = error.message
+    }
   } else {
-    message = error.dataPath
+    if (error.instancePath) {
+      message = error.instancePath
+    } else if (error.dataPath) { // replaced by instancePath, ref: https://github.com/ajv-validator/ajv/releases/tag/v8.0.0. This branch is kept here for backward compatibility.
+      message = error.dataPath
+    } else {
+      message = JSON.stringify(error)
+    }
   }
   return createFSPIOPError(fspiopError, message, replyTo)
 }

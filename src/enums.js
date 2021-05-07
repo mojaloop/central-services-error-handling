@@ -122,7 +122,7 @@ const MojaloopTypes = {
   },
   GENERIC_SETTLEMENT_ERROR: {
     regex: '^60[0-9]{2}$',
-    description: 'Settlement related Error',
+    description: 'Settlement Related Error',
     httpStatusCode: 400
   }
 }
@@ -131,6 +131,7 @@ const MojaloopTypes = {
  *  Mojaloop API Error Codes Override
  */
 const MojaloopApiErrorCodesOverride = {
+  GENERIC_SETTLEMENT_ERROR: { code: '6000', description: 'Generic Settlement Error', message: 'Generic Settlement Error' }
   // INTERNAL_SERVER_ERROR: { httpStatusCode: 500 }, // Example of overriding default or undefined values for INTERNAL_SERVER_ERROR error
   // CUSTOM_ERROR: { code: '3241', description: 'Error text' } // Example of adding new CUSTOM_ERROR with default MojaloopErrorType.httpStatusCode
 }
