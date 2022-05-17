@@ -42,14 +42,14 @@ const Sinon = require('sinon')
 Test('Handler should', handlerTest => {
   handlerTest.test('handle non error responses', async function (test) {
     const response = {}
-    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.ok(Handler.onPreResponse({ response }, { continue: true }))
     test.end()
   })
 
   handlerTest.test('handle FSPIOPError responses', async function (test) {
     const fspiopError = Factory.createFSPIOPError(Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, 'Internal Error')
     const response = fspiopError
-    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.ok(Handler.onPreResponse({ response }, { continue: true }))
     test.equal(response.output.statusCode, 500)
     test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Internal Error')
@@ -60,7 +60,7 @@ Test('Handler should', handlerTest => {
     const fspiopError = Factory.createFSPIOPError(Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, 'Internal Error without httpStatusCode')
     delete fspiopError.httpStatusCode
     const response = fspiopError
-    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.ok(Handler.onPreResponse({ response }, { continue: true }))
     test.equal(response.output.statusCode, 500)
     test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Internal Error without httpStatusCode')
@@ -70,7 +70,7 @@ Test('Handler should', handlerTest => {
   handlerTest.test('handle generic Error responses', async function (test) {
     const error = new Error('Test Error')
     const response = error
-    test.ok(Handler.onPreResponse({ response: response }, { continue: true }))
+    test.ok(Handler.onPreResponse({ response }, { continue: true }))
     test.equal(response.output.statusCode, 500)
     test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.equal(response.output.payload.errorInformation.errorDescription, 'Internal server error - Test Error')
@@ -88,7 +88,7 @@ Test('Handler should', handlerTest => {
             }
         }
     }
-    Handler.onPreResponse({ response: response, headers: { 'fspiop-source': 'dfsp1' } }, {})
+    Handler.onPreResponse({ response, headers: { 'fspiop-source': 'dfsp1' } }, {})
     test.equal(response.output.payload.errorInformation.errorCode, '2001')
     test.end()
   })
@@ -123,7 +123,7 @@ Test('Handler should', handlerTest => {
     const request = {
       path: '/noMatchingUrl/1357902468/vlkdfnvfdvnkj/vcjknsdjcnsj',
       server: {},
-      response: response
+      response
     }
 
     request.server.table = function () {
@@ -237,7 +237,7 @@ Test('Handler should', handlerTest => {
         }
       }]
     }
-    Handler.onPreResponse({ response: response }, {})
+    Handler.onPreResponse({ response }, {})
     test.equal(response.output.payload.errorInformation.errorDescription, 'Malformed syntax - Regular expression failed validation')
     test.equal(response.output.payload.errorInformation.errorCode, '3101')
     test.end()
@@ -260,7 +260,7 @@ Test('Handler should', handlerTest => {
               }
           }
       }
-    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, { continue: payload }), payload)
+    test.equal(Handler.validateIncomingErrorCode({ payload }, { continue: payload }), payload)
     test.end()
   })
 
@@ -281,7 +281,7 @@ Test('Handler should', handlerTest => {
               }
           }
       }
-    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, { continue: payload }), payload)
+    test.equal(Handler.validateIncomingErrorCode({ payload }, { continue: payload }), payload)
     test.end()
   })
 
@@ -323,7 +323,7 @@ Test('Handler should', handlerTest => {
       }
     }
 
-    test.equal(Handler.validateIncomingErrorCode({ payload: payload }, h), takeoverMessage)
+    test.equal(Handler.validateIncomingErrorCode({ payload }, h), takeoverMessage)
     test.end()
   })
   handlerTest.end()
