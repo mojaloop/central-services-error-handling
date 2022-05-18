@@ -54,10 +54,10 @@ const validateRoutes = (options = {}) => {
 
 module.exports = {
   plugin,
-  Handler: Handler,
+  Handler,
   validateRoutes,
-  Factory: Factory,
-  Enums: Enums,
+  Factory,
+  Enums,
   CreateFSPIOPError: Factory.createFSPIOPError,
   CreateFSPIOPErrorFromJoiError: Factory.createFSPIOPErrorFromJoiError,
   CreateInternalServerFSPIOPError: Factory.createInternalServerFSPIOPError,
