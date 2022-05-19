@@ -10,15 +10,15 @@
   ],
   "scripts": {
     "test": "npm run test:unit",
-    "standard": "standard",
-    "lint": "standard",
-    "lint:fix": "standard --fix",
-    "test:unit": "tape 'test/**/*.test.js' | tap-spec",
-    "test:xunit": "tape 'test/**/*.test.js' | tap-xunit",
-    "test:coverage": "nyc --reporter=lcov --reporter=text-summary tape -- 'test/**/*.test.js'",
+    "standard": "npm run lint",
+    "lint": "npx standard",
+    "lint:fix": "npx standard --fix",
+    "test:unit": "npx tape 'test/**/*.test.js' | tap-spec",
+    "test:xunit": "npx tape 'test/**/*.test.js' | tap-xunit",
+    "test:coverage": "npx nyc --reporter=lcov --reporter=text-summary tape -- 'test/**/*.test.js'",
     "test:coverage-check": "npm run test:coverage && nyc check-coverage",
-    "audit:resolve": "SHELL=sh resolve-audit --production",
-    "audit:check": "SHELL=sh check-audit --production",
+    "audit:resolve": "npx resolve-audit --production",
+    "audit:check": "npx check-audit --production",
     "dep:check": "npx ncu -e 2",
     "dep:update": "npx ncu -u",
     "release": "standard-version --no-verify --releaseCommitMessageFormat 'chore(release): {{currentTag}} [skip ci]'",
@@ -46,7 +46,7 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "dependencies": {
-    "@mojaloop/sdk-standard-components": "17.0.0",
+    "@mojaloop/sdk-standard-components": "17.0.1",
     "lodash": "4.17.21"
   },
   "devDependencies": {
