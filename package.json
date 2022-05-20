@@ -46,7 +46,7 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "dependencies": {
-    "@mojaloop/sdk-standard-components": "17.0.1",
+    "@mojaloop/sdk-standard-components": "17.0.2",
     "lodash": "4.17.21"
   },
   "devDependencies": {
