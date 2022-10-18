@@ -65,5 +65,6 @@ module.exports = {
   CreateFSPIOPErrorFromErrorCode: Factory.createFSPIOPErrorFromErrorCode,
   ReformatFSPIOPError: Factory.reformatFSPIOPError,
   ValidateFSPIOPErrorCode: Factory.validateFSPIOPErrorCode,
-  FindFSPIOPErrorCode: Enums.findFSPIOPErrorCode
+  FindFSPIOPErrorCode: Enums.findFSPIOPErrorCode,
+  ValidateFSPIOPErrorGroups: Factory.validateFSPIOPErrorGroups
 }
