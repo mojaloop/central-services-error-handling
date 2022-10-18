@@ -94,6 +94,20 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError with toApiErrorObject and ensure it truncates errorDescription to max length', function (test) {
+    const errorMessage = 'A looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong error message'
+    const fspiopError = Factory.createFSPIOPError(
+      Errors.SERVER_ERROR,
+      errorMessage,
+      { stack: 'Error:...' },
+      'dfsp1'
+    )
+    const apiErrorObject = fspiopError.toApiErrorObject()
+    test.ok(fspiopError)
+    test.equal(apiErrorObject.errorInformation.errorDescription, `${Errors.SERVER_ERROR.message} - ${errorMessage}`.substring(0, ErrorModelTypes.ErrorInformation.ErrorDescription.constraints.max))
+    test.end()
+  })
+
   factoryTest.test('create an FSPIOPError undefined apiErrorCode extensions with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
     try {
       const apiErrorCode = undefined
@@ -1070,6 +1084,70 @@ Test('Factory should', factoryTest => {
     const errorCode = 9999
     try {
       const result = Factory.validateFSPIOPErrorCode(errorCode)
+      test.notOk(result)
+      test.fail()
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.equal(err.apiErrorCode.code, Errors.INTERNAL_SERVER_ERROR.code)
+      test.equal(err.apiErrorCode.message, Errors.INTERNAL_SERVER_ERROR.message)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorGroups should validate an integer errorCode', function (test) {
+    const errorCode = 2000
+    try {
+      const result = Factory.validateFSPIOPErrorGroups(errorCode)
+      test.ok(result)
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.fail(err)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorGroups should validate an string errorCode', function (test) {
+    const errorCode = `${Errors.INTERNAL_SERVER_ERROR.code}`
+    try {
+      const result = Factory.validateFSPIOPErrorGroups(errorCode)
+      test.ok(result)
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.fail(err)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorGroups should validate an apiErrorCode errorCode enum', function (test) {
+    const errorCode = Errors.INTERNAL_SERVER_ERROR
+    try {
+      const result = Factory.validateFSPIOPErrorGroups(errorCode)
+      test.ok(result)
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.fail(err)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorGroups should validate an invalid apiErrorCode errorCode enum', function (test) {
+    const errorCode = { test }
+    try {
+      const result = Factory.validateFSPIOPErrorGroups(errorCode)
+      test.notOk(result)
+      test.fail()
+    } catch (err) {
+      test.ok(err instanceof Factory.FSPIOPError)
+      test.equal(err.apiErrorCode.code, Errors.INTERNAL_SERVER_ERROR.code)
+      test.equal(err.apiErrorCode.message, Errors.INTERNAL_SERVER_ERROR.message)
+    }
+    test.end()
+  })
+
+  factoryTest.test('validateFSPIOPErrorGroups should validate an integer errorCode and throw exception', function (test) {
+    const errorCode = 9999
+    try {
+      const result = Factory.validateFSPIOPErrorGroups(errorCode)
       test.notOk(result)
       test.fail()
     } catch (err) {

@@ -271,6 +271,24 @@ const MojaloopModelTypes = {
       min: 1,
       max: 128
     }
+  },
+  ErrorInformation: {
+    ErrorCode: {
+      cardinality: 1,
+      type: 'string',
+      constraints: {
+        min: 4,
+        max: 4
+      }
+    },
+    ErrorDescription: {
+      cardinality: 1,
+      type: 'string',
+      constraints: {
+        min: 1,
+        max: 128
+      }
+    }
   }
 }
 
