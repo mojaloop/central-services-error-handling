@@ -21,7 +21,7 @@ defaults_Dependencies: &defaults_Dependencies |
     apk --no-cache add ca-certificates
     apk --no-cache add curl
     apk --no-cache add openssh-client
-    apk --no-cache add -t build-dependencies make gcc g++ python3 libtool autoconf automake jq
+    apk --no-cache add -t build-dependencies make gcc g++ python3 libtool autoconf automake bash jq
     npm install -g node-gyp
 
 defaults_awsCliDependencies: &defaults_awsCliDependencies |
