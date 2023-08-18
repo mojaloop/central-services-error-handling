@@ -7,9 +7,9 @@ version: 2.1
 # Orbs used in this pipeline
 ##
 orbs:
-  slack: circleci/slack@4.9.3 # Ref: https://github.com/mojaloop/ci-config/tree/master/slack-templates
+  slack: circleci/slack@4.12.5 # Ref: https://github.com/mojaloop/ci-config/tree/master/slack-templates
   pr-tools: mojaloop/pr-tools@0.1.10 # Ref: https://github.com/mojaloop/ci-config/
-  gh: circleci/github-cli@2.1.0
+  gh: circleci/github-cli@2.2.0
 
 ##
 # defaults
@@ -21,8 +21,7 @@ defaults_Dependencies: &defaults_Dependencies |
     apk --no-cache add ca-certificates
     apk --no-cache add curl
     apk --no-cache add openssh-client
-    apk add --no-cache -t build-dependencies make gcc g++ python3 libtool autoconf automake jq
-    npm config set unsafe-perm true
+    apk --no-cache add -t build-dependencies make gcc g++ python3 libtool autoconf automake jq
     npm install -g node-gyp
 
 defaults_awsCliDependencies: &defaults_awsCliDependencies |
@@ -68,12 +67,12 @@ executors:
   default-docker:
     working_directory: &WORKING_DIR /home/circleci/project
     docker:
-      - image: node:16.15.0-alpine
+      - image: node:lts-alpine # Ref: https://hub.docker.com/_/node?tab=tags&page=1&name=alpine
 
   default-machine:
     working_directory: *WORKING_DIR
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:2023.04.2 # Ref: https://circleci.com/developer/machine/image/ubuntu-2204
 
 jobs:
   setup:
@@ -84,7 +83,7 @@ jobs:
           command: *defaults_Dependencies
       - checkout
       - run:
-          name: Update NPM install
+          name: Install NPM dependencies
           command: npm ci
       - save_cache:
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
