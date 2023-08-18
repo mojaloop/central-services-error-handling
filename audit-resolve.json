@@ -1,0 +1,18 @@
+{
+  "decisions": {
+    "1089434|@mojaloop/sdk-standard-components>jsonwebtoken": {
+      "decision": "postpone",
+      "madeAt": 1692356619728
+    },
+    "1091087|@mojaloop/sdk-standard-components>jsonwebtoken": {
+      "decision": "postpone",
+      "madeAt": 1692356634634
+    },
+    "1092549|@mojaloop/sdk-standard-components>jsonwebtoken": {
+      "decision": "postpone",
+      "madeAt": 1692356636668
+    }
+  },
+  "rules": {},
+  "version": 1
+}
