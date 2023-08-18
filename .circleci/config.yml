@@ -58,6 +58,14 @@ defaults_configure_git: &defaults_configure_git
     git config user.email ${GIT_CI_EMAIL}
     git config user.name ${GIT_CI_USER}
 
+defaults_display_versions: &defaults_display_versions
+  name: Display Versions
+  command: |
+    echo "What is the active version of Nodejs?"
+    echo "node: $(node --version)"
+    echo "yarn: $(yarn --version)"
+    echo "npm: $(npm --version)"
+
 ##
 # Executors
 #
@@ -83,9 +91,12 @@ jobs:
           command: *defaults_Dependencies
       - checkout
       - run:
+          <<: *defaults_display_versions
+      - run:
           name: Install NPM dependencies
           command: npm ci
       - save_cache:
+          name: Save dependency cache
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - node_modules
@@ -97,7 +108,10 @@ jobs:
           name: Install general dependencies
           command: *defaults_Dependencies
       - checkout
+      - run:
+          <<: *defaults_display_versions
       - restore_cache:
+          name: Restore dependency cache
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Execute dependency tests
@@ -110,7 +124,10 @@ jobs:
           name: Install general dependencies
           command: *defaults_Dependencies
       - checkout
+      - run:
+          <<: *defaults_display_versions
       - restore_cache:
+          name: Restore dependency cache
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Execute lint tests
@@ -123,7 +140,10 @@ jobs:
           name: Install general dependencies
           command: *defaults_Dependencies
       - checkout
+      - run:
+          <<: *defaults_display_versions
       - restore_cache:
+          name: Restore dependency cache
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           # This is needed for legacy core tests. Remove this once 'tape' is fully deprecated.
@@ -151,7 +171,10 @@ jobs:
           name: Install AWS CLI dependencies
           command: *defaults_awsCliDependencies
       - checkout
+      - run:
+          <<: *defaults_display_versions
       - restore_cache:
+          name: Restore dependency cache
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Execute code coverage check
@@ -179,7 +202,10 @@ jobs:
           name: Install general dependencies
           command: *defaults_Dependencies
       - checkout
+      - run:
+          <<: *defaults_display_versions
       - restore_cache:
+          name: Restore dependency cache
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Create dir for test results
@@ -200,7 +226,10 @@ jobs:
       - run:
           <<: *defaults_license_scanner
       - checkout
+      - run:
+          <<: *defaults_display_versions
       - restore_cache:
+          name: Restore dependency cache
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Run the license-scanner
@@ -357,7 +386,6 @@ jobs:
           template: SLACK_TEMP_RELEASE_FAILURE
 
 workflows:
-  version: 2
   build_and_test:
     jobs:
       - pr-tools/pr-title-check:
