@@ -84,10 +84,6 @@ defaults_configure_nvm: &defaults_configure_nvm
 
       echo "3. Executing $NVM_DIR/nvm.sh"
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-      # echo "4. Update $ENV_DOT_PROFILE"
-      # echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $ENV_DOT_PROFILE
-      # echo "export NVM_DIR=$NVM_DIR" >> $ENV_DOT_PROFILE
     fi
 
     ## Ref: https://github.com/nvm-sh/nvm/issues/1102#issuecomment-550572252
@@ -247,16 +243,6 @@ jobs:
           destination: test
       - store_test_results:
           path: coverage
-      - run:
-          name: Copy code coverage to SonarQube
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ];
-            then
-                echo "Sending lcov.info to SonarQube..."
-                aws s3 cp coverage/lcov.info $AWS_S3_DIR_SONARQUBE/${CIRCLE_PROJECT_REPONAME}/lcov.info
-            else
-                echo "Not a release (env CIRCLE_BRANCH != 'master'), skipping sending lcov.info to SonarQube."
-            fi
 
   vulnerability-check:
     executor: default-docker
