@@ -49,7 +49,7 @@
     "lodash": "4.17.21"
   },
   "peerDependencies": {
-    "@mojaloop/sdk-standard-components": "^17.x.x"
+    "@mojaloop/sdk-standard-components": ">=17.x.x"
   },
   "peerDependenciesMeta": {
     "@mojaloop/sdk-standard-components": {
