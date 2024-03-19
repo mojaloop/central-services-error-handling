@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [13.0.0](https://github.com/mojaloop/central-services-error-handling/compare/v12.0.7...v13.0.0) (2024-03-19)
+
+
+### Bug Fixes
+
+* **mojaloop/#3636:** fix peer dependency version specifier ([#186](https://github.com/mojaloop/central-services-error-handling/issues/186)) ([e95a60a](https://github.com/mojaloop/central-services-error-handling/commit/e95a60a43d12c5018888c7a3043edd42552a7cc8))
+
 ### [12.0.7](https://github.com/mojaloop/central-services-error-handling/compare/v12.0.6...v12.0.7) (2023-08-29)
 
 ### [12.0.6](https://github.com/mojaloop/central-services-error-handling/compare/v12.0.5...v12.0.6) (2023-08-24)
