@@ -100,9 +100,9 @@ class FSPIOPError extends MojaloopFSPIOPError {
 
     // Lets check if the message is defined, not null or empty (i.e. undefined).
     if ((this.message && this.message !== 'null' && this.message.length > 0) && !this.useMessageAsDescription) {
-      errorDescription = `${errorDescription} - ${this.message}`
+      errorDescription = `${errorDescription} - ${this.message}`.substring(0, Enums.MojaloopModelTypes.ErrorInformation.ErrorDescription.constraints.max)
     } else if (this.useMessageAsDescription) { // Lets check to see if we must use the message as the errorDescription.
-      errorDescription = `${this.message}`
+      errorDescription = `${this.message}`.substring(0, Enums.MojaloopModelTypes.ErrorInformation.ErrorDescription.constraints.max)
     }
 
     const e = {
