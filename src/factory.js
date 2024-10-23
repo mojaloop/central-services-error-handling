@@ -34,7 +34,7 @@
 
 const Enums = require('./enums')
 const _ = require('lodash')
-const MojaloopFSPIOPError = require('@mojaloop/sdk-standard-components').Errors.MojaloopFSPIOPError
+const { MojaloopFSPIOPError } = require('./errors')
 
 /**
  * See section 7.6 of "API Definition v1.0.docx". Note that some of the these

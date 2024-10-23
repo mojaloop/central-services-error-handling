@@ -46,18 +46,10 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "dependencies": {
-    "lodash": "4.17.21"
-  },
-  "peerDependencies": {
-    "@mojaloop/sdk-standard-components": ">=19.x.x"
-  },
-  "peerDependenciesMeta": {
-    "@mojaloop/sdk-standard-components": {
-      "optional": false
-    }
+    "lodash": "4.17.21",
+    "fast-safe-stringify": "2.1.1"
   },
   "devDependencies": {
-    "@mojaloop/sdk-standard-components": "19.1.1-snapshot.0",
     "@hapi/boom": "10.0.1",
     "audit-ci": "^7.1.0",
     "npm-check-updates": "17.1.4",
