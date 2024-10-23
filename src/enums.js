@@ -34,7 +34,7 @@
 
 const _ = require('lodash')
 
-const MojaloopSDKError = require('@mojaloop/sdk-standard-components').Errors
+const MojaloopSDKError = require('./errors')
 
 /**
  *  Mojaloop API spec error type enums
