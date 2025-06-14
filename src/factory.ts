@@ -29,12 +29,11 @@
 
  --------------
  ******/
-
 'use strict'
 
-const Enums = require('./enums')
-const _ = require('lodash')
-const { MojaloopFSPIOPError } = require('./errors')
+import * as Enums from './enums'
+import _ from 'lodash'
+import { MojaloopFSPIOPError } from './errors'
 
 /**
  * See section 7.6 of "API Definition v1.0.docx". Note that some of the these
@@ -44,22 +43,33 @@ const { MojaloopFSPIOPError } = require('./errors')
  * an httpStatusCode property are expected to only be returned to callers in
  * error callbacks after the initial request was accepted with a 202/200.
  */
-class FSPIOPError extends MojaloopFSPIOPError {
-  /**
-   * Constructs a new error object
-   *
-   * @param cause {object} - Underlying error object or any type that represents the cause of this error
-   * @param message {string} - A friendly error message
-   * @param replyTo {string} - FSPID of the participant to whom this error is addressed
-   * @param apiErrorCode {object} - The MojaloopApiErrorCodes object representing the API spec error
-   * @param extensions {object} - API spec extensions object (if applicable)
-   * @param useMessageAsDescription {boolean} - Use the message as the Error description. This is useful when converting errorInformation objects into FSPIOPErrors.
-   */
-  constructor (cause, message, replyTo, apiErrorCode, extensions, useMessageAsDescription = false) {
+export class FSPIOPError extends MojaloopFSPIOPError {
+  useMessageAsDescription: boolean
+
+  constructor(
+    cause: unknown,
+    message: string,
+    replyTo: string | undefined,
+    apiErrorCode: { code: string; message: string; httpStatusCode?: number },
+    extensions?: any,
+    useMessageAsDescription = false
+  ) {
     // Validate incoming params (if required)
     // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-    if (extensions && !((Array.isArray(extensions)) || (extensions.extension && Array.isArray(extensions.extension)))) throw new Error('FSPIOPError Parameter Validation Failure - extensions is not a list or does not contain an extension list.')
-    if (!apiErrorCode.code && !apiErrorCode.message) throw new Error('FSPIOPError Parameter Validation Failure - apiErrorCode is not valid error code enum.')
+    if (
+      extensions &&
+      !(
+        Array.isArray(extensions) ||
+        (extensions.extension && Array.isArray(extensions.extension))
+      )
+    )
+      throw new Error(
+        'FSPIOPError Parameter Validation Failure - extensions is not a list or does not contain an extension list.'
+      )
+    if (!apiErrorCode.code && !apiErrorCode.message)
+      throw new Error(
+        'FSPIOPError Parameter Validation Failure - apiErrorCode is not valid error code enum.'
+      )
 
     // Constructor logic goes here
     const clonedExtensions = _.cloneDeep(extensions) // makes sure we make a copy.
@@ -74,7 +84,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
    *
    * @param cause {object} - Underlying error object or any type that represents the cause of this error
    */
-  _setStackFromCause (cause) {
+  _setStackFromCause(cause: unknown) {
     let stringifiedCause
     if (typeof this.cause === 'string' || this.cause instanceof String) {
       stringifiedCause = this.cause
@@ -91,21 +101,35 @@ class FSPIOPError extends MojaloopFSPIOPError {
    * This can be used to serialise the error to a JSON body
    *
    * @param includeCauseExtension {boolean} - Flag to specify whether or not to include cause extension at extension list
-   * @param truncateCause {boolean} - Flag to specify whether or not to truncate the cause string to match Mojaloop API v1.0 Spec
+   * @param truncateExtensions {boolean} - Flag to specify whether or not to truncate the cause string to match Mojaloop API v1.0 Spec
    *
    * @returns {object}
    */
-  toApiErrorObject ({ includeCauseExtension = false, truncateExtensions = true } = {}) {
+  toApiErrorObject({
+    includeCauseExtension = false,
+    truncateExtensions = true
+  }: { includeCauseExtension?: boolean; truncateExtensions?: boolean } = {}) {
     let errorDescription = this.apiErrorCode.message
 
     // Lets check if the message is defined, not null or empty (i.e. undefined).
-    if ((this.message && this.message !== 'null' && this.message.length > 0) && !this.useMessageAsDescription) {
-      errorDescription = `${errorDescription} - ${this.message}`.substring(0, Enums.MojaloopModelTypes.ErrorInformation.ErrorDescription.constraints.max)
-    } else if (this.useMessageAsDescription) { // Lets check to see if we must use the message as the errorDescription.
-      errorDescription = `${this.message}`.substring(0, Enums.MojaloopModelTypes.ErrorInformation.ErrorDescription.constraints.max)
+    if (
+      this.message &&
+      this.message !== 'null' &&
+      this.message.length > 0 &&
+      !this.useMessageAsDescription
+    ) {
+      errorDescription = `${errorDescription} - ${this.message}`.substring(
+        0,
+        Enums.MojaloopModelTypes.ErrorInformation.ErrorDescription.constraints.max
+      )
+    } else if (this.useMessageAsDescription) {
+      errorDescription = `${this.message}`.substring(
+        0,
+        Enums.MojaloopModelTypes.ErrorInformation.ErrorDescription.constraints.max
+      )
     }
 
-    const e = {
+    const e: any = {
       errorInformation: {
         errorCode: this.apiErrorCode.code,
         errorDescription
@@ -116,15 +140,22 @@ class FSPIOPError extends MojaloopFSPIOPError {
       e.errorInformation.extensionList = {}
 
       if (Array.isArray(this.extensions)) {
-        // TODO: Need to clarify ML API Specification for the correct model structure for the extensionList - catering for both scenarios until this can be clarified
-        // e.errorInformation.extensionList = _.cloneDeep(this.extensions)
         e.errorInformation.extensionList.extension = _.cloneDeep(this.extensions)
-      } else if (this.extensions.extension && Array.isArray(this.extensions.extension)) {
-        e.errorInformation.extensionList.extension = _.cloneDeep(this.extensions.extension)
+      } else if (
+        this.extensions.extension &&
+        Array.isArray(this.extensions.extension)
+      ) {
+        e.errorInformation.extensionList.extension = _.cloneDeep(
+          this.extensions.extension
+        )
       }
 
       if (includeCauseExtension === true) {
-        const causeKeyValueFromExtensions = e.errorInformation.extensionList.extension.find(keyValue => keyValue.key === Enums.Internal.FSPIOPError.ExtensionsKeys.cause)
+        const causeKeyValueFromExtensions =
+          e.errorInformation.extensionList.extension.find(
+            (keyValue: any) =>
+              keyValue.key === Enums.Internal.FSPIOPError.ExtensionsKeys.cause
+          )
         if (causeKeyValueFromExtensions) {
           causeKeyValueFromExtensions.value = `${this.stack}\n${causeKeyValueFromExtensions.value}`
         } else {
@@ -134,10 +165,19 @@ class FSPIOPError extends MojaloopFSPIOPError {
           }
           e.errorInformation.extensionList.extension.push(causeKeyValue)
         }
-      } else if (e.errorInformation.extensionList.extension && Array.isArray(e.errorInformation.extensionList.extension)) {
-        _.remove(e.errorInformation.extensionList.extension, (extensionKeyValue) => {
-          return [Enums.Internal.FSPIOPError.ExtensionsKeys.cause, Enums.Internal.FSPIOPError.ExtensionsKeys._cause].includes(extensionKeyValue.key)
-        })
+      } else if (
+        e.errorInformation.extensionList.extension &&
+        Array.isArray(e.errorInformation.extensionList.extension)
+      ) {
+        _.remove(
+          e.errorInformation.extensionList.extension,
+          (extensionKeyValue: any) => {
+            return [
+              Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
+              Enums.Internal.FSPIOPError.ExtensionsKeys._cause
+            ].includes(extensionKeyValue.key)
+          }
+        )
         if (e.errorInformation.extensionList.extension.length === 0) {
           delete e.errorInformation.extensionList
         }
@@ -145,18 +185,29 @@ class FSPIOPError extends MojaloopFSPIOPError {
     } else {
       if (includeCauseExtension === true) {
         e.errorInformation.extensionList = {
-          extension: [{
-            key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
-            value: this.stack
-          }]
+          extension: [
+            {
+              key: Enums.Internal.FSPIOPError.ExtensionsKeys.cause,
+              value: this.stack
+            }
+          ]
         }
       }
     }
-    const hasExtension = e.errorInformation.extensionList && e.errorInformation.extensionList.extension && e.errorInformation.extensionList.extension.length
+    const hasExtension =
+      e.errorInformation.extensionList &&
+      e.errorInformation.extensionList.extension &&
+      e.errorInformation.extensionList.extension.length
     if (truncateExtensions && hasExtension) {
       for (const i in e.errorInformation.extensionList.extension) {
         if (e.errorInformation.extensionList.extension[i].value) {
-          e.errorInformation.extensionList.extension[i].value = e.errorInformation.extensionList.extension[i].value.toString().substr(0, Enums.MojaloopModelTypes.ExtensionValue.constraints.max)
+          e.errorInformation.extensionList.extension[i].value =
+            e.errorInformation.extensionList.extension[i].value
+              .toString()
+              .substr(
+                0,
+                Enums.MojaloopModelTypes.ExtensionValue.constraints.max
+              )
         }
       }
     }
@@ -164,7 +215,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
     return e
   }
 
-  toString () {
+  toString() {
     return JSON.stringify(this.toFullErrorObject())
   }
 }
@@ -180,14 +231,29 @@ class FSPIOPError extends MojaloopFSPIOPError {
  * @param useDescriptionAsMessage {boolean} - Enables concatinations of the Message & Error Description on the
  * @returns {FSPIOPError} - create the specified error, will fall back to INTERNAL_SERVER_ERROR if the apiErrorCode is undefined
  */
-const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions, useDescriptionAsMessage = false) => {
+export const createFSPIOPError = (
+  apiErrorCode: { code: string; message: string; httpStatusCode?: number },
+  message: string,
+  cause?: unknown,
+  replyTo?: string,
+  extensions?: any,
+  useDescriptionAsMessage = false
+): FSPIOPError => {
   if (apiErrorCode && apiErrorCode.code && apiErrorCode.message) {
     const newApiError = Object.assign({}, apiErrorCode)
     let match = Enums.findFSPIOPErrorCode(apiErrorCode.code)
     if (!match) {
       match = Enums.findErrorType(apiErrorCode.code)
       if (!match) {
-        throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
+        throw new FSPIOPError(
+          cause,
+          `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(
+            apiErrorCode
+          )}.`,
+          replyTo,
+          Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR,
+          extensions
+        )
       }
       if (!newApiError.httpStatusCode) {
         newApiError.httpStatusCode = match.httpStatusCode
@@ -195,9 +261,24 @@ const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions, us
     } else if (!newApiError.httpStatusCode) {
       newApiError.httpStatusCode = match.httpStatusCode
     }
-    return new FSPIOPError(cause, message, replyTo, newApiError, extensions, useDescriptionAsMessage)
+    return new FSPIOPError(
+      cause,
+      message,
+      replyTo,
+      newApiError,
+      extensions,
+      useDescriptionAsMessage
+    )
   } else {
-    throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
+    throw new FSPIOPError(
+      cause,
+      `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(
+        apiErrorCode
+      )}.`,
+      replyTo,
+      Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR,
+      extensions
+    )
   }
 }
 
@@ -209,8 +290,12 @@ const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions, us
  * @param replyTo {string} - the FSP to notify of the error if applicable
  * @returns {FSPIOPError}
  */
-const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
-  const fspiopError = ((type) => {
+export const createFSPIOPErrorFromJoiError = (
+  error: any,
+  cause?: any,
+  replyTo?: string
+): FSPIOPError => {
+  const fspiopError = ((type: string) => {
     switch (type) {
       case 'any.required':
       case 'any.empty':
@@ -222,36 +307,31 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
       case 'date.format':
       case 'number.integer':
       case 'any.allowOnly':
-      case 'any.only': // added as a fix for https://github.com/mojaloop/project/issues/2013
+      case 'any.only':
         return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
       default:
         return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
     }
   })(error.type)
 
-  const stackTrace = (cause && cause.stack)
-    ? cause.stack
-    : cause
+  const stackTrace = cause && cause.stack ? cause.stack : cause
 
-  const source = (
+  const source =
     cause &&
     cause.output &&
     cause.output.payload &&
     cause.output.payload.validation
-  )
-    ? cause.output.payload.validation.source
-    : undefined
+      ? cause.output.payload.validation.source
+      : undefined
 
-  const messages = {
+  const messages: Record<string, string> = {
     header: `'${error.context.label}' HTTP header`,
     params: `'${error.context.label}' URI path parameter`
   }
 
   // If the error was caused by a missing or invalid header or path parameter respond with
   // appropriate text indicating as much
-  const msg = (source && messages[source])
-    ? messages[source]
-    : error.message
+  const msg = source && messages[source] ? messages[source] : error.message
 
   return createFSPIOPError(fspiopError, msg, stackTrace, replyTo)
 }
@@ -263,8 +343,11 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
  * @param replyTo {string} - the FSP to notify of the error if applicable
  * @returns {FSPIOPError}
  */
-const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
-  const fspiopError = ((type) => {
+export const createFSPIOPErrorFromOpenapiError = (
+  error: any,
+  replyTo?: string
+): FSPIOPError => {
+  const fspiopError = ((type: string) => {
     switch (type) {
       case 'required':
         return Enums.FSPIOPErrorCodes.MISSING_ELEMENT
@@ -280,11 +363,11 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
         return Enums.FSPIOPErrorCodes.VALIDATION_ERROR
     }
   })(error.keyword)
-  let message
+  let message: string
   if (error.message) {
     if (error.instancePath) {
       message = error.instancePath + ' ' + error.message
-    } else if (error.dataPath) { // replaced by instancePath, ref: https://github.com/ajv-validator/ajv/releases/tag/v8.0.0. This branch is kept here for backward compatibility.
+    } else if (error.dataPath) {
       message = error.dataPath + ' ' + error.message
     } else {
       message = error.message
@@ -292,7 +375,7 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
   } else {
     if (error.instancePath) {
       message = error.instancePath
-    } else if (error.dataPath) { // replaced by instancePath, ref: https://github.com/ajv-validator/ajv/releases/tag/v8.0.0. This branch is kept here for backward compatibility.
+    } else if (error.dataPath) {
       message = error.dataPath
     } else {
       message = JSON.stringify(error)
@@ -310,8 +393,19 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
  * @param extensions {object} - additional information to associate with the error
  * @returns {FSPIOPError}
  */
-const createInternalServerFSPIOPError = (message, cause, replyTo, extensions) => {
-  return createFSPIOPError(Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, message, cause, replyTo, extensions)
+export const createInternalServerFSPIOPError = (
+  message: string,
+  cause?: unknown,
+  replyTo?: string,
+  extensions?: any
+): FSPIOPError => {
+  return createFSPIOPError(
+    Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR,
+    message,
+    cause,
+    replyTo,
+    extensions
+  )
 }
 
 /**
@@ -326,11 +420,22 @@ const createInternalServerFSPIOPError = (message, cause, replyTo, extensions) =>
  * @param extensions {object} - additional information to associate with the error
  * @returns {FSPIOPError}
  */
-const reformatFSPIOPError = (error, apiErrorCode = Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, replyTo, extensions) => {
+export const reformatFSPIOPError = (
+  error: any,
+  apiErrorCode: { code: string; message: string; httpStatusCode?: number } = Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR,
+  replyTo?: string,
+  extensions?: any
+): FSPIOPError => {
   if (error.constructor && error.constructor.name === FSPIOPError.name) {
     return error
   } else {
-    return createFSPIOPError(apiErrorCode, error.message, error.stack, replyTo, extensions)
+    return createFSPIOPError(
+      apiErrorCode,
+      error.message,
+      error.stack,
+      replyTo,
+      extensions
+    )
   }
 }
 
@@ -342,12 +447,23 @@ const reformatFSPIOPError = (error, apiErrorCode = Enums.FSPIOPErrorCodes.INTERN
  * @param replyTo {string} - the FSP to notify of the error if applicable
  * @returns {FSPIOPError}
  */
-const createFSPIOPErrorFromErrorInformation = (errorInformation, cause, replyTo) => {
+export const createFSPIOPErrorFromErrorInformation = (
+  errorInformation: { errorCode: string; errorDescription: string; extensionList?: any },
+  cause?: unknown,
+  replyTo?: string
+): FSPIOPError => {
   const errorCode = {
     code: errorInformation.errorCode,
     message: errorInformation.errorDescription
   }
-  return createFSPIOPError(errorCode, errorInformation.errorDescription, cause, replyTo, errorInformation.extensionList, true)
+  return createFSPIOPError(
+    errorCode,
+    errorInformation.errorDescription,
+    cause,
+    replyTo,
+    errorInformation.extensionList,
+    true
+  )
 }
 
 /**
@@ -360,7 +476,13 @@ const createFSPIOPErrorFromErrorInformation = (errorInformation, cause, replyTo)
  * @param extensions {object} - additional information to associate with the error
  * @returns {FSPIOPError}
  */
-const createFSPIOPErrorFromErrorCode = (code, message, cause, replyTo, extensions) => {
+export const createFSPIOPErrorFromErrorCode = (
+  code: string | number | { code: string },
+  message: string,
+  cause?: unknown,
+  replyTo?: string,
+  extensions?: any
+): FSPIOPError => {
   const errorCode = validateFSPIOPErrorCode(code)
   return createFSPIOPError(errorCode, message, cause, replyTo, extensions)
 }
@@ -369,24 +491,26 @@ const createFSPIOPErrorFromErrorCode = (code, message, cause, replyTo, extension
  * Validate a code against the Mojaloop API spec, returns the enum or throws an exception if invalid.
  *
  * @param code {number/string/object} - Mojaloop API spec error code (four digit integer as number or string or apiErrorCode enum)
- * @param throwException {boolean} - Mojaloop API spec error code (four digit integer as number or string)
  * @returns apiErrorCode {object} -  if valid, false if not (unless throwException is true, then an exception will be thrown instead)
  * @throws {FSPIOPError} - Internal Server Error indicating that the error code is invalid.
  */
-const validateFSPIOPErrorCode = (code) => {
+export const validateFSPIOPErrorCode = (
+  code: number | string | { code: string }
+): { code: string; message: string; httpStatusCode?: number } => {
   const errorMessage = 'Validation failed due to error code being invalid'
-  let codeToValidate
-  if (typeof code === 'number' || typeof code === 'string') { // check to see if this is a normal error code represented by a number or string
+  let codeToValidate: string | number | undefined
+  if (typeof code === 'number' || typeof code === 'string') {
     codeToValidate = code
-  } else if (typeof code === 'object' && code.code) { // check to see if this is a apiErrorCode error
+  } else if (typeof code === 'object' && code.code) {
     codeToValidate = code.code
   }
-  // validate the error code
   const result = Enums.findFSPIOPErrorCode(codeToValidate)
   if (result) {
     return result
   } else {
-    throw createInternalServerFSPIOPError(`${errorMessage} - ${JSON.stringify(code)}.`)
+    throw createInternalServerFSPIOPError(
+      `${errorMessage} - ${JSON.stringify(code)}.`
+    )
   }
 }
 
@@ -394,36 +518,25 @@ const validateFSPIOPErrorCode = (code) => {
  * Validate a code against the Mojaloop API spec, specifically custom errors, returns the incoming error code or throws an exception if invalid.
  *
  * @param code {number/string/object} - Mojaloop API spec error code (four digit integer as number or string or apiErrorCode enum)
- * @param throwException {boolean} - Mojaloop API spec error code (four digit integer as number or string)
  * @returns boolean -  if valid, true, if false then an exception will be thrown instead)
  * @throws {FSPIOPError} - Internal Server Error indicating that the error code is invalid.
  */
-const validateFSPIOPErrorGroups = (code) => {
+export const validateFSPIOPErrorGroups = (
+  code: number | string | { code: string }
+): boolean => {
   const errorMessage = 'Validation failed due to error code being invalid'
-  let codeToValidate
-  if (typeof code === 'number' || typeof code === 'string') { // check to see if this is a normal error code represented by a number or string
+  let codeToValidate: string | number | undefined
+  if (typeof code === 'number' || typeof code === 'string') {
     codeToValidate = code
-  } else if (typeof code === 'object' && code.code) { // check to see if this is a apiErrorCode error
+  } else if (typeof code === 'object' && code.code) {
     codeToValidate = code.code
   }
-  // validate the custom error code
   const regex = /^(10|20|3[0-4]|4[0-4]|5[0-4])[0-9]{2}$/
-  if (regex.test(codeToValidate)) {
+  if (regex.test(String(codeToValidate))) {
     return true
   } else {
-    throw createInternalServerFSPIOPError(`${errorMessage} - ${JSON.stringify(code)}.`)
+    throw createInternalServerFSPIOPError(
+      `${errorMessage} - ${JSON.stringify(code)}.`
+    )
   }
-}
-
-module.exports = {
-  FSPIOPError,
-  createFSPIOPError,
-  createFSPIOPErrorFromJoiError,
-  createFSPIOPErrorFromOpenapiError,
-  createInternalServerFSPIOPError,
-  createFSPIOPErrorFromErrorInformation,
-  createFSPIOPErrorFromErrorCode,
-  reformatFSPIOPError,
-  validateFSPIOPErrorCode,
-  validateFSPIOPErrorGroups
 }

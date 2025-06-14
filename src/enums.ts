@@ -32,14 +32,19 @@
 
 'use strict'
 
-const _ = require('lodash')
-
-const MojaloopSDKError = require('./errors')
+import _ from 'lodash'
+import { MojaloopApiErrorCodes } from './errors'
 
 /**
  *  Mojaloop API spec error type enums
  */
-const MojaloopTypes = {
+export interface MojaloopType {
+  regex: string
+  description: string
+  httpStatusCode: number
+}
+
+export const MojaloopTypes: Record<string, MojaloopType> = {
   GENERIC_COMMUNICATION_ERROR: {
     regex: '^10[0-9]{2}$',
     description: 'Generic Communication Error',
@@ -130,20 +135,16 @@ const MojaloopTypes = {
 /**
  *  Mojaloop API Error Codes Override
  */
-const MojaloopApiErrorCodesOverride = {
+export const MojaloopApiErrorCodesOverride: Record<string, any> = {
   GENERIC_SETTLEMENT_ERROR: { code: '6000', description: 'Generic Settlement Error', message: 'Generic Settlement Error' }
-  // INTERNAL_SERVER_ERROR: { httpStatusCode: 500 }, // Example of overriding default or undefined values for INTERNAL_SERVER_ERROR error
-  // CUSTOM_ERROR: { code: '3241', description: 'Error text' } // Example of adding new CUSTOM_ERROR with default MojaloopErrorType.httpStatusCode
+  // INTERNAL_SERVER_ERROR: { httpStatusCode: 500 },
+  // CUSTOM_ERROR: { code: '3241', description: 'Error text' }
 }
 
 /**
  * Returns an object representing a Mojaloop API spec error code combined with overrides
- *
- * @param errorCodes {object} - Mojaloop API spec error code enums
- * @param override {object} - Override enum
- * @returns {object} - Object representing the Mojaloop API spec combined with overrides
  */
-const populateOverrides = (errorCodes, override) => {
+export const populateOverrides = (errorCodes: Record<string, any>, override: Record<string, any>): Record<string, any> => {
   const newErrorCodes = _.cloneDeep(errorCodes)
   for (const [overrideKey, overrideValue] of Object.entries(override)) {
     if (newErrorCodes[overrideKey]) {
@@ -159,13 +160,9 @@ const populateOverrides = (errorCodes, override) => {
 
 /**
  * Returns an object representing a Mojaloop API spec error code combined with error types enums
- *
- * @param errorCodes {object} - Mojaloop API spec error code enums
- * @param errorTypes {object} - Mojaloop API spec error type enums
- * @returns {object} - Object representing the Mojaloop API spec error enums with associated types
  */
-const populateErrorTypes = (errorCodes, errorTypes) => {
-  const newErrorCodes = {}
+export const populateErrorTypes = (errorCodes: Record<string, any>, errorTypes: Record<string, MojaloopType>): Record<string, any> => {
+  const newErrorCodes: Record<string, any> = {}
   for (const [errorCodeKey, errorCodeValue] of Object.entries(errorCodes)) {
     for (const [errorTypeKey, errorTypeValue] of Object.entries(errorTypes)) {
       const regExp = new RegExp(errorTypeValue.regex)
@@ -186,12 +183,9 @@ const populateErrorTypes = (errorCodes, errorTypes) => {
 
 /**
  * Returns an object representing a Mojaloop API spec error code map using the error code as the key
- *
- * @param errorCodes {object} - Mojaloop API spec error code enums
- * @returns {object} - Object representing a Mojaloop API Error map using the error code as the key with each record having the associated name
  */
-const errorCodesToMap = (errorCodes) => {
-  const newErrorCodeMap = {}
+export const errorCodesToMap = (errorCodes: Record<string, any>): Record<string, any> => {
+  const newErrorCodeMap: Record<string, any> = {}
   for (const [errorCodeKey, errorCodeValue] of Object.entries(errorCodes)) {
     const newErrorCodeValue = _.cloneDeep(errorCodeValue)
     _.set(newErrorCodeValue, 'name', errorCodeKey)
@@ -203,7 +197,7 @@ const errorCodesToMap = (errorCodes) => {
 /**
  *  Mojaloop API spec error enums with merged overrides
  */
-let FSPIOPErrorCodes = populateOverrides(MojaloopSDKError.MojaloopApiErrorCodes, MojaloopApiErrorCodesOverride)
+export let FSPIOPErrorCodes = populateOverrides(MojaloopApiErrorCodes, MojaloopApiErrorCodesOverride)
 
 /**
  *  Mojaloop API spec error enums with associated type enums
@@ -213,15 +207,12 @@ FSPIOPErrorCodes = populateErrorTypes(FSPIOPErrorCodes, MojaloopTypes)
 /**
  *  Mojaloop API spec error map enums with associated type enums by error code as the key map
  */
-const FSPIOPErrorCodeMap = errorCodesToMap(FSPIOPErrorCodes)
+export const FSPIOPErrorCodeMap = errorCodesToMap(FSPIOPErrorCodes)
 
 /**
  * Returns an object representing a Mojaloop API spec error object given its error code using super fast hash lookup
- *
- * @param code {number/string} - Mojaloop API spec error code (four digit integer as number or string)
- * @returns {object} - Object representing the Mojaloop API spec error
  */
-const findFSPIOPErrorCode = (code) => {
+export const findFSPIOPErrorCode = (code: number | string): any | undefined => {
   let ec
   if (code) {
     const stringCodeValue = code.toString()
@@ -236,17 +227,14 @@ const findFSPIOPErrorCode = (code) => {
 
 /**
  * Returns an object representing a Mojaloop API spec error code combined with error types enums
- *
- * @param errorCode {string/number} - Mojaloop API spec error code enums
- * @returns {object} - Object representing the Mojaloop API spec error enums with associated types
  */
-const findErrorType = (errorCode) => {
+export const findErrorType = (errorCode: string | number): MojaloopType & { name: string } | undefined => {
   for (const [errorTypeKey, errorTypeValue] of Object.entries(MojaloopTypes)) {
     const regExp = new RegExp(errorTypeValue.regex)
-    if (regExp.test(errorCode)) {
+    if (regExp.test(errorCode.toString())) {
       const newErrorCodeType = _.cloneDeep(errorTypeValue)
       _.set(newErrorCodeType, 'name', errorTypeKey)
-      return newErrorCodeType
+      return newErrorCodeType as MojaloopType & { name: string }
     }
   }
   return undefined
@@ -255,7 +243,7 @@ const findErrorType = (errorCode) => {
 /**
  *  Mojaloop API spec Model Types related to ErrorInformation
  */
-const MojaloopModelTypes = {
+export const MojaloopModelTypes = {
   ExtensionKey: {
     cardinality: 1,
     type: 'string',
@@ -292,22 +280,11 @@ const MojaloopModelTypes = {
   }
 }
 
-const Internal = {
+export const Internal = {
   FSPIOPError: {
     ExtensionsKeys: {
       cause: 'cause',
       _cause: '_cause'
     }
   }
-}
-
-module.exports = {
-  FSPIOPErrorCodes,
-  FSPIOPErrorTypes: MojaloopTypes,
-  FSPIOPErrorCodeMap,
-  findFSPIOPErrorCode,
-  findErrorType,
-  MojaloopModelTypes,
-  Internal,
-  _populateOverrides: populateOverrides
 }

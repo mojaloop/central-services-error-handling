@@ -31,20 +31,32 @@
 
 'use strict'
 
-const Factory = require('./factory')
-const Errors = require('./enums').FSPIOPErrorCodes
+import * as Factory from './factory'
+import { FSPIOPErrorCodes as Errors } from './enums'
+import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi'
 
-const getReplyToFromRequestHeaders = (request) => {
+type HapiRequest = Request & {
+  response: any
+  server: any
+  path: string
+  headers: Record<string, string>
+  payload?: any
+}
+
+type HapiReply = {
+  continue: symbol
+}
+
+const getReplyToFromRequestHeaders = (request: HapiRequest): string | null => {
   return (request.headers && request.headers['fspiop-source']) ? request.headers['fspiop-source'] : null
 }
 
-const createFSPIOPErrorFromErrorResponse = (request, response) => {
-  const fspiopError = ((response, request) => {
+const createFSPIOPErrorFromErrorResponse = (request: HapiRequest, response: any): any => {
+  const fspiopError = ((response: any, request: HapiRequest) => {
     switch (response.output.statusCode) {
       case 400:
         return Errors.CLIENT_ERROR
-      case 404:
-      {
+      case 404: {
         const matches = findMatches(request)
 
         if (matches.length > 0) {
@@ -64,17 +76,19 @@ const createFSPIOPErrorFromErrorResponse = (request, response) => {
     }
   })(response, request)
 
-  return Factory.createFSPIOPError(fspiopError, response.message, response.stack, getReplyToFromRequestHeaders(request))
+  return Factory.createFSPIOPError(fspiopError, response.message, response.stack, getReplyToFromRequestHeaders(request) ?? undefined)
 }
 
-const findMatches = (request) => {
+type Match = { method: string }
+
+const findMatches = (request: HapiRequest): Match[] => {
   const server = request.server
   const path = request.path
-  const matches = []
+  const matches: Match[] = []
   const methods = ['get', 'post', 'put', 'patch', 'delete']
 
-  for (const i in methods) {
-    const match = server.match(methods[i], path)
+  for (const method of methods) {
+    const match = server.match(method, path)
     if (match != null) {
       const data = { method: match.method }
       matches.push(data)
@@ -84,11 +98,11 @@ const findMatches = (request) => {
   return matches
 }
 
-const getAllowHeaders = (matches) => {
+const getAllowHeaders = (matches: Match[]): string => {
   let headers = ''
 
-  for (const i in matches) {
-    const method = matches[i].method
+  for (const match of matches) {
+    const method = match.method
 
     if (headers === '') {
       headers += method
@@ -100,7 +114,7 @@ const getAllowHeaders = (matches) => {
   return headers
 }
 
-const reformatError = (request, response) => {
+const reformatError = (request: HapiRequest, response: any): void => {
   if (!response.output) {
     response.output = {}
   }
@@ -108,7 +122,7 @@ const reformatError = (request, response) => {
   let fspiopError
   if (response.isJoi) {
     const replyTo = getReplyToFromRequestHeaders(request)
-    fspiopError = Factory.createFSPIOPErrorFromJoiError(request.response.details[0], response, replyTo)
+    fspiopError = Factory.createFSPIOPErrorFromJoiError(request.response.details[0], response, replyTo ?? undefined)
   } else if (response.name === 'FSPIOPError') {
     fspiopError = response
   } else {
@@ -134,7 +148,7 @@ const reformatError = (request, response) => {
  * @param reply
  * @returns {boolean|reply.continue|continue|((key?: IDBValidKey) => void)}
  */
-const onPreResponse = (request, reply) => {
+const onPreResponse = (request: HapiRequest, reply: HapiReply): symbol => {
   const response = request.response
   if (response instanceof Error || response.isBoom) {
     reformatError(request, response)
@@ -152,8 +166,8 @@ const onPreResponse = (request, reply) => {
  * @param h
  * @returns {boolean|h.continue|continue|((key?: IDBValidKey) => void)}
  */
-const validateIncomingErrorCode = (request, h) => {
-  const incomingErrorCode = request.payload.errorInformation.errorCode
+const validateIncomingErrorCode = (request: HapiRequest, h: ResponseToolkit): symbol | ResponseObject => {
+  const incomingErrorCode = request.payload?.errorInformation?.errorCode
   try {
     if (Factory.validateFSPIOPErrorCode(incomingErrorCode).code === incomingErrorCode) {
       return h.continue
@@ -164,16 +178,20 @@ const validateIncomingErrorCode = (request, h) => {
         return h.continue
       }
     } catch (err) {
-      const onPreHandlerApiErrorObject = Factory.createFSPIOPError(Errors.VALIDATION_ERROR, `The incoming error code: ${incomingErrorCode} is not a valid mojaloop specification error code`).toApiErrorObject()
+      const onPreHandlerApiErrorObject = Factory.createFSPIOPError(
+        Errors.VALIDATION_ERROR,
+        `The incoming error code: ${incomingErrorCode} is not a valid mojaloop specification error code`
+      ).toApiErrorObject()
       return h
         .response(onPreHandlerApiErrorObject)
         .code(400)
         .takeover()
     }
   }
+  return h.continue
 }
 
-module.exports = {
+export {
   validateIncomingErrorCode,
   onPreResponse,
   createFSPIOPErrorFromErrorResponse,

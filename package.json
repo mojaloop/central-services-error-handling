@@ -2,20 +2,25 @@
   "name": "@mojaloop/central-services-error-handling",
   "version": "13.1.0",
   "description": "Hapi error handling module",
-  "main": "src/index.js",
   "pre-commit": [
     "lint",
     "dep:check",
     "test"
   ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "npm run test:unit",
+    "pretest": "npm run build",
+    "prepublishOnly": "npm run build",
     "standard": "npm run lint",
-    "lint": "npx standard",
-    "lint:fix": "npx standard --fix",
-    "test:unit": "npx tape 'test/**/*.test.js' | tap-spec",
-    "test:xunit": "npx tape 'test/**/*.test.js' | tap-xunit",
-    "test:coverage": "npx nyc --reporter=lcov --reporter=text-summary tape -- 'test/**/*.test.js'",
+    "lint": "eslint ./src/**/*.ts ./test/**/*.ts",
+    "lint:fix": "npm run lint -- --fix",
+    "build": "npx tsc",
+    "watch": "npx tsc -w",
+    "test:unit": "jest --config jest.config.js --runInBand",
+    "test:xunit": "jest --config jest.config.js --runInBand --reporters=default --reporters=jest-junit",
+    "test:coverage": "npx nyc --require ts-node/register tape test/unit/**/*.test.{ts,js} | tap-spec; nyc report ---reporter=text",
     "test:coverage-check": "npm run test:coverage && nyc check-coverage",
     "test:functional": "echo 'No functional tests defined'",
     "test:integration": "echo 'No integration tests defined'",
@@ -48,12 +53,16 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-error-handling#readme",
   "dependencies": {
-    "lodash": "4.17.21",
-    "fast-safe-stringify": "2.1.1"
+    "@hapi/hapi": "^21.4.0",
+    "fast-safe-stringify": "2.1.1",
+    "lodash": "4.17.21"
   },
   "devDependencies": {
     "@hapi/boom": "10.0.1",
+    "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.17",
     "audit-ci": "^7.1.0",
+    "jest": "^30.0.0",
     "npm-check-updates": "18.0.1",
     "nyc": "17.1.0",
     "pre-commit": "1.2.2",
@@ -64,7 +73,8 @@
     "standard-version": "^9.5.0",
     "tap-spec": "^5.0.0",
     "tap-xunit": "2.4.1",
-    "tape": "5.9.0"
+    "tape": "5.9.0",
+    "ts-node": "^10.9.2"
   },
   "overrides": {
     "@babel/helpers": "7.26.10",

@@ -31,20 +31,28 @@
  --------------
  ******/
 
-'use strict'
+import * as Handler from './handler'
+import * as Factory from './factory'
+import * as Enums from './enums'
+import { Server } from '@hapi/hapi'
 
-const Handler = require('./handler')
-const Factory = require('./factory')
-const Enums = require('./enums')
-
-const plugin = {
+export const plugin = {
   name: 'error-handler',
-  register: function (server) {
+  register: function (server: Server) {
     server.ext('onPreResponse', Handler.onPreResponse)
   }
 }
 
-const validateRoutes = (options = {}) => {
+export interface ValidateRoutesOptions {
+  abortEarly?: boolean
+  language?: {
+    key?: string
+    [key: string]: any
+  }
+  [key: string]: any
+}
+
+export const validateRoutes = (options: ValidateRoutesOptions = {}): ValidateRoutesOptions => {
   options.abortEarly = false
   const language = options.language || {}
   language.key = '{{!key}} '
@@ -52,19 +60,18 @@ const validateRoutes = (options = {}) => {
   return options
 }
 
-module.exports = {
-  plugin,
+export {
   Handler,
-  validateRoutes,
   Factory,
-  Enums,
-  CreateFSPIOPError: Factory.createFSPIOPError,
-  CreateFSPIOPErrorFromJoiError: Factory.createFSPIOPErrorFromJoiError,
-  CreateInternalServerFSPIOPError: Factory.createInternalServerFSPIOPError,
-  CreateFSPIOPErrorFromErrorInformation: Factory.createFSPIOPErrorFromErrorInformation,
-  CreateFSPIOPErrorFromErrorCode: Factory.createFSPIOPErrorFromErrorCode,
-  ReformatFSPIOPError: Factory.reformatFSPIOPError,
-  ValidateFSPIOPErrorCode: Factory.validateFSPIOPErrorCode,
-  FindFSPIOPErrorCode: Enums.findFSPIOPErrorCode,
-  ValidateFSPIOPErrorGroups: Factory.validateFSPIOPErrorGroups
+  Enums
 }
+
+export const CreateFSPIOPError = Factory.createFSPIOPError
+export const CreateFSPIOPErrorFromJoiError = Factory.createFSPIOPErrorFromJoiError
+export const CreateInternalServerFSPIOPError = Factory.createInternalServerFSPIOPError
+export const CreateFSPIOPErrorFromErrorInformation = Factory.createFSPIOPErrorFromErrorInformation
+export const CreateFSPIOPErrorFromErrorCode = Factory.createFSPIOPErrorFromErrorCode
+export const ReformatFSPIOPError = Factory.reformatFSPIOPError
+export const ValidateFSPIOPErrorCode = Factory.validateFSPIOPErrorCode
+export const FindFSPIOPErrorCode = Enums.findFSPIOPErrorCode
+export const ValidateFSPIOPErrorGroups = Factory.validateFSPIOPErrorGroups

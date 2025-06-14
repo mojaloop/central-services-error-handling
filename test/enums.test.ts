@@ -30,55 +30,48 @@
  --------------
  ******/
 
-'use strict'
+import * as ErrorEnums from '../src/enums'
+import { describe, test, expect } from '@jest/globals'
 
-const Test = require('tape')
-const ErrorEnums = require('../src/enums')
-
-Test('Enum should', enumTest => {
-  enumTest.test('return correct error code string', function (test) {
+describe('Enum', () => {
+  test('should return correct error code string', () => {
     const fspiopErrorCode = ErrorEnums.findFSPIOPErrorCode(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code)
-    test.ok(fspiopErrorCode)
-    test.equal(fspiopErrorCode.code, ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code)
-    test.equal(fspiopErrorCode.message, ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.message)
-    test.end()
+    expect(fspiopErrorCode).toBeTruthy()
+    expect(fspiopErrorCode?.code).toBe(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code)
+    expect(fspiopErrorCode?.message).toBe(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.message)
   })
 
-  enumTest.test('return correct error code integer', function (test) {
+  test('should return correct error code integer', () => {
     const fspiopErrorCode = ErrorEnums.findFSPIOPErrorCode(parseInt(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code))
-    test.ok(fspiopErrorCode)
-    test.equal(fspiopErrorCode.code, ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code)
-    test.equal(fspiopErrorCode.message, ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.message)
-    test.end()
+    expect(fspiopErrorCode).toBeTruthy()
+    expect(fspiopErrorCode?.code).toBe(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code)
+    expect(fspiopErrorCode?.message).toBe(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.message)
   })
 
-  enumTest.test('return undefined result with incorrect error code', function (test) {
+  test('should return undefined result with incorrect error code', () => {
     const fspiopErrorCode = ErrorEnums.findFSPIOPErrorCode(parseInt('9999'))
-    test.equals(fspiopErrorCode, undefined)
-    test.end()
+    expect(fspiopErrorCode).toBeUndefined()
   })
 
-  enumTest.test('test FSPIOPErrorTypes are correctly added to FSPIOPErrorCodes by validating each entry by its associated regex', function (test) {
+  test('FSPIOPErrorTypes are correctly added to FSPIOPErrorCodes by validating each entry by its associated regex', () => {
     const fspiopErrorCode = ErrorEnums.findFSPIOPErrorCode(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code)
     for (const errorCodeValue of Object.values(ErrorEnums.FSPIOPErrorCodes)) {
       const regExp = new RegExp(errorCodeValue.type.regex)
-      test.ok(regExp.test(errorCodeValue.code))
+      expect(regExp.test(errorCodeValue.code)).toBe(true)
     }
-    test.ok(fspiopErrorCode)
-    test.equal(fspiopErrorCode.code, ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code)
-    test.equal(fspiopErrorCode.message, ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.message)
-    test.end()
+    expect(fspiopErrorCode).toBeTruthy()
+    expect(fspiopErrorCode?.code).toBe(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.code)
+    expect(fspiopErrorCode?.message).toBe(ErrorEnums.FSPIOPErrorCodes.PAYEE_FSP_INSUFFICIENT_LIQUIDITY.message)
   })
 
-  enumTest.test('test FSPIOPErrorCodeMaps contains every error found in the FSPIOPErrorCodes object using the findFSPIOPErrorCode method', function (test) {
+  test('FSPIOPErrorCodeMaps contains every error found in the FSPIOPErrorCodes object using the findFSPIOPErrorCode method', () => {
     for (const errorCodeValue of Object.values(ErrorEnums.FSPIOPErrorCodes)) {
       const errorCodeResult = ErrorEnums.findFSPIOPErrorCode(errorCodeValue.code)
-      test.ok(errorCodeResult)
+      expect(errorCodeResult).toBeTruthy()
     }
-    test.end()
   })
 
-  enumTest.test('populateOverrides redefines existing errors and allows adding new errors', function (test) {
+  test('populateOverrides redefines existing errors and allows adding new errors', () => {
     const errorCodes = {
       INTERNAL_SERVER_ERROR: { code: '2001', message: 'Internal Server Error' }
     }
@@ -91,10 +84,7 @@ Test('Enum should', enumTest => {
       NEW_CUSTOM_ERROR: { code: '9001', message: 'Custom Error' }
     }
 
-    const result = ErrorEnums._populateOverrides(errorCodes, override)
-    test.deepEqual(result, expected)
-    test.end()
+    const result = ErrorEnums.populateOverrides(errorCodes, override)
+    expect(result).toEqual(expected)
   })
-
-  enumTest.end()
 })

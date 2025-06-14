@@ -30,7 +30,7 @@
 
 'use strict'
 
-const safeStringify = require('fast-safe-stringify')
+import safeStringify from 'fast-safe-stringify'
 
 /** See section 7.6 of "API Definition v1.0.docx". Note that some of the these
  * error objects contain an httpStatusCode property that indicates the HTTP
@@ -39,7 +39,15 @@ const safeStringify = require('fast-safe-stringify')
  * an httpStatusCode property are expected to only be returned to callers in
  * error callbacks after the initial request was accepted with a 202/200.
  */
-const MojaloopApiErrorCodes = {
+export interface MojaloopApiErrorCode {
+  code: string
+  message: string
+  httpStatusCode?: number
+}
+
+export type MojaloopApiErrorCodesType = Record<string, MojaloopApiErrorCode>
+
+export const MojaloopApiErrorCodes: MojaloopApiErrorCodesType = {
   // Generic communication errors
   COMMUNICATION_ERROR: { code: '1000', message: 'Communication error' },
   DESTINATION_COMMUNICATION_ERROR: { code: '1001', message: 'Destination communication error' },
@@ -152,18 +160,25 @@ const MojaloopApiErrorCodes = {
  * @param code {string} - Mojaloop API spec error code (four digit integer as string)
  * @returns {object} - Object representing the Mojaloop API spec error
  */
-function MojaloopApiErrorCodeFromCode (code) {
-  const ec = Object.keys(MojaloopApiErrorCodes).find(ec => {
-    return MojaloopApiErrorCodes[ec].code === code
-  })
-
+export function MojaloopApiErrorCodeFromCode(code: string): MojaloopApiErrorCode | undefined {
+  const ec = Object.keys(MojaloopApiErrorCodes).find(ec =>
+    MojaloopApiErrorCodes[ec].code === code
+  )
   if (ec) {
     return MojaloopApiErrorCodes[ec]
   }
   return undefined
 }
 
-function MojaloopApiErrorObjectFromCode (ec) {
+export interface MojaloopApiErrorObject {
+  errorInformation: {
+    errorCode: string
+    errorDescription: string
+    extensionList?: any
+  }
+}
+
+export function MojaloopApiErrorObjectFromCode(ec: MojaloopApiErrorCode): MojaloopApiErrorObject {
   return {
     errorInformation: {
       errorCode: ec.code,
@@ -175,17 +190,29 @@ function MojaloopApiErrorObjectFromCode (ec) {
 /**
  * Encapsulates an error and the required information to pass is back to a client for processing
  */
-class MojaloopFSPIOPError extends Error {
+export class MojaloopFSPIOPError extends Error {
+  public cause: unknown
+  public replyTo?: string
+  public apiErrorCode: MojaloopApiErrorCode
+  public httpStatusCode?: number
+  public extensions?: any
+
   /**
-     * Constructs a new error object
-     *
-     * @param cause {object} - Underlying error object or any type that represents the cause of this error
-     * @param message {string} - A friendly error message
-     * @param replyTo {string} - FSPID of the participant to whom this error is addressed
-     * @param apiErrorCode {object} - The MojaloopApiErrorCodes object representing the API spec error
-     * @param extensions {object} - API spec extensions object (if applicable)
-     */
-  constructor (cause, message, replyTo, apiErrorCode, extensions) {
+   * Constructs a new error object
+   *
+   * @param cause {object} - Underlying error object or any type that represents the cause of this error
+   * @param message {string} - A friendly error message
+   * @param replyTo {string} - FSPID of the participant to whom this error is addressed
+   * @param apiErrorCode {object} - The MojaloopApiErrorCodes object representing the API spec error
+   * @param extensions {object} - API spec extensions object (if applicable)
+   */
+  constructor(
+    cause: unknown,
+    message: string,
+    replyTo: string | undefined,
+    apiErrorCode: MojaloopApiErrorCode,
+    extensions?: any
+  ) {
     super(message)
     this.name = 'FSPIOPError'
     this.cause = cause
@@ -196,12 +223,12 @@ class MojaloopFSPIOPError extends Error {
   }
 
   /**
-     * Returns an object that complies with the API specification for error bodies.
-     * This can be used to serialise the error to a JSON body
-     *
-     * @returns {object}
-     */
-  toApiErrorObject () {
+   * Returns an object that complies with the API specification for error bodies.
+   * This can be used to serialise the error to a JSON body
+   *
+   * @returns {object}
+   */
+  toApiErrorObject(): MojaloopApiErrorObject {
     const e = MojaloopApiErrorObjectFromCode(this.apiErrorCode)
 
     if (this.extensions) {
@@ -212,33 +239,28 @@ class MojaloopFSPIOPError extends Error {
   }
 
   /**
-     * Returns an object containing all details of the error e.g. for logging
-     *
-     * @returns {object}
-     */
-  toFullErrorObject () {
+   * Returns an object containing all details of the error e.g. for logging
+   *
+   * @returns {object}
+   */
+  toFullErrorObject(): object {
     return {
       message: this.message,
       replyTo: this.replyTo,
       apiErrorCode: this.apiErrorCode,
       extensions: this.extensions,
-      cause: this.cause ? this.cause.stack || safeStringify(this.cause) : undefined
+      cause: this.cause && typeof this.cause === 'object' && 'stack' in this.cause
+        ? (this.cause as Error).stack
+        : safeStringify(this.cause)
     }
   }
 
   /**
-     * Returns a string representation of the error
-     *
-     * @returns {string}
-     */
-  toString () {
+   * Returns a string representation of the error
+   *
+   * @returns {string}
+   */
+  toString(): string {
     return `${safeStringify(this.toFullErrorObject())}`
   }
-}
-
-module.exports = {
-  MojaloopApiErrorCodes,
-  MojaloopApiErrorObjectFromCode,
-  MojaloopFSPIOPError,
-  MojaloopApiErrorCodeFromCode
 }
