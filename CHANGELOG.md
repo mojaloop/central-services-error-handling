@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [13.1.1](https://github.com/mojaloop/central-services-error-handling/compare/v13.1.0...v13.1.1) (2025-09-09)
+
+
+### Bug Fixes
+
+* **csi-1772:** added httpStatusCode to some errors. used fast-safe-stringify ([#198](https://github.com/mojaloop/central-services-error-handling/issues/198)) ([b6181ee](https://github.com/mojaloop/central-services-error-handling/commit/b6181ee315cc77a9bf25edc01a7b2c6f0dfb1334))
+
 ## [13.1.0](https://github.com/mojaloop/central-services-error-handling/compare/v13.0.7...v13.1.0) (2025-05-14)
 
 
