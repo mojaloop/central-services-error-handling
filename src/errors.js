@@ -71,11 +71,11 @@ const MojaloopApiErrorCodes = {
   MISSING_MANDATORY_EXTENSION: { code: '3107', message: 'Missing mandatory extension parameter', httpStatusCode: 400 },
 
   // identifier errors
-  ID_NOT_FOUND: { code: '3200', message: 'Generic ID not found', httpStatusCode: 404 },
+  ID_NOT_FOUND: { code: '3200', message: 'Generic ID not found', httpStatusCode: 400 },
   DESTINATION_FSP_ERROR: { code: '3201', message: 'Destination FSP Error' },
   PAYER_FSP_ID_NOT_FOUND: { code: '3202', message: 'Payer FSP ID not found' },
   PAYEE_FSP_ID_NOT_FOUND: { code: '3203', message: 'Payee FSP ID not found' },
-  PARTY_NOT_FOUND: { code: '3204', message: 'Party not found', httpStatusCode: 404 },
+  PARTY_NOT_FOUND: { code: '3204', message: 'Party not found', httpStatusCode: 400 },
   QUOTE_ID_NOT_FOUND: { code: '3205', message: 'Quote ID not found' },
   TXN_REQUEST_ID_NOT_FOUND: { code: '3206', message: 'Transaction request ID not found' },
   TXN_ID_NOT_FOUND: { code: '3207', message: 'Transaction ID not found' },
