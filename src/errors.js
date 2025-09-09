@@ -82,7 +82,6 @@ const MojaloopApiErrorCodes = {
   TRANSFER_ID_NOT_FOUND: { code: '3208', message: 'Transfer ID not found' },
   BULK_QUOTE_ID_NOT_FOUND: { code: '3209', message: 'Bulk quote ID not found' },
   BULK_TRANSFER_ID_NOT_FOUND: { code: '3210', message: 'Bulk transfer ID not found' },
-  // todo: clarify httpStatusCodes for above errors
 
   // expired errors
   EXPIRED_ERROR: { code: '3300', message: 'Generic expired error' },
