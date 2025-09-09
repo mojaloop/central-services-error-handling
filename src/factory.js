@@ -32,8 +32,9 @@
 
 'use strict'
 
-const Enums = require('./enums')
 const _ = require('lodash')
+const stringify = require('fast-safe-stringify')
+const Enums = require('./enums')
 const { MojaloopFSPIOPError } = require('./errors')
 
 /**
@@ -81,7 +82,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
     } else if (this.cause instanceof Error) {
       stringifiedCause = this.cause.stack
     } else {
-      stringifiedCause = JSON.stringify(this.cause)
+      stringifiedCause = stringify(this.cause)
     }
     if (stringifiedCause) this.stack = `${this.stack}\n${stringifiedCause}`
   }
@@ -165,7 +166,7 @@ class FSPIOPError extends MojaloopFSPIOPError {
   }
 
   toString () {
-    return JSON.stringify(this.toFullErrorObject())
+    return stringify(this.toFullErrorObject())
   }
 }
 
@@ -187,7 +188,7 @@ const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions, us
     if (!match) {
       match = Enums.findErrorType(apiErrorCode.code)
       if (!match) {
-        throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
+        throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
       }
       if (!newApiError.httpStatusCode) {
         newApiError.httpStatusCode = match.httpStatusCode
@@ -197,7 +198,7 @@ const createFSPIOPError = (apiErrorCode, message, cause, replyTo, extensions, us
     }
     return new FSPIOPError(cause, message, replyTo, newApiError, extensions, useDescriptionAsMessage)
   } else {
-    throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${JSON.stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
+    throw new FSPIOPError(cause, `Factory function createFSPIOPError failed due to apiErrorCode being invalid - ${stringify(apiErrorCode)}.`, replyTo, Enums.FSPIOPErrorCodes.INTERNAL_SERVER_ERROR, extensions)
   }
 }
 
@@ -295,7 +296,7 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
     } else if (error.dataPath) { // replaced by instancePath, ref: https://github.com/ajv-validator/ajv/releases/tag/v8.0.0. This branch is kept here for backward compatibility.
       message = error.dataPath
     } else {
-      message = JSON.stringify(error)
+      message = stringify(error)
     }
   }
   return createFSPIOPError(fspiopError, message, replyTo)
@@ -386,7 +387,7 @@ const validateFSPIOPErrorCode = (code) => {
   if (result) {
     return result
   } else {
-    throw createInternalServerFSPIOPError(`${errorMessage} - ${JSON.stringify(code)}.`)
+    throw createInternalServerFSPIOPError(`${errorMessage} - ${stringify(code)}.`)
   }
 }
 
@@ -411,7 +412,7 @@ const validateFSPIOPErrorGroups = (code) => {
   if (regex.test(codeToValidate)) {
     return true
   } else {
-    throw createInternalServerFSPIOPError(`${errorMessage} - ${JSON.stringify(code)}.`)
+    throw createInternalServerFSPIOPError(`${errorMessage} - ${stringify(code)}.`)
   }
 }
 

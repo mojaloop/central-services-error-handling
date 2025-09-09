@@ -71,17 +71,18 @@ const MojaloopApiErrorCodes = {
   MISSING_MANDATORY_EXTENSION: { code: '3107', message: 'Missing mandatory extension parameter', httpStatusCode: 400 },
 
   // identifier errors
-  ID_NOT_FOUND: { code: '3200', message: 'Generic ID not found' },
+  ID_NOT_FOUND: { code: '3200', message: 'Generic ID not found', httpStatusCode: 404 },
   DESTINATION_FSP_ERROR: { code: '3201', message: 'Destination FSP Error' },
   PAYER_FSP_ID_NOT_FOUND: { code: '3202', message: 'Payer FSP ID not found' },
   PAYEE_FSP_ID_NOT_FOUND: { code: '3203', message: 'Payee FSP ID not found' },
-  PARTY_NOT_FOUND: { code: '3204', message: 'Party not found' },
+  PARTY_NOT_FOUND: { code: '3204', message: 'Party not found', httpStatusCode: 404 },
   QUOTE_ID_NOT_FOUND: { code: '3205', message: 'Quote ID not found' },
   TXN_REQUEST_ID_NOT_FOUND: { code: '3206', message: 'Transaction request ID not found' },
   TXN_ID_NOT_FOUND: { code: '3207', message: 'Transaction ID not found' },
   TRANSFER_ID_NOT_FOUND: { code: '3208', message: 'Transfer ID not found' },
   BULK_QUOTE_ID_NOT_FOUND: { code: '3209', message: 'Bulk quote ID not found' },
   BULK_TRANSFER_ID_NOT_FOUND: { code: '3210', message: 'Bulk transfer ID not found' },
+  // todo: clarify httpStatusCodes for above errors
 
   // expired errors
   EXPIRED_ERROR: { code: '3300', message: 'Generic expired error' },
