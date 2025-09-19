@@ -1,4 +1,6 @@
-disabled: true
+disabled: false
+
+scan-type: source
 
 ignore:
 
