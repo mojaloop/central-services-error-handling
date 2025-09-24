@@ -51,6 +51,7 @@ const MojaloopApiErrorCodes = {
   SERVICE_CURRENTLY_UNAVAILABLE: { code: '2003', message: 'Service currently unavailable', httpStatusCode: 503 },
   SERVER_TIMED_OUT: { code: '2004', message: 'Server timed out' },
   SERVER_BUSY: { code: '2005', message: 'Server busy' },
+  PARTY_RESOLUTION_FAILURE: { code: '2006', message: 'Temporary party resolution failed, try again', httpStatusCode: 503 },
 
   // Generic client errors
   METHOD_NOT_ALLOWED: { code: '3000', message: 'Generic client error - Method Not Allowed', httpStatusCode: 405 },
