@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [13.1.7](https://github.com/mojaloop/central-services-error-handling/compare/v13.1.6...v13.1.7) (2026-07-08)
+
 ### [13.1.6](https://github.com/mojaloop/central-services-error-handling/compare/v13.1.5...v13.1.6) (2026-02-13)
 
 ### [13.1.5](https://github.com/mojaloop/central-services-error-handling/compare/v13.1.4...v13.1.5) (2025-12-05)
