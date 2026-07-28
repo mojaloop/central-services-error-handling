@@ -271,7 +271,17 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
         return Enums.FSPIOPErrorCodes.MISSING_ELEMENT
       case 'additionalProperties':
         return Enums.FSPIOPErrorCodes.TOO_MANY_ELEMENTS
+      // enum/const/format/pattern mirror createFSPIOPErrorFromJoiError's
+      // any.only (mojaloop/project#2013), date.format and string.* cases, so
+      // services migrating from hapi-openapi/joi keep returning 3101 for
+      // syntactically invalid values. minLength/maxLength are deliberately
+      // NOT mapped: they fall through to 3100, the behavior existing
+      // openapi-backend services already expose (and Golden Path asserts).
       case 'type':
+      case 'enum':
+      case 'const':
+      case 'format':
+      case 'pattern':
         return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
       case 'notFound':
         return Enums.FSPIOPErrorCodes.UNKNOWN_URI
