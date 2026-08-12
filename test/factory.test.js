@@ -250,6 +250,87 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
+  factoryTest.test('create an FSPIOPError from a Openapi-backend enum violation (joi any.only parity, mojaloop/project#2013)', function (test) {
+    const error = {
+      keyword: 'enum',
+      instancePath: '/query/state',
+      schemaPath: '#/properties/query/properties/state/enum',
+      params: { allowedValues: ['OPEN', 'CLOSED'] },
+      message: 'must be equal to one of the allowed values'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3101',
+        errorDescription: 'Malformed syntax - /query/state must be equal to one of the allowed values'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend const violation', function (test) {
+    const error = {
+      keyword: 'const',
+      instancePath: '/body/currency',
+      params: { allowedValue: 'USD' },
+      message: 'must be equal to constant'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.equal(fspiopError.toApiErrorObject().errorInformation.errorCode, '3101')
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend format violation (joi date.format/string.* parity)', function (test) {
+    const error = {
+      keyword: 'format',
+      instancePath: '/body/expiration',
+      params: { format: 'date-time' },
+      message: 'must match format "date-time"'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3101',
+        errorDescription: 'Malformed syntax - /body/expiration must match format "date-time"'
+      }
+    })
+    test.end()
+  })
+
+  factoryTest.test('create an FSPIOPError from a Openapi-backend pattern violation (joi string.regex parity)', function (test) {
+    const error = {
+      keyword: 'pattern',
+      instancePath: '/body/amount/amount',
+      params: { pattern: '^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$' },
+      message: 'must match pattern'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.equal(fspiopError.toApiErrorObject().errorInformation.errorCode, '3101')
+    test.end()
+  })
+
+  factoryTest.test('Openapi-backend minLength violation stays 3100 (deliberately unmapped — existing fleet/GP behavior)', function (test) {
+    const error = {
+      keyword: 'minLength',
+      instancePath: '/requestBody/quoteId',
+      params: { limit: 1 },
+      message: 'must NOT have fewer than 1 characters'
+    }
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+    test.ok(fspiopError)
+    test.deepEqual(fspiopError.toApiErrorObject(), {
+      errorInformation: {
+        errorCode: '3100',
+        errorDescription: 'Generic validation error - /requestBody/quoteId must NOT have fewer than 1 characters'
+      }
+    })
+    test.end()
+  })
+
   factoryTest.test('create an FSPIOPError from a Openapi-backend additional property error response with toApiErrorObject includeCauseExtension: false, truncateExtensions: true', function (test) {
     const error = {
       keyword: 'additionalProperties',
