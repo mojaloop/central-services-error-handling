@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [13.1.8](https://github.com/mojaloop/central-services-error-handling/compare/v13.1.7...v13.1.8) (2026-08-13)
+
+
+### Bug Fixes
+
+* ajv mapping parity to joi ([#214](https://github.com/mojaloop/central-services-error-handling/issues/214)) ([65737b9](https://github.com/mojaloop/central-services-error-handling/commit/65737b9499c0292da6a8d71356cbce68a0e176a9))
+
 ### [13.1.7](https://github.com/mojaloop/central-services-error-handling/compare/v13.1.6...v13.1.7) (2026-07-08)
 
 ### [13.1.6](https://github.com/mojaloop/central-services-error-handling/compare/v13.1.5...v13.1.6) (2026-02-13)
