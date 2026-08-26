@@ -264,6 +264,13 @@ const createFSPIOPErrorFromJoiError = (error, cause, replyTo) => {
  * @param replyTo {string} - the FSP to notify of the error if applicable
  * @returns {FSPIOPError}
  */
+/**
+ * Opt-in joi-parity mapping for ajv (openapi-backend) validation errors.
+ * Read from the environment on every call so nested copies of this package
+ * (e.g. under @mojaloop/central-services-shared) behave identically.
+ */
+const isAjvJoiParityEnabled = () => String(process.env.ERROR_HANDLING_AJV_JOI_PARITY).toLowerCase() === 'true'
+
 const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
   const fspiopError = ((type) => {
     switch (type) {
@@ -271,18 +278,23 @@ const createFSPIOPErrorFromOpenapiError = (error, replyTo) => {
         return Enums.FSPIOPErrorCodes.MISSING_ELEMENT
       case 'additionalProperties':
         return Enums.FSPIOPErrorCodes.TOO_MANY_ELEMENTS
-      // enum/const/format/pattern mirror createFSPIOPErrorFromJoiError's
-      // any.only (mojaloop/project#2013), date.format and string.* cases, so
-      // services migrating from hapi-openapi/joi keep returning 3101 for
-      // syntactically invalid values. minLength/maxLength are deliberately
-      // NOT mapped: they fall through to 3100, the behavior existing
-      // openapi-backend services already expose (and Golden Path asserts).
       case 'type':
+        return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
+      // Behind the opt-in ERROR_HANDLING_AJV_JOI_PARITY flag, enum/const/format/
+      // pattern mirror createFSPIOPErrorFromJoiError's any.only
+      // (mojaloop/project#2013), date.format and string.* cases, so services
+      // migrating from hapi-openapi/joi keep returning 3101 for syntactically
+      // invalid values. The flag is off by default: services already running
+      // openapi-backend/ajv return 3100 for these keywords today, and adopting
+      // this library must not change that (mojaloop/project#4479).
+      // minLength/maxLength are deliberately not mapped in either mode.
       case 'enum':
       case 'const':
       case 'format':
       case 'pattern':
-        return Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
+        return isAjvJoiParityEnabled()
+          ? Enums.FSPIOPErrorCodes.MALFORMED_SYNTAX
+          : Enums.FSPIOPErrorCodes.VALIDATION_ERROR
       case 'notFound':
         return Enums.FSPIOPErrorCodes.UNKNOWN_URI
       case 'methodNotAllowed':

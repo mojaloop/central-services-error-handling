@@ -8,6 +8,25 @@
 
 Hapi error handling module
 
+## Configuration
+
+### ERROR_HANDLING_AJV_JOI_PARITY
+
+`createFSPIOPErrorFromOpenapiError` maps ajv (openapi-backend) validation failures to
+FSPIOP error codes. By default the `enum`, `const`, `format` and `pattern` keywords map
+to `3100` (Generic validation error) - the behaviour services running
+openapi-backend/ajv expose in production today.
+
+Setting the environment variable `ERROR_HANDLING_AJV_JOI_PARITY=true` maps those four
+keywords to `3101` (Malformed syntax) instead, matching what `createFSPIOPErrorFromJoiError`
+returns for the equivalent joi validations (`any.only`, `date.format`, `string.*`,
+`string.regex` - see mojaloop/project#2013). Services migrating from hapi-openapi/joi to
+openapi-backend enable this flag to keep their existing API error contract unchanged
+(mojaloop/project#4479).
+
+`type` maps to `3101` and `minLength`/`maxLength` fall through to `3100` in both modes.
+The variable is read on every call, so nested copies of this package resolve it identically.
+
 ## Auditing Dependencies
 
 We use `audit-ci` along with `npm audit` to check dependencies for node vulnerabilities, and keep track of resolved dependencies with an `audit-ci.jsonc` file.

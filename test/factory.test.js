@@ -250,7 +250,38 @@ Test('Factory should', factoryTest => {
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Openapi-backend enum violation (joi any.only parity, mojaloop/project#2013)', function (test) {
+  factoryTest.test('default: Openapi-backend enum/const/format/pattern violations stay 3100 (in-production ajv behavior, mojaloop/project#4479)', function (test) {
+    delete process.env.ERROR_HANDLING_AJV_JOI_PARITY
+    const cases = [
+      { keyword: 'enum', instancePath: '/query/state', message: 'must be equal to one of the allowed values' },
+      { keyword: 'const', instancePath: '/body/currency', message: 'must be equal to constant' },
+      { keyword: 'format', instancePath: '/body/expiration', message: 'must match format "date-time"' },
+      { keyword: 'pattern', instancePath: '/body/amount/amount', message: 'must match pattern' }
+    ]
+    for (const error of cases) {
+      const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
+      test.equal(fspiopError.toApiErrorObject().errorInformation.errorCode, '3100', `${error.keyword} stays 3100 with the flag unset`)
+    }
+    test.end()
+  })
+
+  factoryTest.test('default: Openapi-backend type violation still maps to 3101 (pre-existing behavior)', function (test) {
+    delete process.env.ERROR_HANDLING_AJV_JOI_PARITY
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError({ keyword: 'type', instancePath: '/body/amount', message: 'must be string' }, 'dfsp1')
+    test.equal(fspiopError.toApiErrorObject().errorInformation.errorCode, '3101')
+    test.end()
+  })
+
+  factoryTest.test('parity flag on: minLength stays 3100 in both modes (deliberately unmapped)', function (test) {
+    process.env.ERROR_HANDLING_AJV_JOI_PARITY = 'true'
+    const fspiopError = Factory.createFSPIOPErrorFromOpenapiError({ keyword: 'minLength', instancePath: '/requestBody/quoteId', params: { limit: 1 }, message: 'must NOT have fewer than 1 characters' }, 'dfsp1')
+    test.equal(fspiopError.toApiErrorObject().errorInformation.errorCode, '3100')
+    delete process.env.ERROR_HANDLING_AJV_JOI_PARITY
+    test.end()
+  })
+
+  factoryTest.test('parity flag on: Openapi-backend enum violation maps to 3101 (joi any.only parity, mojaloop/project#2013)', function (test) {
+    process.env.ERROR_HANDLING_AJV_JOI_PARITY = 'true'
     const error = {
       keyword: 'enum',
       instancePath: '/query/state',
@@ -266,10 +297,12 @@ Test('Factory should', factoryTest => {
         errorDescription: 'Malformed syntax - /query/state must be equal to one of the allowed values'
       }
     })
+    delete process.env.ERROR_HANDLING_AJV_JOI_PARITY
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Openapi-backend const violation', function (test) {
+  factoryTest.test('parity flag on: Openapi-backend const violation maps to 3101', function (test) {
+    process.env.ERROR_HANDLING_AJV_JOI_PARITY = 'true'
     const error = {
       keyword: 'const',
       instancePath: '/body/currency',
@@ -279,10 +312,12 @@ Test('Factory should', factoryTest => {
     const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
     test.ok(fspiopError)
     test.equal(fspiopError.toApiErrorObject().errorInformation.errorCode, '3101')
+    delete process.env.ERROR_HANDLING_AJV_JOI_PARITY
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Openapi-backend format violation (joi date.format/string.* parity)', function (test) {
+  factoryTest.test('parity flag on: Openapi-backend format violation maps to 3101 (joi date.format/string.* parity)', function (test) {
+    process.env.ERROR_HANDLING_AJV_JOI_PARITY = 'true'
     const error = {
       keyword: 'format',
       instancePath: '/body/expiration',
@@ -297,10 +332,12 @@ Test('Factory should', factoryTest => {
         errorDescription: 'Malformed syntax - /body/expiration must match format "date-time"'
       }
     })
+    delete process.env.ERROR_HANDLING_AJV_JOI_PARITY
     test.end()
   })
 
-  factoryTest.test('create an FSPIOPError from a Openapi-backend pattern violation (joi string.regex parity)', function (test) {
+  factoryTest.test('parity flag on: Openapi-backend pattern violation maps to 3101 (joi string.regex parity)', function (test) {
+    process.env.ERROR_HANDLING_AJV_JOI_PARITY = 'true'
     const error = {
       keyword: 'pattern',
       instancePath: '/body/amount/amount',
@@ -310,6 +347,7 @@ Test('Factory should', factoryTest => {
     const fspiopError = Factory.createFSPIOPErrorFromOpenapiError(error, 'dfsp1')
     test.ok(fspiopError)
     test.equal(fspiopError.toApiErrorObject().errorInformation.errorCode, '3101')
+    delete process.env.ERROR_HANDLING_AJV_JOI_PARITY
     test.end()
   })
 

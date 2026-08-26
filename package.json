@@ -55,7 +55,7 @@
   "devDependencies": {
     "@hapi/boom": "10.0.1",
     "audit-ci": "^7.1.0",
-    "npm-check-updates": "23.0.2",
+    "npm-check-updates": "23.1.0",
     "nyc": "18.0.0",
     "pre-commit": "2.0.0",
     "proxyquire": "2.1.3",
