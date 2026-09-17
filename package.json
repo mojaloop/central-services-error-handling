@@ -72,11 +72,13 @@
     "cross-spawn": "7.0.6",
     "trim": "0.0.3",
     "brace-expansion": "5.0.9",
-    "js-yaml": "4.3.1",
+    "js-yaml": "4.3.2",
     "uuid": "11.1.1",
     "replace": {
       "minimatch": "3.1.5"
-    }
+    },
+    "browserslist": "4.28.7",
+    "baseline-browser-mapping": "2.11.0"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
