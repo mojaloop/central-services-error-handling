@@ -1,19 +1,16 @@
 disabled: false
+
 scan-type: source
+
 ignore:
-  - vulnerability: GHSA-qhr7-859c-m2p7
-    include-aliases: true
-    reason: 'Unfixable npm transitive vulnerability: brace-expansion (high severity) as of 2026-10-02'
-  - vulnerability: GHSA-6j4f-fj2g-mc7p
-    include-aliases: true
-    reason: 'Unfixable npm transitive vulnerability: brace-expansion (high severity) as of 2026-10-02'
-  - vulnerability: GHSA-q2hr-2g5m-vwhr
-    include-aliases: true
-    reason: 'Unfixable npm transitive vulnerability: brace-expansion (moderate severity) as of 2026-10-02'
+
+# Set output format defaults
 output:
-  - table
-  - json
+  - "table"
+  - "json"
+
+# Modify your CircleCI job to check critical count
 search:
-  scope: squashed
+  scope: "squashed"
 quiet: false
 check-for-app-update: false
