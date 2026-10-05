@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [13.2.1](https://github.com/mojaloop/central-services-error-handling/compare/v13.2.0...v13.2.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* **security:** patch 3 vulnerabilities + update orb ([#219](https://github.com/mojaloop/central-services-error-handling/issues/219)) ([fbc7494](https://github.com/mojaloop/central-services-error-handling/commit/fbc7494c9a819d04515e5cc4dc866bbd8bed2f76))
+
 ## [13.2.0](https://github.com/mojaloop/central-services-error-handling/compare/v13.1.8...v13.2.0) (2026-08-26)
 
 
