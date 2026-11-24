@@ -1,16 +1,19 @@
 disabled: false
-
 scan-type: source
-
 ignore:
-
-# Set output format defaults
+  - vulnerability: GHSA-p8wg-vrv2-v86f
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: handlebars (critical severity) as of 2026-11-20'
+  - vulnerability: GHSA-3g3m-2fjr-6pw4
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: glob (moderate severity) as of 2026-11-20'
+  - vulnerability: GHSA-g3hv-75wg-m249
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: minimatch (moderate severity) as of 2026-11-20'
 output:
-  - "table"
-  - "json"
-
-# Modify your CircleCI job to check critical count
+  - table
+  - json
 search:
-  scope: "squashed"
+  scope: squashed
 quiet: false
 check-for-app-update: false

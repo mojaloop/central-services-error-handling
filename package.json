@@ -22,8 +22,8 @@
     "test:integration": "echo 'No integration tests defined'",
     "audit:fix": "npm audit fix",
     "audit:check": "npx audit-ci --config ./audit-ci.jsonc",
-    "dep:check": "npx ncu -e 2",
-    "dep:update": "npx ncu -u",
+    "dep:check": "npx npm-check-updates -e 2",
+    "dep:update": "npx npm-check-updates -u",
     "release": "standard-version --no-verify --releaseCommitMessageFormat 'chore(release): {{currentTag}} [skip ci]'",
     "snapshot": "standard-version --no-verify --skip.changelog --prerelease snapshot --releaseCommitMessageFormat 'chore(snapshot): {{currentTag}}'"
   },
@@ -55,7 +55,7 @@
   "devDependencies": {
     "@hapi/boom": "10.0.1",
     "audit-ci": "^7.1.0",
-    "npm-check-updates": "23.1.0",
+    "npm-check-updates": "23.1.1",
     "nyc": "18.0.0",
     "pre-commit": "2.0.0",
     "proxyquire": "2.1.3",
@@ -65,7 +65,7 @@
     "standard-version": "^9.5.0",
     "tap-spec": "^5.0.0",
     "tap-xunit": "2.4.1",
-    "tape": "5.10.2"
+    "tape": "5.11.0"
   },
   "overrides": {
     "@babel/helpers": "7.26.10",
@@ -79,7 +79,8 @@
       "minimatch": "3.1.5"
     },
     "browserslist": "4.28.7",
-    "baseline-browser-mapping": "2.11.0"
+    "baseline-browser-mapping": "2.11.0",
+    "handlebars": "4.7.10"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
